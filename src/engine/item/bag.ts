@@ -1,4 +1,4 @@
-import type { Bag, BagItem, ItemId, ItemDefinition, MonsterInstance } from "@/types";
+import type { Bag, BagItem, ItemId, ItemDefinition, MonsterInstance, MoveDefinition } from "@/types";
 
 /** 空のバッグを作成 */
 export function createBag(): Bag {
@@ -45,6 +45,7 @@ export function useHealItem(
   item: ItemDefinition,
   target: MonsterInstance,
   maxHp: number,
+  moveResolver?: (moveId: string) => MoveDefinition,
 ): { used: boolean; message: string } {
   if (target.currentHp <= 0) {
     return { used: false, message: `${target.nickname ?? "モンスター"}は瀕死のため使えない！` };
@@ -67,6 +68,30 @@ export function useHealItem(
     }
     target.status = null;
     return { used: true, message: "状態異常が治った！" };
+  }
+
+  if (item.effect.type === "heal_pp") {
+    if (!moveResolver) {
+      return { used: false, message: "このアイテムは使えない！" };
+    }
+    const amount = item.effect.amount;
+    let restored = false;
+    for (const move of target.moves) {
+      const moveDef = moveResolver(move.moveId);
+      const maxPp = moveDef.pp;
+      if (move.currentPp < maxPp) {
+        if (amount === "all") {
+          move.currentPp = maxPp;
+        } else {
+          move.currentPp = Math.min(maxPp, move.currentPp + amount);
+        }
+        restored = true;
+      }
+    }
+    if (!restored) {
+      return { used: false, message: "PPは満タンだ！" };
+    }
+    return { used: true, message: "PPが回復した！" };
   }
 
   return { used: false, message: "このアイテムは使えない！" };

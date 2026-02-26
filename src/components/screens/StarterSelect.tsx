@@ -86,8 +86,11 @@ export function StarterSelect({ starters, onSelect, professorName = "博士" }: 
                   : "border-gray-700 bg-gray-900 text-gray-500 hover:border-gray-500"
               }`}
               onClick={() => {
-                setSelectedIndex(i);
-                if (isSelected) setConfirming(true);
+                if (i === selectedIndex) {
+                  setConfirming(true);
+                } else {
+                  setSelectedIndex(i);
+                }
               }}
             >
               {/* モンスターアイコン（プレースホルダー） */}

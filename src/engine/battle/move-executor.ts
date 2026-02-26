@@ -145,6 +145,59 @@ export function executeMove(
   return { hit: true, damage: damageResult, defenderHpAfter, statusApplied, messages };
 }
 
+/**
+ * わるあがき（Struggle）の実行
+ * PP全消費時に使用される。タイプレスでダメージを与え、最大HPの1/4の反動ダメージを受ける。
+ */
+export function executeStruggle(
+  attacker: MonsterInstance,
+  attackerSpecies: MonsterSpecies,
+  defender: MonsterInstance,
+  defenderSpecies: MonsterSpecies,
+  maxHp: number,
+  random?: () => number,
+): MoveExecutionResult {
+  const rng = random ?? Math.random;
+  const messages: string[] = [];
+
+  // 行動可能判定
+  if (!canAct(attacker, () => rng())) {
+    if (attacker.status === "sleep") {
+      messages.push(`${attackerSpecies.name}はぐうぐう眠っている！`);
+    } else if (attacker.status === "freeze") {
+      messages.push(`${attackerSpecies.name}は凍って動けない！`);
+    } else if (attacker.status === "paralysis") {
+      messages.push(`${attackerSpecies.name}は痺れて動けない！`);
+    }
+    return {
+      hit: false,
+      damage: null,
+      defenderHpAfter: defender.currentHp,
+      statusApplied: null,
+      messages,
+    };
+  }
+
+  messages.push(`${attackerSpecies.name}のわるあがき！`);
+
+  // 固定ダメージ: レベルベースの簡易計算
+  const damage = Math.max(1, Math.floor(attacker.level * 2));
+  const defenderHpAfter = Math.max(0, defender.currentHp - damage);
+
+  // 反動ダメージ: 最大HPの1/4
+  const recoilDamage = Math.max(1, Math.floor(maxHp / 4));
+  attacker.currentHp = Math.max(0, attacker.currentHp - recoilDamage);
+  messages.push(`${attackerSpecies.name}は反動でダメージを受けた！`);
+
+  return {
+    hit: true,
+    damage: { damage, effectiveness: 1, isCritical: false, isStab: false },
+    defenderHpAfter,
+    statusApplied: null,
+    messages,
+  };
+}
+
 function getStatusMessage(status: StatusCondition): string {
   switch (status) {
     case "poison":

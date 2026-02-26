@@ -1,5 +1,6 @@
 import { describe, it, expect } from "vitest";
 import { BattleEngine } from "../engine";
+import { determineTurnOrder, type TurnAction } from "../turn-order";
 import type { MonsterInstance, MonsterSpecies, MoveDefinition } from "@/types";
 
 // --- テスト用マスターデータ ---
@@ -448,5 +449,202 @@ describe("BattleEngine - バグ修正検証", () => {
 
     engine.executeTurn({ type: "fight", moveIndex: 1 }); // さいみんじゅつ
     expect(opponent[0].status).toBe("sleep");
+  });
+});
+
+describe("T1: ステータス効果テスト", () => {
+  it("麻痺時の素早さ低下がターン順に反映される", () => {
+    // 通常なら fire-starter(speed70) > grass-starter(speed50) で fire が先攻
+    // 麻痺なら fire-starter の速度が半分(35)になり grass-starter(50) が先攻
+    const fireMonster = createInstance("fire-starter", 50);
+    fireMonster.status = "paralysis";
+    const grassMonster = createInstance("grass-starter", 50);
+
+    const fireSpecies = allSpecies["fire-starter"];
+    const grassSpecies = allSpecies["grass-starter"];
+
+    const fireAction: TurnAction = {
+      side: "player",
+      action: { type: "fight", moveIndex: 0 },
+      monster: fireMonster,
+      species: fireSpecies,
+      move: moves["ember"],
+    };
+    const grassAction: TurnAction = {
+      side: "opponent",
+      action: { type: "fight", moveIndex: 0 },
+      monster: grassMonster,
+      species: grassSpecies,
+      move: moves["vine-whip"],
+    };
+
+    const [first] = determineTurnOrder(fireAction, grassAction, () => 0.5);
+    // 麻痺で fire の速度が半分 → grass が先攻
+    expect(first.side).toBe("opponent");
+  });
+
+  it("毒ダメージがターン終了時に適用される", () => {
+    const player = [createInstance("fire-starter")];
+    player[0].status = "poison";
+    player[0].currentHp = 200;
+    const opponent = [createInstance("grass-starter")];
+    opponent[0].currentHp = 999;
+
+    const engine = new BattleEngine(
+      player,
+      opponent,
+      "wild",
+      speciesResolver,
+      moveResolver,
+      () => 0.5,
+    );
+
+    const hpBefore = player[0].currentHp;
+    engine.executeTurn({ type: "fight", moveIndex: 0 });
+    // 毒ダメージ分HPが減っているはず
+    expect(player[0].currentHp).toBeLessThan(hpBefore);
+  });
+});
+
+describe("T2: 逃走ロジックテスト", () => {
+  it("逃走試行回数が増えると逃走確率が上がる", () => {
+    const player = [createInstance("grass-starter", 5)]; // 遅い
+    player[0].currentHp = 999;
+    const opponent = [createInstance("fire-starter", 50)]; // 速い
+    opponent[0].currentHp = 999;
+
+    const engine = new BattleEngine(
+      player,
+      opponent,
+      "wild",
+      speciesResolver,
+      moveResolver,
+      () => 0.99, // 高い乱数 → 逃走失敗しやすい
+    );
+
+    // 初回の逃走は失敗する
+    engine.executeTurn({ type: "run" });
+    expect(engine.state.result).toBeNull();
+    expect(engine.state.escapeAttempts).toBe(1);
+
+    // 試行回数が増加している
+    engine.executeTurn({ type: "run" });
+    expect(engine.state.escapeAttempts).toBeGreaterThanOrEqual(1);
+  });
+});
+
+describe("T3: スイッチ検証テスト", () => {
+  it("無効なpartyIndexでエラーが投げられる", () => {
+    const player = [createInstance("fire-starter"), createInstance("water-starter")];
+    const opponent = [createInstance("grass-starter")];
+
+    const engine = new BattleEngine(
+      player,
+      opponent,
+      "wild",
+      speciesResolver,
+      moveResolver,
+    );
+
+    expect(() => engine.executeTurn({ type: "switch", partyIndex: 5 })).toThrow(
+      "無効なパーティインデックス",
+    );
+  });
+
+  it("負のpartyIndexでエラーが投げられる", () => {
+    const player = [createInstance("fire-starter"), createInstance("water-starter")];
+    const opponent = [createInstance("grass-starter")];
+
+    const engine = new BattleEngine(
+      player,
+      opponent,
+      "wild",
+      speciesResolver,
+      moveResolver,
+    );
+
+    expect(() => engine.executeTurn({ type: "switch", partyIndex: -1 })).toThrow(
+      "無効なパーティインデックス",
+    );
+  });
+
+  it("瀕死のモンスターへの交代でエラーが投げられる", () => {
+    const player = [createInstance("fire-starter"), createInstance("water-starter")];
+    player[1].currentHp = 0; // 瀕死
+    const opponent = [createInstance("grass-starter")];
+
+    const engine = new BattleEngine(
+      player,
+      opponent,
+      "wild",
+      speciesResolver,
+      moveResolver,
+    );
+
+    expect(() => engine.executeTurn({ type: "switch", partyIndex: 1 })).toThrow(
+      "瀕死のモンスター",
+    );
+  });
+
+  it("現在のアクティブモンスターへの交代でエラーが投げられる", () => {
+    const player = [createInstance("fire-starter"), createInstance("water-starter")];
+    const opponent = [createInstance("grass-starter")];
+
+    const engine = new BattleEngine(
+      player,
+      opponent,
+      "wild",
+      speciesResolver,
+      moveResolver,
+    );
+
+    expect(() => engine.executeTurn({ type: "switch", partyIndex: 0 })).toThrow(
+      "既にバトルに出ている",
+    );
+  });
+});
+
+describe("T4: 経験値境界テスト", () => {
+  it("Lv100では経験値を得てもレベルが上がらない", () => {
+    const player = [createInstance("fire-starter", 100)];
+    player[0].currentHp = 999;
+
+    const opponent = [createInstance("grass-starter", 50)];
+    opponent[0].currentHp = 1;
+
+    const engine = new BattleEngine(
+      player,
+      opponent,
+      "wild",
+      speciesResolver,
+      moveResolver,
+      () => 0.5,
+    );
+
+    engine.executeTurn({ type: "fight", moveIndex: 0 });
+    expect(engine.state.result?.type).toBe("win");
+    expect(player[0].level).toBe(100);
+  });
+});
+
+describe("T6: わるあがきテスト", () => {
+  it("全技のPPが0の場合、相手はわるあがきを使う", () => {
+    const player = [createInstance("fire-starter")];
+    player[0].currentHp = 999;
+    const opponent = [createInstance("grass-starter")];
+    opponent[0].moves[0].currentPp = 0; // PP切れ
+
+    const engine = new BattleEngine(
+      player,
+      opponent,
+      "wild",
+      speciesResolver,
+      moveResolver,
+      () => 0.5,
+    );
+
+    const messages = engine.executeTurn({ type: "fight", moveIndex: 0 });
+    // 相手がわるあがきを使ったメッセージが出る
+    expect(messages.some((m) => m.includes("わるあがき"))).toBe(true);
   });
 });

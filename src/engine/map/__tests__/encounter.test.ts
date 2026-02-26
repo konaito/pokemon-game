@@ -7,12 +7,59 @@ import {
   processEncounter,
 } from "../encounter";
 import type { MapDefinition, EncounterEntry } from "../map-data";
+import type { MonsterSpecies, MoveDefinition } from "@/types";
+import { calcAllStats } from "@/engine/monster/stats";
 
 const testEntries: EncounterEntry[] = [
   { speciesId: "rattata", minLevel: 2, maxLevel: 5, weight: 60 },
   { speciesId: "pidgey", minLevel: 3, maxLevel: 6, weight: 30 },
   { speciesId: "pikachu", minLevel: 4, maxLevel: 4, weight: 10 },
 ];
+
+const testSpecies: Record<string, MonsterSpecies> = {
+  rattata: {
+    id: "rattata",
+    name: "ラッタ",
+    types: ["normal"],
+    baseStats: { hp: 30, atk: 56, def: 35, spAtk: 25, spDef: 35, speed: 72 },
+    learnset: [
+      { level: 1, moveId: "tackle" },
+      { level: 4, moveId: "tail-whip" },
+      { level: 7, moveId: "quick-attack" },
+    ],
+  },
+  pidgey: {
+    id: "pidgey",
+    name: "ポッポ",
+    types: ["normal", "flying"],
+    baseStats: { hp: 40, atk: 45, def: 40, spAtk: 35, spDef: 35, speed: 56 },
+    learnset: [
+      { level: 1, moveId: "tackle" },
+      { level: 5, moveId: "gust" },
+    ],
+  },
+  pikachu: {
+    id: "pikachu",
+    name: "ピカチュウ",
+    types: ["electric"],
+    baseStats: { hp: 35, atk: 55, def: 40, spAtk: 50, spDef: 50, speed: 90 },
+    learnset: [
+      { level: 1, moveId: "thunder-shock" },
+      { level: 4, moveId: "tail-whip" },
+    ],
+  },
+};
+
+const testMoves: Record<string, MoveDefinition> = {
+  tackle: { id: "tackle", name: "たいあたり", type: "normal", category: "physical", power: 40, accuracy: 100, pp: 35, priority: 0 },
+  "tail-whip": { id: "tail-whip", name: "しっぽをふる", type: "normal", category: "status", power: null, accuracy: 100, pp: 30, priority: 0 },
+  "quick-attack": { id: "quick-attack", name: "でんこうせっか", type: "normal", category: "physical", power: 40, accuracy: 100, pp: 30, priority: 1 },
+  gust: { id: "gust", name: "かぜおこし", type: "flying", category: "special", power: 40, accuracy: 100, pp: 35, priority: 0 },
+  "thunder-shock": { id: "thunder-shock", name: "でんきショック", type: "electric", category: "special", power: 40, accuracy: 100, pp: 30, priority: 0 },
+};
+
+const speciesResolver = (id: string) => testSpecies[id];
+const moveResolver = (id: string) => testMoves[id];
 
 describe("エンカウントシステム", () => {
   describe("shouldEncounter", () => {
@@ -66,7 +113,7 @@ describe("エンカウントシステム", () => {
   describe("generateWildMonster", () => {
     it("出現テーブルからモンスターインスタンスを生成する", () => {
       const entry = testEntries[0];
-      const monster = generateWildMonster(entry, () => 0.5);
+      const monster = generateWildMonster(entry, speciesResolver, moveResolver, () => 0.5);
       expect(monster.speciesId).toBe("rattata");
       expect(monster.level).toBeGreaterThanOrEqual(2);
       expect(monster.level).toBeLessThanOrEqual(5);
@@ -75,9 +122,35 @@ describe("エンカウントシステム", () => {
     });
 
     it("IVは0-31の範囲で生成される", () => {
-      const monster = generateWildMonster(testEntries[0], () => 0.5);
+      const monster = generateWildMonster(testEntries[0], speciesResolver, moveResolver, () => 0.5);
       // random()=0.5 → floor(0.5*32) = 16
       expect(monster.ivs.hp).toBe(16);
+    });
+
+    it("T5: currentHp > 0 かつ currentHp === maxHp で生成される", () => {
+      const monster = generateWildMonster(testEntries[0], speciesResolver, moveResolver, () => 0.5);
+      expect(monster.currentHp).toBeGreaterThan(0);
+      // maxHpと一致することを確認（calcAllStatsで同じパラメータから計算）
+      const species = speciesResolver(monster.speciesId);
+      const maxHp = calcAllStats(species.baseStats, monster.ivs, monster.evs, monster.level).hp;
+      expect(monster.currentHp).toBe(maxHp);
+    });
+
+    it("T5: moves.length > 0 で生成される", () => {
+      const monster = generateWildMonster(testEntries[0], speciesResolver, moveResolver, () => 0.5);
+      expect(monster.moves.length).toBeGreaterThan(0);
+      // rattata Lv3-4 (random=0.5 → level=3 or 4) はtackle(Lv1)を持つ
+      expect(monster.moves.some((m) => m.moveId === "tackle")).toBe(true);
+    });
+
+    it("T5: レベルに応じた技のみを持つ（最大4つ）", () => {
+      // pikachu Lv4 → thunder-shock(Lv1), tail-whip(Lv4) の2つ
+      const entry = testEntries[2]; // pikachu, minLevel=4, maxLevel=4
+      const monster = generateWildMonster(entry, speciesResolver, moveResolver, () => 0.5);
+      expect(monster.level).toBe(4);
+      expect(monster.moves.length).toBe(2);
+      expect(monster.moves[0].moveId).toBe("thunder-shock");
+      expect(monster.moves[1].moveId).toBe("tail-whip");
     });
   });
 
@@ -96,14 +169,14 @@ describe("エンカウントシステム", () => {
 
     it("エンカウントが発生するとモンスターを返す", () => {
       // random()=0.05 → 5 < 20 → エンカウント発生
-      const monster = processEncounter(testMap, () => 0.05);
+      const monster = processEncounter(testMap, speciesResolver, moveResolver, () => 0.05);
       expect(monster).not.toBeNull();
       expect(monster!.speciesId).toBe("rattata");
     });
 
     it("エンカウントが発生しないとnullを返す", () => {
       // random()=0.8 → 80 >= 20 → エンカウントなし
-      const monster = processEncounter(testMap, () => 0.8);
+      const monster = processEncounter(testMap, speciesResolver, moveResolver, () => 0.8);
       expect(monster).toBeNull();
     });
   });
