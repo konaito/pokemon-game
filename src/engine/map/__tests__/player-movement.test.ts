@@ -66,3 +66,113 @@ describe("getFacingNpc", () => {
     expect(npcId).toBeNull();
   });
 });
+
+describe("進行ゲート", () => {
+  const gatedMap: MapDefinition = {
+    id: "gated-test",
+    name: "ゲートテスト",
+    width: 5,
+    height: 3,
+    tiles: [
+      ["wall", "wall", "wall", "wall", "wall"],
+      ["ground", "ground", "door", "ground", "ground"],
+      ["wall", "wall", "wall", "wall", "wall"],
+    ],
+    connections: [
+      {
+        targetMapId: "route-2",
+        targetX: 0,
+        targetY: 0,
+        sourceX: 2,
+        sourceY: 1,
+        requirement: "gym1_cleared",
+        blockedMessage: "ジムバッジがないと通れない！",
+      },
+    ],
+    encounters: [],
+    encounterRate: 0,
+    npcs: [],
+  };
+
+  it("条件未達のゲートはブロックされる", () => {
+    const result = movePlayer({ x: 1, y: 1, direction: "right" }, "right", gatedMap, {});
+    expect(result.moved).toBe(false);
+    expect(result.mapTransition).toBeNull();
+    expect(result.blockedMessage).toBe("ジムバッジがないと通れない！");
+  });
+
+  it("条件を満たすゲートは通過できる", () => {
+    const result = movePlayer(
+      { x: 1, y: 1, direction: "right" },
+      "right",
+      gatedMap,
+      { gym1_cleared: true },
+    );
+    expect(result.moved).toBe(true);
+    expect(result.mapTransition).not.toBeNull();
+    expect(result.mapTransition!.targetMapId).toBe("route-2");
+    expect(result.blockedMessage).toBeNull();
+  });
+
+  it("blockedMessageが未設定の場合はデフォルトメッセージ", () => {
+    const mapWithDefaultMsg: MapDefinition = {
+      ...gatedMap,
+      connections: [
+        {
+          targetMapId: "route-2",
+          targetX: 0,
+          targetY: 0,
+          sourceX: 2,
+          sourceY: 1,
+          requirement: "gym1_cleared",
+        },
+      ],
+    };
+    const result = movePlayer({ x: 1, y: 1, direction: "right" }, "right", mapWithDefaultMsg, {});
+    expect(result.blockedMessage).toBe("ここから先には進めないようだ…");
+  });
+
+  it("AND条件のゲート", () => {
+    const andGatedMap: MapDefinition = {
+      ...gatedMap,
+      connections: [
+        {
+          targetMapId: "route-3",
+          targetX: 0,
+          targetY: 0,
+          sourceX: 2,
+          sourceY: 1,
+          requirement: ["gym1_cleared", "gym2_cleared"],
+          blockedMessage: "バッジが足りない！",
+        },
+      ],
+    };
+
+    // 1つだけでは不十分
+    const result1 = movePlayer(
+      { x: 1, y: 1, direction: "right" },
+      "right",
+      andGatedMap,
+      { gym1_cleared: true },
+    );
+    expect(result1.moved).toBe(false);
+    expect(result1.blockedMessage).toBe("バッジが足りない！");
+
+    // 両方揃えば通過
+    const result2 = movePlayer(
+      { x: 1, y: 1, direction: "right" },
+      "right",
+      andGatedMap,
+      { gym1_cleared: true, gym2_cleared: true },
+    );
+    expect(result2.moved).toBe(true);
+    expect(result2.mapTransition!.targetMapId).toBe("route-3");
+  });
+
+  it("requirementなしの接続はstoryFlagsなしでも通過できる", () => {
+    const result = movePlayer({ x: 2, y: 2, direction: "right" }, "right", testMap);
+    expect(result.moved).toBe(true);
+    expect(result.mapTransition).not.toBeNull();
+    expect(result.blockedMessage).toBeNull();
+  });
+});

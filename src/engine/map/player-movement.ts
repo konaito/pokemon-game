@@ -1,5 +1,7 @@
 import type { MapDefinition } from "./map-data";
 import { isWalkable, getConnectionAt, getTileAt } from "./map-data";
+import type { StoryFlags } from "@/engine/state/story-flags";
+import { checkFlagRequirement } from "@/engine/state/story-flags";
 
 /**
  * プレイヤー移動 & 衝突判定 (#31)
@@ -24,6 +26,8 @@ export interface MoveResult {
   enteredEncounterTile: boolean;
   /** NPCに話しかける方向にNPCがいたか */
   facingNpcId: string | null;
+  /** 進行ゲートでブロックされた場合のメッセージ */
+  blockedMessage: string | null;
 }
 
 const DIRECTION_DELTA: Record<Direction, { dx: number; dy: number }> = {
@@ -35,11 +39,13 @@ const DIRECTION_DELTA: Record<Direction, { dx: number; dy: number }> = {
 
 /**
  * プレイヤーを指定方向に1マス移動させる
+ * @param storyFlags ストーリーフラグ（進行ゲート判定用）
  */
 export function movePlayer(
   currentPos: PlayerPosition,
   direction: Direction,
   map: MapDefinition,
+  storyFlags: StoryFlags = {},
 ): MoveResult {
   const { dx, dy } = DIRECTION_DELTA[direction];
   const newX = currentPos.x + dx;
@@ -51,6 +57,7 @@ export function movePlayer(
     mapTransition: null,
     enteredEncounterTile: false,
     facingNpcId: null,
+    blockedMessage: null,
   };
 
   // NPC衝突判定
@@ -69,6 +76,14 @@ export function movePlayer(
   // マップ接続判定
   const connection = getConnectionAt(map, newX, newY);
   if (connection) {
+    // 進行ゲートチェック
+    if (connection.requirement && !checkFlagRequirement(storyFlags, connection.requirement)) {
+      return {
+        ...baseResult,
+        blockedMessage: connection.blockedMessage ?? "ここから先には進めないようだ…",
+      };
+    }
+
     return {
       moved: true,
       position: newPosition,
@@ -79,6 +94,7 @@ export function movePlayer(
       },
       enteredEncounterTile: false,
       facingNpcId: null,
+      blockedMessage: null,
     };
   }
 
@@ -92,6 +108,7 @@ export function movePlayer(
     mapTransition: null,
     enteredEncounterTile,
     facingNpcId: null,
+    blockedMessage: null,
   };
 }
 
