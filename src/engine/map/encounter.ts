@@ -1,4 +1,4 @@
-import type { MonsterInstance, MonsterSpecies, MoveDefinition } from "@/types";
+import type { MonsterInstance, SpeciesResolver, MoveResolver } from "@/types";
 import type { MapDefinition, EncounterEntry } from "./map-data";
 import { calcAllStats } from "@/engine/monster/stats";
 import { randomNature } from "@/engine/monster/nature";
@@ -59,10 +59,6 @@ export function rollLevel(
 ): number {
   return minLevel + Math.floor(random() * (maxLevel - minLevel + 1));
 }
-
-/** 種族データを引けるリゾルバ */
-export type SpeciesResolver = (speciesId: string) => MonsterSpecies;
-export type MoveResolver = (moveId: string) => MoveDefinition;
 
 /**
  * 野生モンスターのインスタンスを生成

@@ -160,3 +160,8 @@ export interface PartyState {
   /** ボックス（預かりシステム） */
   boxes: MonsterInstance[][];
 }
+
+/** 種族データを引けるリゾルバ */
+export type SpeciesResolver = (speciesId: string) => MonsterSpecies;
+/** 技データを引けるリゾルバ */
+export type MoveResolver = (moveId: string) => MoveDefinition;
