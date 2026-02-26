@@ -4,12 +4,13 @@
  */
 
 import type { EventScript } from "./event-script";
+import type { TypeId } from "@/types";
 
 /** 四天王メンバーの定義 */
 export interface EliteFourMember {
   id: string;
   name: string;
-  type: string;
+  type: TypeId;
   title: string;
   introDialogue: string[];
   defeatDialogue: string[];
@@ -44,9 +45,9 @@ export const ELITE_FOUR: EliteFourMember[] = [
       "次の間へ進むがいい。",
     ],
     party: [
-      { speciesId: "hayatedori", level: 48 },
       { speciesId: "tobibato", level: 46 },
-      { speciesId: "hanamushi", level: 48 },
+      { speciesId: "hanamushi", level: 47 },
+      { speciesId: "yamigarasu", level: 48 },
       { speciesId: "hayatedori", level: 50 },
     ],
   },
@@ -66,10 +67,10 @@ export const ELITE_FOUR: EliteFourMember[] = [
       "先へ進め。",
     ],
     party: [
-      { speciesId: "oonezumi", level: 49 },
-      { speciesId: "kawadojou", level: 49 },
-      { speciesId: "oonezumi", level: 51 },
-      { speciesId: "kawadojou", level: 52 },
+      { speciesId: "denjimushi", level: 49 },
+      { speciesId: "kanamori", level: 50 },
+      { speciesId: "dogou", level: 51 },
+      { speciesId: "raijindou", level: 52 },
     ],
   },
   {
@@ -88,10 +89,10 @@ export const ELITE_FOUR: EliteFourMember[] = [
       "次の幕へ。",
     ],
     party: [
-      { speciesId: "hanamushi", level: 50 },
-      { speciesId: "hikarineko", level: 50 },
-      { speciesId: "hanamushi", level: 52 },
-      { speciesId: "konohana", level: 53 },
+      { speciesId: "hanausagi", level: 50 },
+      { speciesId: "koorigitsune", level: 51 },
+      { speciesId: "tsukiusagi", level: 52 },
+      { speciesId: "omoidama", level: 53 },
     ],
   },
   {
@@ -110,10 +111,10 @@ export const ELITE_FOUR: EliteFourMember[] = [
       "最後の間へ進め。チャンピオンが待っている。",
     ],
     party: [
-      { speciesId: "kawadojou", level: 51 },
-      { speciesId: "dokunuma", level: 51 },
-      { speciesId: "oonezumi", level: 53 },
-      { speciesId: "kawadojou", level: 54 },
+      { speciesId: "iwakenjin", level: 51 },
+      { speciesId: "kogoriiwa", level: 52 },
+      { speciesId: "taijushin", level: 53 },
+      { speciesId: "iwakenjin", level: 54 },
     ],
   },
 ];
@@ -138,12 +139,12 @@ export const CHAMPION: ChampionDefinition = {
     "…ありがとう。お前のおかげで、私もまた前に進める。",
   ],
   party: [
-    { speciesId: "hayatedori", level: 54 },
-    { speciesId: "dokunuma", level: 54 },
-    { speciesId: "hikarineko", level: 55 },
-    { speciesId: "oonezumi", level: 55 },
-    { speciesId: "kawadojou", level: 56 },
-    { speciesId: "hanamushi", level: 57 },
+    { speciesId: "ryuujin", level: 54 },
+    { speciesId: "kurooni", level: 54 },
+    { speciesId: "yomikagura", level: 55 },
+    { speciesId: "kaenjishi", level: 55 },
+    { speciesId: "taikaiou", level: 56 },
+    { speciesId: "haganedake", level: 57 },
   ],
 };
 

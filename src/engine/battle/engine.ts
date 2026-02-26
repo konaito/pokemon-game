@@ -6,6 +6,7 @@ import { applyStatusDamage } from "./status";
 import { calcExpGain, grantExp } from "./experience";
 import { calcAllStats } from "@/engine/monster/stats";
 import { checkEvolution, evolve } from "@/engine/monster/evolution";
+import { applyStatChanges, createStatStages, getStageMultiplier } from "./stat-stage";
 
 /** バトルエンジン */
 export class BattleEngine {
@@ -131,6 +132,7 @@ export class BattleEngine {
         playerAction.type === "fight" && playerAction.moveIndex >= 0
           ? this.moveResolver(this.playerActive.moves[playerAction.moveIndex].moveId)
           : undefined,
+      statStages: this.state.player.statStages,
     };
 
     const opponentTurnAction: TurnAction = {
@@ -142,6 +144,7 @@ export class BattleEngine {
         opponentAction.type === "fight" && opponentAction.moveIndex >= 0
           ? this.moveResolver(this.opponentActive.moves[opponentAction.moveIndex].moveId)
           : undefined,
+      statStages: this.state.opponent.statStages,
     };
 
     const [first, second] = determineTurnOrder(playerTurnAction, opponentTurnAction, () =>
@@ -201,6 +204,9 @@ export class BattleEngine {
       return;
     }
 
+    const attackerBattler = action.side === "player" ? this.state.player : this.state.opponent;
+    const defenderBattler = action.side === "player" ? this.state.opponent : this.state.player;
+
     const result = executeMove(
       action.monster,
       attackerSpecies,
@@ -208,6 +214,8 @@ export class BattleEngine {
       defenderSpecies,
       action.move,
       () => this.random(),
+      attackerBattler.statStages,
+      defenderBattler.statStages,
     );
 
     this.state.messages.push(...result.messages);
@@ -218,6 +226,31 @@ export class BattleEngine {
     // 状態異常付与
     if (result.statusApplied) {
       defender.status = result.statusApplied;
+    }
+
+    // 能力変化適用
+    if (result.statChanges) {
+      const attackerSide = action.side === "player" ? this.state.player : this.state.opponent;
+      const defenderSide = action.side === "player" ? this.state.opponent : this.state.player;
+
+      if (result.statChanges.target === "self") {
+        const targetSpecies = this.speciesResolver(action.monster.speciesId);
+        const [newStages, msgs] = applyStatChanges(
+          attackerSide.statStages,
+          result.statChanges.changes,
+          targetSpecies.name,
+        );
+        attackerSide.statStages = newStages;
+        this.state.messages.push(...msgs);
+      } else {
+        const [newStages, msgs] = applyStatChanges(
+          defenderSide.statStages,
+          result.statChanges.changes,
+          defenderSpecies.name,
+        );
+        defenderSide.statStages = newStages;
+        this.state.messages.push(...msgs);
+      }
     }
   }
 
@@ -272,6 +305,7 @@ export class BattleEngine {
 
     const oldSpecies = this.speciesResolver(battler.party[battler.activeIndex].speciesId);
     battler.activeIndex = partyIndex;
+    battler.statStages = createStatStages(); // 交代時にステージリセット
     const newSpecies = this.speciesResolver(battler.party[partyIndex].speciesId);
     return `${oldSpecies.name}を引っ込めて${newSpecies.name}を繰り出した！`;
   }

@@ -1,4 +1,5 @@
 import type { MonsterInstance, ItemId } from "@/types";
+import { createStatStages, type StatStages } from "./stat-stage";
 
 /**
  * バトルの状態遷移図:
@@ -34,6 +35,8 @@ export type BattleAction =
 export interface BattlerState {
   party: MonsterInstance[];
   activeIndex: number;
+  /** アクティブモンスターの能力変化ステージ（交代時にリセット） */
+  statStages: StatStages;
 }
 
 /** バトル全体の状態 */
@@ -67,8 +70,8 @@ export function initBattle(
   return {
     phase: "action_select",
     battleType,
-    player: { party: playerParty, activeIndex: 0 },
-    opponent: { party: opponentParty, activeIndex: 0 },
+    player: { party: playerParty, activeIndex: 0, statStages: createStatStages() },
+    opponent: { party: opponentParty, activeIndex: 0, statStages: createStatStages() },
     turnNumber: 1,
     escapeAttempts: 0,
     messages: [],

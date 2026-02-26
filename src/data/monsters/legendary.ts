@@ -15,6 +15,11 @@ export const LEGENDARY_MONSTERS: MonsterSpecies[] = [
     learnset: [
       { level: 1, moveId: "tackle" },
       { level: 1, moveId: "gust" },
+      { level: 10, moveId: "psychic" },
+      { level: 20, moveId: "moonblast" },
+      { level: 30, moveId: "ice-beam" },
+      { level: 40, moveId: "thunderbolt" },
+      { level: 50, moveId: "flamethrower" },
     ],
   },
   {
@@ -27,6 +32,11 @@ export const LEGENDARY_MONSTERS: MonsterSpecies[] = [
     learnset: [
       { level: 1, moveId: "tackle" },
       { level: 1, moveId: "bite" },
+      { level: 10, moveId: "dark-pulse" },
+      { level: 20, moveId: "psychic" },
+      { level: 30, moveId: "shadow-ball" },
+      { level: 40, moveId: "dragon-pulse" },
+      { level: 50, moveId: "flamethrower" },
     ],
   },
 ];
