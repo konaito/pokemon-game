@@ -2,6 +2,7 @@ import type { MonsterInstance, MonsterSpecies, MoveDefinition } from "@/types";
 import { calcAllStats } from "@/engine/monster/stats";
 import { getStatusEffect } from "./status";
 import type { BattleAction } from "./state-machine";
+import { getStageMultiplier, type StatStages } from "./stat-stage";
 
 export interface TurnAction {
   side: "player" | "opponent";
@@ -9,6 +10,7 @@ export interface TurnAction {
   monster: MonsterInstance;
   species: MonsterSpecies;
   move?: MoveDefinition;
+  statStages?: StatStages;
 }
 
 /**
@@ -47,7 +49,7 @@ export function determineTurnOrder(
       : [opponentAction, playerAction];
   }
 
-  // 素早さ比較（状態異常の影響を適用）
+  // 素早さ比較（状態異常 + 能力変化の影響を適用）
   let playerSpeed = calcAllStats(
     playerAction.species.baseStats,
     playerAction.monster.ivs,
@@ -55,6 +57,9 @@ export function determineTurnOrder(
     playerAction.monster.level,
     playerAction.monster.nature,
   ).speed;
+  if (playerAction.statStages) {
+    playerSpeed = Math.floor(playerSpeed * getStageMultiplier(playerAction.statStages.speed));
+  }
   if (playerAction.monster.status) {
     playerSpeed = Math.floor(playerSpeed * getStatusEffect(playerAction.monster.status).speedModifier);
   }
@@ -66,6 +71,9 @@ export function determineTurnOrder(
     opponentAction.monster.level,
     opponentAction.monster.nature,
   ).speed;
+  if (opponentAction.statStages) {
+    opponentSpeed = Math.floor(opponentSpeed * getStageMultiplier(opponentAction.statStages.speed));
+  }
   if (opponentAction.monster.status) {
     opponentSpeed = Math.floor(opponentSpeed * getStatusEffect(opponentAction.monster.status).speedModifier);
   }

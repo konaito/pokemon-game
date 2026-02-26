@@ -1,6 +1,7 @@
-import type { MonsterInstance, MonsterSpecies, MoveDefinition, StatusCondition } from "@/types";
+import type { MonsterInstance, MonsterSpecies, MoveDefinition, StatusCondition, BaseStats } from "@/types";
 import { calculateDamage, type DamageResult } from "./damage";
 import { canAct } from "./status";
+import type { StatStages } from "./stat-stage";
 
 /** 技実行の結果 */
 export interface MoveExecutionResult {
@@ -8,6 +9,11 @@ export interface MoveExecutionResult {
   damage: DamageResult | null;
   defenderHpAfter: number;
   statusApplied: StatusCondition | null;
+  /** 能力変化（自身 or 相手に適用） */
+  statChanges?: {
+    target: "self" | "opponent";
+    changes: Partial<Record<keyof BaseStats, number>>;
+  };
   messages: string[];
 }
 
@@ -26,6 +32,8 @@ export function executeMove(
   defenderSpecies: MonsterSpecies,
   move: MoveDefinition,
   random?: () => number,
+  attackerStages?: StatStages,
+  defenderStages?: StatStages,
 ): MoveExecutionResult {
   const rng = random ?? Math.random;
   const messages: string[] = [];
@@ -82,22 +90,39 @@ export function executeMove(
   // 3. ステータス技の処理（ダメージなし、効果のみ）
   if (move.category === "status") {
     let statusApplied: StatusCondition | null = null;
+    let statChangeResult: MoveExecutionResult["statChanges"] | undefined;
+    let hadEffect = false;
+
+    // 状態異常付与
     if (move.effect?.statusCondition && defender.status === null) {
       const chance = move.effect.statusChance ?? 100;
       if (rng() * 100 < chance) {
         statusApplied = move.effect.statusCondition;
         messages.push(`${defenderSpecies.name}は${getStatusMessage(statusApplied)}`);
-      } else {
-        messages.push("しかし効果がなかった！");
+        hadEffect = true;
       }
-    } else if (defender.status !== null) {
+    }
+
+    // 能力変化
+    if (move.effect?.statChanges) {
+      const isDebuff = Object.values(move.effect.statChanges).some((v) => v !== undefined && v < 0);
+      statChangeResult = {
+        target: isDebuff ? "opponent" : "self",
+        changes: move.effect.statChanges,
+      };
+      hadEffect = true;
+    }
+
+    if (!hadEffect) {
       messages.push("しかし効果がなかった！");
     }
+
     return {
       hit: true,
       damage: null,
       defenderHpAfter: defender.currentHp,
       statusApplied,
+      statChanges: statChangeResult,
       messages,
     };
   }
@@ -109,6 +134,8 @@ export function executeMove(
     defender,
     defenderSpecies,
     move,
+    attackerStages,
+    defenderStages,
     random: () => rng(),
   });
 
@@ -142,7 +169,17 @@ export function executeMove(
     }
   }
 
-  return { hit: true, damage: damageResult, defenderHpAfter, statusApplied, messages };
+  // 7. 追加効果（能力変化 — ダメージ技の追加効果）
+  let statChangeResult: MoveExecutionResult["statChanges"] | undefined;
+  if (move.effect?.statChanges && defenderHpAfter > 0) {
+    const isDebuff = Object.values(move.effect.statChanges).some((v) => v !== undefined && v < 0);
+    statChangeResult = {
+      target: isDebuff ? "opponent" : "self",
+      changes: move.effect.statChanges,
+    };
+  }
+
+  return { hit: true, damage: damageResult, defenderHpAfter, statusApplied, statChanges: statChangeResult, messages };
 }
 
 /**

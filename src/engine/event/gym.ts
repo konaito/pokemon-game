@@ -4,6 +4,7 @@
  */
 
 import type { EventScript, EventCommand } from "./event-script";
+import type { TypeId } from "@/types";
 
 /** ジムリーダーのパーティメンバー定義 */
 export interface GymLeaderPartyMember {
@@ -21,7 +22,7 @@ export interface GymDefinition {
   /** ジムリーダー名 */
   leaderName: string;
   /** ジムのタイプ */
-  type: string;
+  type: TypeId;
   /** リーダーのパーティ */
   leaderParty: GymLeaderPartyMember[];
   /** 獲得するバッジ名 */

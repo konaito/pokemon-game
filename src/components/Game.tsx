@@ -5,25 +5,25 @@ import { TitleScreen } from "./screens/TitleScreen";
 import { StarterSelect, type StarterOption } from "./screens/StarterSelect";
 import type { MonsterInstance } from "@/types";
 
-/** 仮のスターター定義（将来はデータマスターから読む） */
+/** スターター定義（実際のモンスターデータと一致） */
 const STARTERS: StarterOption[] = [
   {
-    speciesId: "fire-starter",
-    name: "ヒノコグマ",
+    speciesId: "himori",
+    name: "ヒモリ",
     type: "fire",
-    description: "小さな炎を操る子グマのモンスター。情熱的で勇敢な性格。",
+    description: "背中に小さな炎を灯す子ヤモリのモンスター。情熱的で勇敢な性格。",
   },
   {
-    speciesId: "water-starter",
-    name: "ミズガメ",
+    speciesId: "shizukumo",
+    name: "シズクモ",
     type: "water",
-    description: "背中の甲羅から水を噴射するカメのモンスター。穏やかで忍耐強い。",
+    description: "水滴をまとう蜘蛛のモンスター。冷静で穏やかな知性派。",
   },
   {
-    speciesId: "grass-starter",
-    name: "ハナリス",
+    speciesId: "konohana",
+    name: "コノハナ",
     type: "grass",
-    description: "花の蕾を尻尾につけたリスのモンスター。好奇心旺盛で元気いっぱい。",
+    description: "木の葉のような耳を持つ小さな精霊。好奇心旺盛で元気いっぱい。",
   },
 ];
 

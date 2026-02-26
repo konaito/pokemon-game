@@ -2,6 +2,7 @@ import type { MoveDefinition, MonsterInstance, MonsterSpecies } from "@/types";
 import { getMultiTypeEffectiveness } from "@/engine/type/effectiveness";
 import { calcAllStats } from "@/engine/monster/stats";
 import { getStatusEffect } from "./status";
+import { getStageMultiplier, type StatStages } from "./stat-stage";
 
 /** ダメージ計算結果 */
 export interface DamageResult {
@@ -18,6 +19,10 @@ export interface DamageContext {
   defender: MonsterInstance;
   defenderSpecies: MonsterSpecies;
   move: MoveDefinition;
+  /** 攻撃側の能力変化ステージ */
+  attackerStages?: StatStages;
+  /** 防御側の能力変化ステージ */
+  defenderStages?: StatStages;
   /** 乱数生成器（テスト時に固定するため注入可能） */
   random?: () => number;
 }
@@ -53,8 +58,19 @@ export function calculateDamage(ctx: DamageContext): DamageResult {
   );
 
   // 物理 or 特殊に応じてA/Dを選択
-  let attackStat = move.category === "physical" ? attackerStats.atk : attackerStats.spAtk;
-  const defenseStat = move.category === "physical" ? defenderStats.def : defenderStats.spDef;
+  const atkKey = move.category === "physical" ? "atk" as const : "spAtk" as const;
+  const defKey = move.category === "physical" ? "def" as const : "spDef" as const;
+
+  let attackStat = attackerStats[atkKey];
+  let defenseStat = defenderStats[defKey];
+
+  // 能力変化ステージ適用
+  if (ctx.attackerStages) {
+    attackStat = Math.floor(attackStat * getStageMultiplier(ctx.attackerStages[atkKey]));
+  }
+  if (ctx.defenderStages) {
+    defenseStat = Math.floor(defenseStat * getStageMultiplier(ctx.defenderStages[defKey]));
+  }
 
   // やけど時の物理攻撃力半減
   if (attacker.status === "burn" && move.category === "physical") {

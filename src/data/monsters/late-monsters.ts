@@ -110,7 +110,6 @@ export const LATE_MONSTERS: MonsterSpecies[] = [
       { level: 1, moveId: "dragon-breath" },
       { level: 1, moveId: "dragon-claw" },
       { level: 1, moveId: "air-slash" },
-      { level: 38, moveId: "air-slash" },
       { level: 48, moveId: "dragon-pulse" },
       { level: 56, moveId: "outrage" },
     ],
