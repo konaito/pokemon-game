@@ -74,7 +74,8 @@ export type GameAction =
   | { type: "CHANGE_SCREEN"; screen: ScreenId }
   | { type: "SET_STARTER"; monster: MonsterInstance }
   | { type: "UPDATE_PLAYER"; updates: Partial<PlayerState> }
-  | { type: "SET_STORY_FLAG"; flag: string; value: boolean };
+  | { type: "SET_STORY_FLAG"; flag: string; value: boolean }
+  | { type: "LOAD_GAME"; state: GameState };
 
 /** ゲーム状態のReducer */
 export function gameReducer(state: GameState, action: GameAction): GameState {
@@ -113,6 +114,8 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
         ...state,
         storyFlags: { ...state.storyFlags, [action.flag]: action.value },
       };
+    case "LOAD_GAME":
+      return action.state;
     default:
       return state;
   }
