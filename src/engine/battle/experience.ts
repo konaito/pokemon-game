@@ -27,7 +27,7 @@ export function expForLevel(level: number, group: ExpGroup = "medium_fast"): num
     case "medium_fast":
       return n * n * n;
     case "medium_slow":
-      return Math.floor(1.2 * n * n * n - 15 * n * n + 100 * n - 140);
+      return Math.max(0, Math.floor(1.2 * n * n * n - 15 * n * n + 100 * n - 140));
     case "slow":
       return Math.floor(1.25 * n * n * n);
   }

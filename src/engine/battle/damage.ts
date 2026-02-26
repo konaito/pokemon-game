@@ -42,12 +42,14 @@ export function calculateDamage(ctx: DamageContext): DamageResult {
     attacker.ivs,
     attacker.evs,
     attacker.level,
+    attacker.nature,
   );
   const defenderStats = calcAllStats(
     defenderSpecies.baseStats,
     defender.ivs,
     defender.evs,
     defender.level,
+    defender.nature,
   );
 
   // 物理 or 特殊に応じてA/Dを選択

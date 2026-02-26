@@ -53,6 +53,7 @@ export function determineTurnOrder(
     playerAction.monster.ivs,
     playerAction.monster.evs,
     playerAction.monster.level,
+    playerAction.monster.nature,
   ).speed;
   if (playerAction.monster.status) {
     playerSpeed = Math.floor(playerSpeed * getStatusEffect(playerAction.monster.status).speedModifier);
@@ -63,6 +64,7 @@ export function determineTurnOrder(
     opponentAction.monster.ivs,
     opponentAction.monster.evs,
     opponentAction.monster.level,
+    opponentAction.monster.nature,
   ).speed;
   if (opponentAction.monster.status) {
     opponentSpeed = Math.floor(opponentSpeed * getStatusEffect(opponentAction.monster.status).speedModifier);
