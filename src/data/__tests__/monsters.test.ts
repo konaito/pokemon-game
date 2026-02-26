@@ -3,6 +3,8 @@ import {
   ALL_SPECIES,
   STARTERS,
   EARLY_MONSTERS,
+  MID_MONSTERS,
+  LATE_MONSTERS,
   LEGENDARY_MONSTERS,
   getSpeciesById,
   getAllSpeciesIds,
@@ -158,8 +160,8 @@ describe("序盤モンスターデータ", () => {
     expect(EARLY_MONSTERS.length).toBeGreaterThanOrEqual(10);
   });
 
-  it("全モンスターの合計は19種以上", () => {
-    expect(ALL_SPECIES.length).toBeGreaterThanOrEqual(19);
+  it("全モンスターの合計は50種以上", () => {
+    expect(ALL_SPECIES.length).toBeGreaterThanOrEqual(50);
   });
 
   it("序盤に多様なタイプが存在する", () => {
@@ -195,6 +197,108 @@ describe("序盤モンスターデータ", () => {
     expect(ids).toContain("konezumi");
     expect(ids).toContain("tobibato");
     expect(ids.length).toBe(ALL_SPECIES.length);
+  });
+});
+
+describe("中盤モンスターデータ", () => {
+  it("中盤モンスターは15匹以上", () => {
+    expect(MID_MONSTERS.length).toBeGreaterThanOrEqual(15);
+  });
+
+  it("中盤に炎、格闘、地面、ゴースト、フェアリー、鋼タイプが存在する", () => {
+    const types = new Set<string>();
+    for (const mon of MID_MONSTERS) {
+      for (const t of mon.types) {
+        types.add(t);
+      }
+    }
+    expect(types.has("fire")).toBe(true);
+    expect(types.has("fighting")).toBe(true);
+    expect(types.has("ground")).toBe(true);
+    expect(types.has("ghost")).toBe(true);
+    expect(types.has("fairy")).toBe(true);
+    expect(types.has("steel")).toBe(true);
+  });
+
+  it("ゴースト系は3段階進化（ユラビ→カゲボウシ→ヨミカグラ）", () => {
+    const yurabi = getSpeciesById("yurabi");
+    expect(yurabi?.evolvesTo?.[0].id).toBe("kageboushi");
+    const kageboushi = getSpeciesById("kageboushi");
+    expect(kageboushi?.evolvesTo?.[0].id).toBe("yomikagura");
+    const yomikagura = getSpeciesById("yomikagura");
+    expect(yomikagura?.evolvesTo).toBeUndefined();
+  });
+
+  it("中盤モンスターのレベル帯が序盤より高い", () => {
+    const midMaxLevels = MID_MONSTERS.filter((m) => m.evolvesTo?.length)
+      .map((m) => m.evolvesTo![0].level);
+    const earlyMaxLevels = EARLY_MONSTERS.filter((m) => m.evolvesTo?.length)
+      .map((m) => m.evolvesTo![0].level);
+
+    if (midMaxLevels.length > 0 && earlyMaxLevels.length > 0) {
+      const midAvg = midMaxLevels.reduce((a, b) => a + b, 0) / midMaxLevels.length;
+      const earlyAvg = earlyMaxLevels.reduce((a, b) => a + b, 0) / earlyMaxLevels.length;
+      expect(midAvg).toBeGreaterThan(earlyAvg);
+    }
+  });
+});
+
+describe("終盤モンスターデータ", () => {
+  it("終盤モンスターは12匹以上", () => {
+    expect(LATE_MONSTERS.length).toBeGreaterThanOrEqual(12);
+  });
+
+  it("終盤に氷、ドラゴン、エスパー、鋼タイプが存在する", () => {
+    const types = new Set<string>();
+    for (const mon of LATE_MONSTERS) {
+      for (const t of mon.types) {
+        types.add(t);
+      }
+    }
+    expect(types.has("ice")).toBe(true);
+    expect(types.has("dragon")).toBe(true);
+    expect(types.has("psychic")).toBe(true);
+    expect(types.has("steel")).toBe(true);
+  });
+
+  it("ドラゴン系は3段階進化（タツノコ→リュウビ→リュウジン）", () => {
+    const tatsunoko = getSpeciesById("tatsunoko");
+    expect(tatsunoko?.evolvesTo?.[0].id).toBe("ryuubi");
+    const ryuubi = getSpeciesById("ryuubi");
+    expect(ryuubi?.evolvesTo?.[0].id).toBe("ryuujin");
+    const ryuujin = getSpeciesById("ryuujin");
+    expect(ryuujin?.evolvesTo).toBeUndefined();
+  });
+
+  it("リュウジンの種族値合計は555（擬似伝説級）", () => {
+    const ryuujin = getSpeciesById("ryuujin")!;
+    const total =
+      ryuujin.baseStats.hp +
+      ryuujin.baseStats.atk +
+      ryuujin.baseStats.def +
+      ryuujin.baseStats.spAtk +
+      ryuujin.baseStats.spDef +
+      ryuujin.baseStats.speed;
+    expect(total).toBe(555);
+  });
+
+  it("終盤モンスターの進化レベルが中盤より高い", () => {
+    const lateMaxLevels = LATE_MONSTERS.filter((m) => m.evolvesTo?.length)
+      .map((m) => m.evolvesTo![0].level);
+    const midMaxLevels = MID_MONSTERS.filter((m) => m.evolvesTo?.length)
+      .map((m) => m.evolvesTo![0].level);
+
+    if (lateMaxLevels.length > 0 && midMaxLevels.length > 0) {
+      const lateAvg = lateMaxLevels.reduce((a, b) => a + b, 0) / lateMaxLevels.length;
+      const midAvg = midMaxLevels.reduce((a, b) => a + b, 0) / midMaxLevels.length;
+      expect(lateAvg).toBeGreaterThan(midAvg);
+    }
+  });
+
+  it("テーマ的に重要なエスパー/フェアリー枠が存在する", () => {
+    const omoidama = getSpeciesById("omoidama");
+    expect(omoidama).toBeDefined();
+    expect(omoidama!.types).toEqual(["psychic", "fairy"]);
   });
 });
 
