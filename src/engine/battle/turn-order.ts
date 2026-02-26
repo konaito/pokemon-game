@@ -1,5 +1,6 @@
 import type { MonsterInstance, MonsterSpecies, MoveDefinition } from "@/types";
 import { calcAllStats } from "@/engine/monster/stats";
+import { getStatusEffect } from "./status";
 import type { BattleAction } from "./state-machine";
 
 export interface TurnAction {
@@ -46,20 +47,26 @@ export function determineTurnOrder(
       : [opponentAction, playerAction];
   }
 
-  // 素早さ比較
-  const playerSpeed = calcAllStats(
+  // 素早さ比較（状態異常の影響を適用）
+  let playerSpeed = calcAllStats(
     playerAction.species.baseStats,
     playerAction.monster.ivs,
     playerAction.monster.evs,
     playerAction.monster.level,
   ).speed;
+  if (playerAction.monster.status) {
+    playerSpeed = Math.floor(playerSpeed * getStatusEffect(playerAction.monster.status).speedModifier);
+  }
 
-  const opponentSpeed = calcAllStats(
+  let opponentSpeed = calcAllStats(
     opponentAction.species.baseStats,
     opponentAction.monster.ivs,
     opponentAction.monster.evs,
     opponentAction.monster.level,
   ).speed;
+  if (opponentAction.monster.status) {
+    opponentSpeed = Math.floor(opponentSpeed * getStatusEffect(opponentAction.monster.status).speedModifier);
+  }
 
   if (playerSpeed !== opponentSpeed) {
     return playerSpeed > opponentSpeed

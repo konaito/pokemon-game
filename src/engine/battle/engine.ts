@@ -1,7 +1,7 @@
 import type { MonsterInstance, MonsterSpecies, MoveDefinition } from "@/types";
 import { type BattleState, type BattleAction, initBattle, getActiveMonster } from "./state-machine";
 import { determineTurnOrder, type TurnAction } from "./turn-order";
-import { executeMove } from "./move-executor";
+import { executeMove, executeStruggle } from "./move-executor";
 import { applyStatusDamage } from "./status";
 import { calcExpGain, grantExp } from "./experience";
 import { calcAllStats } from "@/engine/monster/stats";
@@ -63,7 +63,39 @@ export class BattleEngine {
       const opponentAction = this.selectOpponentAction();
       if (opponentAction.type === "fight") {
         const opponentSpecies = this.speciesResolver(this.opponentActive.speciesId);
-        const move = this.moveResolver(this.opponentActive.moves[opponentAction.moveIndex].moveId);
+        const move =
+          opponentAction.moveIndex >= 0
+            ? this.moveResolver(this.opponentActive.moves[opponentAction.moveIndex].moveId)
+            : undefined;
+        const turnAction: TurnAction = {
+          side: "opponent",
+          action: opponentAction,
+          monster: this.opponentActive,
+          species: opponentSpecies,
+          move,
+        };
+        this.executeAction(turnAction);
+        this.checkFaint();
+      }
+
+      this.applyEndOfTurnEffects();
+      this.checkFaint();
+      this.state.turnNumber++;
+      return this.state.messages;
+    }
+
+    // アイテム使用処理（アイテム使用後、相手のターンのみ実行）
+    if (playerAction.type === "item") {
+      this.state.messages.push(`アイテムを使った！`);
+
+      // 相手のターンを実行
+      const opponentAction = this.selectOpponentAction();
+      if (opponentAction.type === "fight") {
+        const opponentSpecies = this.speciesResolver(this.opponentActive.speciesId);
+        const move =
+          opponentAction.moveIndex >= 0
+            ? this.moveResolver(this.opponentActive.moves[opponentAction.moveIndex].moveId)
+            : undefined;
         const turnAction: TurnAction = {
           side: "opponent",
           action: opponentAction,
@@ -99,7 +131,7 @@ export class BattleEngine {
       monster: this.playerActive,
       species: playerSpecies,
       move:
-        playerAction.type === "fight"
+        playerAction.type === "fight" && playerAction.moveIndex >= 0
           ? this.moveResolver(this.playerActive.moves[playerAction.moveIndex].moveId)
           : undefined,
     };
@@ -110,7 +142,7 @@ export class BattleEngine {
       monster: this.opponentActive,
       species: opponentSpecies,
       move:
-        opponentAction.type === "fight"
+        opponentAction.type === "fight" && opponentAction.moveIndex >= 0
           ? this.moveResolver(this.opponentActive.moves[opponentAction.moveIndex].moveId)
           : undefined,
     };
@@ -143,12 +175,33 @@ export class BattleEngine {
 
   /** 技を実行 */
   private executeAction(action: TurnAction): void {
-    if (action.action.type !== "fight" || !action.move) return;
+    if (action.action.type !== "fight") return;
 
     const attackerSpecies = this.speciesResolver(action.monster.speciesId);
     const defenderSide = action.side === "player" ? "opponent" : "player";
     const defender = defenderSide === "player" ? this.playerActive : this.opponentActive;
     const defenderSpecies = this.speciesResolver(defender.speciesId);
+
+    // わるあがき判定（moveIndex === -1 または move が undefined）
+    if (action.action.moveIndex === -1 || !action.move) {
+      const maxHp = calcAllStats(
+        attackerSpecies.baseStats,
+        action.monster.ivs,
+        action.monster.evs,
+        action.monster.level,
+      ).hp;
+      const result = executeStruggle(
+        action.monster,
+        attackerSpecies,
+        defender,
+        defenderSpecies,
+        maxHp,
+        () => this.random(),
+      );
+      this.state.messages.push(...result.messages);
+      defender.currentHp = result.defenderHpAfter;
+      return;
+    }
 
     const result = executeMove(
       action.monster,
@@ -188,7 +241,10 @@ export class BattleEngine {
       this.opponentActive.level,
     ).speed;
 
-    const escapeChance = Math.min(1, (playerSpeed * 128) / (opponentSpeed || 1) / 256 + 0.3);
+    const escapeChance = Math.min(
+      1,
+      (playerSpeed * 128) / (opponentSpeed || 1) / 256 + (30 * this.state.escapeAttempts) / 256,
+    );
 
     if (this.random() < escapeChance) {
       this.state.messages.push("うまく逃げ切れた！");
@@ -196,12 +252,24 @@ export class BattleEngine {
       this.state.phase = "battle_end";
     } else {
       this.state.messages.push("逃げられなかった！");
+      this.state.escapeAttempts++;
     }
   }
 
   /** 交代処理 */
   private handleSwitch(side: "player" | "opponent", partyIndex: number): string {
     const battler = side === "player" ? this.state.player : this.state.opponent;
+
+    if (partyIndex < 0 || partyIndex >= battler.party.length) {
+      throw new Error(`無効なパーティインデックス: ${partyIndex}`);
+    }
+    if (battler.party[partyIndex].currentHp <= 0) {
+      throw new Error("瀕死のモンスターには交代できない！");
+    }
+    if (partyIndex === battler.activeIndex) {
+      throw new Error("既にバトルに出ているモンスターです！");
+    }
+
     const oldSpecies = this.speciesResolver(battler.party[battler.activeIndex].speciesId);
     battler.activeIndex = partyIndex;
     const newSpecies = this.speciesResolver(battler.party[partyIndex].speciesId);
@@ -305,8 +373,8 @@ export class BattleEngine {
       .filter((m) => m.currentPp > 0);
 
     if (usableMoves.length === 0) {
-      // PPが尽きた場合: わるあがき相当（とりあえず最初の技）
-      return { type: "fight", moveIndex: 0 };
+      // PPが尽きた場合: わるあがき
+      return { type: "fight", moveIndex: -1 };
     }
 
     const chosen = usableMoves[Math.floor(this.random() * usableMoves.length)];

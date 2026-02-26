@@ -43,6 +43,8 @@ export interface BattleState {
   player: BattlerState;
   opponent: BattlerState;
   turnNumber: number;
+  /** 逃走試行回数 */
+  escapeAttempts: number;
   /** 直近のメッセージログ */
   messages: string[];
   /** バトル結果（終了時のみ） */
@@ -68,6 +70,7 @@ export function initBattle(
     player: { party: playerParty, activeIndex: 0 },
     opponent: { party: opponentParty, activeIndex: 0 },
     turnNumber: 1,
+    escapeAttempts: 0,
     messages: [],
     result: null,
   };

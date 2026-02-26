@@ -3,7 +3,7 @@
  */
 
 /** ゲームのトップレベル状態 */
-export type GameState = "title" | "overworld" | "battle" | "menu" | "dialogue" | "cutscene";
+export type GamePhase = "title" | "overworld" | "battle" | "menu" | "dialogue" | "cutscene";
 
 /** 一意な識別子 */
 export type MonsterId = string;
