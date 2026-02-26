@@ -396,7 +396,13 @@ export class BattleEngine {
     const applyToMonster = (monster: MonsterInstance) => {
       if (!monster.status || monster.currentHp <= 0) return;
       const species = this.speciesResolver(monster.speciesId);
-      const maxHp = calcAllStats(species.baseStats, monster.ivs, monster.evs, monster.level, monster.nature).hp;
+      const maxHp = calcAllStats(
+        species.baseStats,
+        monster.ivs,
+        monster.evs,
+        monster.level,
+        monster.nature,
+      ).hp;
       const hpBefore = monster.currentHp;
       monster.currentHp = applyStatusDamage(monster, maxHp);
       if (monster.currentHp < hpBefore) {

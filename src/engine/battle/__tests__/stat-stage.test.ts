@@ -1,9 +1,5 @@
 import { describe, it, expect } from "vitest";
-import {
-  createStatStages,
-  applyStatChanges,
-  getStageMultiplier,
-} from "../stat-stage";
+import { createStatStages, applyStatChanges, getStageMultiplier } from "../stat-stage";
 
 describe("能力変化ステージ", () => {
   describe("createStatStages", () => {
@@ -87,11 +83,7 @@ describe("能力変化ステージ", () => {
 
     it("複数ステータスを同時に変化させられる", () => {
       const stages = createStatStages();
-      const [newStages, messages] = applyStatChanges(
-        stages,
-        { atk: 1, speed: 1 },
-        "テスト",
-      );
+      const [newStages, messages] = applyStatChanges(stages, { atk: 1, speed: 1 }, "テスト");
       expect(newStages.atk).toBe(1);
       expect(newStages.speed).toBe(1);
       expect(messages).toHaveLength(2);

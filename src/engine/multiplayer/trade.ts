@@ -57,11 +57,7 @@ export function createTradeRoom(
 /**
  * モンスターを提示
  */
-export function offerMonster(
-  room: TradeRoom,
-  playerId: string,
-  monsterUid: string,
-): TradeRoom {
+export function offerMonster(room: TradeRoom, playerId: string, monsterUid: string): TradeRoom {
   if (room.state !== "offering") return room;
 
   const players = room.players.map((p) => {
@@ -85,10 +81,7 @@ export function offerMonster(
 /**
  * 交換を確定
  */
-export function confirmTrade(
-  room: TradeRoom,
-  playerId: string,
-): TradeRoom {
+export function confirmTrade(room: TradeRoom, playerId: string): TradeRoom {
   if (room.state !== "confirming") return room;
 
   const players = room.players.map((p) => {

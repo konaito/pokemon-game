@@ -57,11 +57,56 @@ const testSpecies: Record<string, MonsterSpecies> = {
 };
 
 const testMoves: Record<string, MoveDefinition> = {
-  tackle: { id: "tackle", name: "たいあたり", type: "normal", category: "physical", power: 40, accuracy: 100, pp: 35, priority: 0 },
-  "tail-whip": { id: "tail-whip", name: "しっぽをふる", type: "normal", category: "status", power: null, accuracy: 100, pp: 30, priority: 0 },
-  "quick-attack": { id: "quick-attack", name: "でんこうせっか", type: "normal", category: "physical", power: 40, accuracy: 100, pp: 30, priority: 1 },
-  gust: { id: "gust", name: "かぜおこし", type: "flying", category: "special", power: 40, accuracy: 100, pp: 35, priority: 0 },
-  "thunder-shock": { id: "thunder-shock", name: "でんきショック", type: "electric", category: "special", power: 40, accuracy: 100, pp: 30, priority: 0 },
+  tackle: {
+    id: "tackle",
+    name: "たいあたり",
+    type: "normal",
+    category: "physical",
+    power: 40,
+    accuracy: 100,
+    pp: 35,
+    priority: 0,
+  },
+  "tail-whip": {
+    id: "tail-whip",
+    name: "しっぽをふる",
+    type: "normal",
+    category: "status",
+    power: null,
+    accuracy: 100,
+    pp: 30,
+    priority: 0,
+  },
+  "quick-attack": {
+    id: "quick-attack",
+    name: "でんこうせっか",
+    type: "normal",
+    category: "physical",
+    power: 40,
+    accuracy: 100,
+    pp: 30,
+    priority: 1,
+  },
+  gust: {
+    id: "gust",
+    name: "かぜおこし",
+    type: "flying",
+    category: "special",
+    power: 40,
+    accuracy: 100,
+    pp: 35,
+    priority: 0,
+  },
+  "thunder-shock": {
+    id: "thunder-shock",
+    name: "でんきショック",
+    type: "electric",
+    category: "special",
+    power: 40,
+    accuracy: 100,
+    pp: 30,
+    priority: 0,
+  },
 };
 
 const speciesResolver = (id: string) => testSpecies[id];

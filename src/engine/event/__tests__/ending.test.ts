@@ -53,9 +53,7 @@ describe("エンディングシーケンス", () => {
       const script = createEndingScript("テスト");
       const outputs = executeScript(script, { champion_defeated: true })!;
 
-      const flag = outputs.find(
-        (o) => o.type === "set_flag" && o.flag === "ending_complete"
-      );
+      const flag = outputs.find((o) => o.type === "set_flag" && o.flag === "ending_complete");
       expect(flag).toEqual({
         type: "set_flag",
         flag: "ending_complete",
@@ -83,7 +81,9 @@ describe("エンディングシーケンス", () => {
   describe("createPostgameIntroScript", () => {
     it("エンディング完了後にトリガーされる", () => {
       const script = createPostgameIntroScript();
-      expect(executeScript(script, { ending_complete: true, postgame_started: false })).not.toBeNull();
+      expect(
+        executeScript(script, { ending_complete: true, postgame_started: false }),
+      ).not.toBeNull();
     });
 
     it("エンディング未完了ではトリガーされない", () => {
@@ -112,7 +112,9 @@ describe("エンディングシーケンス", () => {
   describe("createSoumaFinalBattleScript", () => {
     it("エンディング完了後にトリガーされる", () => {
       const script = createSoumaFinalBattleScript();
-      expect(executeScript(script, { ending_complete: true, souma_final_beaten: false })).not.toBeNull();
+      expect(
+        executeScript(script, { ending_complete: true, souma_final_beaten: false }),
+      ).not.toBeNull();
     });
 
     it("ソウマとの6匹フルバトルを含む", () => {

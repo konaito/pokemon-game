@@ -16,11 +16,7 @@ const config: MatchmakingConfig = {
   timeout: 300000,
 };
 
-function entry(
-  id: string,
-  rating: number,
-  joinedAt: number = 0,
-): MatchmakingEntry {
+function entry(id: string, rating: number, joinedAt: number = 0): MatchmakingEntry {
   return { playerId: id, socketId: `socket_${id}`, rating, joinedAt };
 }
 
@@ -95,11 +91,7 @@ describe("マッチングシステム", () => {
     });
 
     it("レーティング差が最も小さいペアを返す", () => {
-      const queue = [
-        entry("a", 1500, 0),
-        entry("b", 1590, 0),
-        entry("c", 1510, 0),
-      ];
+      const queue = [entry("a", 1500, 0), entry("b", 1590, 0), entry("c", 1510, 0)];
       const result = findMatch(queue, 0, config);
       expect(result).not.toBeNull();
       // a(1500)とc(1510)が最もレーティング差が小さい

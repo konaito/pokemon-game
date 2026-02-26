@@ -133,7 +133,7 @@ export const MID_LATE_MOVES = {
       statusChance: 10,
     },
   },
-  "spark": {
+  spark: {
     id: "spark",
     name: "スパーク",
     type: "electric",
@@ -581,7 +581,7 @@ export const MID_LATE_MOVES = {
     pp: 10,
     priority: 0,
   },
-  "moonblast": {
+  moonblast: {
     id: "moonblast",
     name: "ムーンフォース",
     type: "fairy",

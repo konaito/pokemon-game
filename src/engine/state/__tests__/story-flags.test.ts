@@ -1,11 +1,5 @@
 import { describe, it, expect } from "vitest";
-import {
-  checkFlagRequirement,
-  setFlags,
-  hasFlag,
-  hasAllFlags,
-  hasAnyFlag,
-} from "../story-flags";
+import { checkFlagRequirement, setFlags, hasFlag, hasAllFlags, hasAnyFlag } from "../story-flags";
 import type { StoryFlags } from "../story-flags";
 
 describe("story-flags", () => {
@@ -76,8 +70,12 @@ describe("story-flags", () => {
 
     it("オブジェクト条件: value=falseの判定（フラグが未設定の場合もfalseとして扱う）", () => {
       expect(checkFlagRequirement({}, { flag: "gym1_cleared", value: false })).toBe(true);
-      expect(checkFlagRequirement({ gym1_cleared: false }, { flag: "gym1_cleared", value: false })).toBe(true);
-      expect(checkFlagRequirement({ gym1_cleared: true }, { flag: "gym1_cleared", value: false })).toBe(false);
+      expect(
+        checkFlagRequirement({ gym1_cleared: false }, { flag: "gym1_cleared", value: false }),
+      ).toBe(true);
+      expect(
+        checkFlagRequirement({ gym1_cleared: true }, { flag: "gym1_cleared", value: false }),
+      ).toBe(false);
     });
 
     it("配列条件（AND）: すべて満たす場合true", () => {
@@ -93,10 +91,7 @@ describe("story-flags", () => {
     it("配列条件に混在（文字列+オブジェクト）", () => {
       const flags: StoryFlags = { intro_done: true, evil_team_defeated: false };
       expect(
-        checkFlagRequirement(flags, [
-          "intro_done",
-          { flag: "evil_team_defeated", value: false },
-        ]),
+        checkFlagRequirement(flags, ["intro_done", { flag: "evil_team_defeated", value: false }]),
       ).toBe(true);
     });
   });

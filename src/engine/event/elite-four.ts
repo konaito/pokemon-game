@@ -40,10 +40,7 @@ export const ELITE_FOUR: EliteFourMember[] = [
       "忘れられた歌を集めて旅をしてきた。",
       "お前の物語を、風に乗せて聞かせてもらおう。",
     ],
-    defeatDialogue: [
-      "…見事だ。お前の物語は、風よりも力強い。",
-      "次の間へ進むがいい。",
-    ],
+    defeatDialogue: ["…見事だ。お前の物語は、風よりも力強い。", "次の間へ進むがいい。"],
     party: [
       { speciesId: "tobibato", level: 46 },
       { speciesId: "hanamushi", level: 47 },
@@ -62,10 +59,7 @@ export const ELITE_FOUR: EliteFourMember[] = [
       "形あるものは残る。記憶が消えても、鋼は残った。",
       "お前の意志、鋼のように固いか試してやろう。",
     ],
-    defeatDialogue: [
-      "…お前の意志は、わしの鋼よりも硬い。",
-      "先へ進め。",
-    ],
+    defeatDialogue: ["…お前の意志は、わしの鋼よりも硬い。", "先へ進め。"],
     party: [
       { speciesId: "denjimushi", level: 49 },
       { speciesId: "kanamori", level: 50 },
@@ -84,10 +78,7 @@ export const ELITE_FOUR: EliteFourMember[] = [
       "あなたの旅も、一つの物語。",
       "その物語の結末を、私が見届けてあげる。",
     ],
-    defeatDialogue: [
-      "…素晴らしい。あなたの物語は、まだ終わらない。",
-      "次の幕へ。",
-    ],
+    defeatDialogue: ["…素晴らしい。あなたの物語は、まだ終わらない。", "次の幕へ。"],
     party: [
       { speciesId: "hanausagi", level: 50 },
       { speciesId: "koorigitsune", level: 51 },

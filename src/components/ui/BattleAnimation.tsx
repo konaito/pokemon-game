@@ -95,29 +95,37 @@ export function BattleAnimation({ event, onComplete }: BattleAnimationProps) {
         const dir = event.target === "opponent" ? -1 : 1;
         timers.push(setTimeout(() => setTranslateX(dir * 30), 0));
         timers.push(setTimeout(() => setTranslateX(0), duration * 0.4));
-        timers.push(setTimeout(() => {
-          // ヒットフラッシュ
-          setOpacity(1);
-          setScale(1.2);
-        }, duration * 0.35));
-        timers.push(setTimeout(() => {
-          setOpacity(0);
-          setScale(1);
-        }, duration * 0.6));
+        timers.push(
+          setTimeout(() => {
+            // ヒットフラッシュ
+            setOpacity(1);
+            setScale(1.2);
+          }, duration * 0.35),
+        );
+        timers.push(
+          setTimeout(() => {
+            setOpacity(0);
+            setScale(1);
+          }, duration * 0.6),
+        );
         break;
       }
       case "attack_special": {
         // 特殊技: 光弾エフェクト
         setOpacity(0);
         setScale(0.3);
-        timers.push(setTimeout(() => {
-          setOpacity(1);
-          setScale(1.5);
-        }, duration * 0.1));
-        timers.push(setTimeout(() => {
-          setScale(2);
-          setOpacity(0);
-        }, duration * 0.6));
+        timers.push(
+          setTimeout(() => {
+            setOpacity(1);
+            setScale(1.5);
+          }, duration * 0.1),
+        );
+        timers.push(
+          setTimeout(() => {
+            setScale(2);
+            setOpacity(0);
+          }, duration * 0.6),
+        );
         break;
       }
       case "damage": {
@@ -138,86 +146,112 @@ export function BattleAnimation({ event, onComplete }: BattleAnimationProps) {
         // 瀕死: 下にスライドしながらフェードアウト
         setOpacity(0);
         setTranslateY(0);
-        timers.push(setTimeout(() => {
-          setOpacity(0.5);
-          setTranslateY(40);
-        }, duration * 0.2));
-        timers.push(setTimeout(() => {
-          setOpacity(0);
-          setTranslateY(80);
-        }, duration * 0.6));
+        timers.push(
+          setTimeout(() => {
+            setOpacity(0.5);
+            setTranslateY(40);
+          }, duration * 0.2),
+        );
+        timers.push(
+          setTimeout(() => {
+            setOpacity(0);
+            setTranslateY(80);
+          }, duration * 0.6),
+        );
         break;
       }
       case "status_inflict": {
         // 状態異常付与: パルス
         setScale(1);
         setOpacity(0);
-        timers.push(setTimeout(() => {
-          setOpacity(0.7);
-          setScale(1.3);
-        }, duration * 0.1));
-        timers.push(setTimeout(() => {
-          setOpacity(0.4);
-          setScale(1);
-        }, duration * 0.4));
-        timers.push(setTimeout(() => {
-          setOpacity(0);
-        }, duration * 0.7));
+        timers.push(
+          setTimeout(() => {
+            setOpacity(0.7);
+            setScale(1.3);
+          }, duration * 0.1),
+        );
+        timers.push(
+          setTimeout(() => {
+            setOpacity(0.4);
+            setScale(1);
+          }, duration * 0.4),
+        );
+        timers.push(
+          setTimeout(() => {
+            setOpacity(0);
+          }, duration * 0.7),
+        );
         break;
       }
       case "stat_up": {
         // ステータスアップ: 上に矢印フロート
         setOpacity(0);
         setTranslateY(20);
-        timers.push(setTimeout(() => {
-          setOpacity(1);
-          setTranslateY(-20);
-        }, duration * 0.1));
-        timers.push(setTimeout(() => {
-          setOpacity(0);
-          setTranslateY(-40);
-        }, duration * 0.6));
+        timers.push(
+          setTimeout(() => {
+            setOpacity(1);
+            setTranslateY(-20);
+          }, duration * 0.1),
+        );
+        timers.push(
+          setTimeout(() => {
+            setOpacity(0);
+            setTranslateY(-40);
+          }, duration * 0.6),
+        );
         break;
       }
       case "stat_down": {
         // ステータスダウン: 下に矢印フロート
         setOpacity(0);
         setTranslateY(-20);
-        timers.push(setTimeout(() => {
-          setOpacity(1);
-          setTranslateY(20);
-        }, duration * 0.1));
-        timers.push(setTimeout(() => {
-          setOpacity(0);
-          setTranslateY(40);
-        }, duration * 0.6));
+        timers.push(
+          setTimeout(() => {
+            setOpacity(1);
+            setTranslateY(20);
+          }, duration * 0.1),
+        );
+        timers.push(
+          setTimeout(() => {
+            setOpacity(0);
+            setTranslateY(40);
+          }, duration * 0.6),
+        );
         break;
       }
       case "heal": {
         // 回復: 緑のきらめき
         setOpacity(0);
         setScale(0.5);
-        timers.push(setTimeout(() => {
-          setOpacity(0.8);
-          setScale(1.2);
-        }, duration * 0.15));
-        timers.push(setTimeout(() => {
-          setOpacity(0.4);
-          setScale(1.5);
-        }, duration * 0.5));
-        timers.push(setTimeout(() => {
-          setOpacity(0);
-        }, duration * 0.8));
+        timers.push(
+          setTimeout(() => {
+            setOpacity(0.8);
+            setScale(1.2);
+          }, duration * 0.15),
+        );
+        timers.push(
+          setTimeout(() => {
+            setOpacity(0.4);
+            setScale(1.5);
+          }, duration * 0.5),
+        );
+        timers.push(
+          setTimeout(() => {
+            setOpacity(0);
+          }, duration * 0.8),
+        );
         break;
       }
     }
 
     // 完了通知
-    timers.push(setTimeout(() => {
-      reset();
-      setPhase("done");
-      onComplete();
-    }, duration));
+    timers.push(
+      setTimeout(() => {
+        reset();
+        setPhase("done");
+        onComplete();
+      }, duration),
+    );
 
     return () => {
       timers.forEach(clearTimeout);
@@ -230,10 +264,7 @@ export function BattleAnimation({ event, onComplete }: BattleAnimationProps) {
   const isTargetLeft = event.target === "opponent";
 
   return (
-    <div
-      className="pointer-events-none absolute inset-0"
-      aria-hidden="true"
-    >
+    <div className="pointer-events-none absolute inset-0" aria-hidden="true">
       {/* メインエフェクト */}
       <div
         className="absolute"
@@ -344,15 +375,11 @@ export function createAttackAnimation(
   };
 }
 
-export function createDamageAnimation(
-  target: "player" | "opponent",
-): BattleAnimationEvent {
+export function createDamageAnimation(target: "player" | "opponent"): BattleAnimationEvent {
   return { type: "damage", target };
 }
 
-export function createFaintAnimation(
-  target: "player" | "opponent",
-): BattleAnimationEvent {
+export function createFaintAnimation(target: "player" | "opponent"): BattleAnimationEvent {
   return { type: "faint", target, duration: 1000 };
 }
 
@@ -370,8 +397,6 @@ export function createStatChangeAnimation(
   return { type: direction === "up" ? "stat_up" : "stat_down", target };
 }
 
-export function createHealAnimation(
-  target: "player" | "opponent",
-): BattleAnimationEvent {
+export function createHealAnimation(target: "player" | "opponent"): BattleAnimationEvent {
   return { type: "heal", target };
 }

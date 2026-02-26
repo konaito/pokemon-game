@@ -550,13 +550,7 @@ describe("T3: スイッチ検証テスト", () => {
     const player = [createInstance("fire-starter"), createInstance("water-starter")];
     const opponent = [createInstance("grass-starter")];
 
-    const engine = new BattleEngine(
-      player,
-      opponent,
-      "wild",
-      speciesResolver,
-      moveResolver,
-    );
+    const engine = new BattleEngine(player, opponent, "wild", speciesResolver, moveResolver);
 
     expect(() => engine.executeTurn({ type: "switch", partyIndex: 5 })).toThrow(
       "無効なパーティインデックス",
@@ -567,13 +561,7 @@ describe("T3: スイッチ検証テスト", () => {
     const player = [createInstance("fire-starter"), createInstance("water-starter")];
     const opponent = [createInstance("grass-starter")];
 
-    const engine = new BattleEngine(
-      player,
-      opponent,
-      "wild",
-      speciesResolver,
-      moveResolver,
-    );
+    const engine = new BattleEngine(player, opponent, "wild", speciesResolver, moveResolver);
 
     expect(() => engine.executeTurn({ type: "switch", partyIndex: -1 })).toThrow(
       "無効なパーティインデックス",
@@ -585,30 +573,16 @@ describe("T3: スイッチ検証テスト", () => {
     player[1].currentHp = 0; // 瀕死
     const opponent = [createInstance("grass-starter")];
 
-    const engine = new BattleEngine(
-      player,
-      opponent,
-      "wild",
-      speciesResolver,
-      moveResolver,
-    );
+    const engine = new BattleEngine(player, opponent, "wild", speciesResolver, moveResolver);
 
-    expect(() => engine.executeTurn({ type: "switch", partyIndex: 1 })).toThrow(
-      "瀕死のモンスター",
-    );
+    expect(() => engine.executeTurn({ type: "switch", partyIndex: 1 })).toThrow("瀕死のモンスター");
   });
 
   it("現在のアクティブモンスターへの交代でエラーが投げられる", () => {
     const player = [createInstance("fire-starter"), createInstance("water-starter")];
     const opponent = [createInstance("grass-starter")];
 
-    const engine = new BattleEngine(
-      player,
-      opponent,
-      "wild",
-      speciesResolver,
-      moveResolver,
-    );
+    const engine = new BattleEngine(player, opponent, "wild", speciesResolver, moveResolver);
 
     expect(() => engine.executeTurn({ type: "switch", partyIndex: 0 })).toThrow(
       "既にバトルに出ている",

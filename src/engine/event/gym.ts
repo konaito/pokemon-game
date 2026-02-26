@@ -138,10 +138,7 @@ export function getRequiredBadgeCount(gymNumber: number): number {
  * @param gymNumber ジム番号
  * @param storyFlags 現在のストーリーフラグ
  */
-export function canChallengeGym(
-  gymNumber: number,
-  storyFlags: Record<string, boolean>,
-): boolean {
+export function canChallengeGym(gymNumber: number, storyFlags: Record<string, boolean>): boolean {
   const requiredBadges = getRequiredBadgeCount(gymNumber);
   for (let i = 1; i <= requiredBadges; i++) {
     if (!storyFlags[getGymFlagName(i)]) return false;

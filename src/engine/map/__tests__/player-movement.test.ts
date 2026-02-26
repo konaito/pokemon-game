@@ -102,12 +102,9 @@ describe("進行ゲート", () => {
   });
 
   it("条件を満たすゲートは通過できる", () => {
-    const result = movePlayer(
-      { x: 1, y: 1, direction: "right" },
-      "right",
-      gatedMap,
-      { gym1_cleared: true },
-    );
+    const result = movePlayer({ x: 1, y: 1, direction: "right" }, "right", gatedMap, {
+      gym1_cleared: true,
+    });
     expect(result.moved).toBe(true);
     expect(result.mapTransition).not.toBeNull();
     expect(result.mapTransition!.targetMapId).toBe("route-2");
@@ -149,22 +146,17 @@ describe("進行ゲート", () => {
     };
 
     // 1つだけでは不十分
-    const result1 = movePlayer(
-      { x: 1, y: 1, direction: "right" },
-      "right",
-      andGatedMap,
-      { gym1_cleared: true },
-    );
+    const result1 = movePlayer({ x: 1, y: 1, direction: "right" }, "right", andGatedMap, {
+      gym1_cleared: true,
+    });
     expect(result1.moved).toBe(false);
     expect(result1.blockedMessage).toBe("バッジが足りない！");
 
     // 両方揃えば通過
-    const result2 = movePlayer(
-      { x: 1, y: 1, direction: "right" },
-      "right",
-      andGatedMap,
-      { gym1_cleared: true, gym2_cleared: true },
-    );
+    const result2 = movePlayer({ x: 1, y: 1, direction: "right" }, "right", andGatedMap, {
+      gym1_cleared: true,
+      gym2_cleared: true,
+    });
     expect(result2.moved).toBe(true);
     expect(result2.mapTransition!.targetMapId).toBe("route-3");
   });

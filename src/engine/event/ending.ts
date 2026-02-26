@@ -41,10 +41,7 @@ export function createEndingScript(playerName: string): EventScript {
       // スタッフロール演出
       {
         type: "dialogue",
-        lines: [
-          "— MONSTER CHRONICLE —",
-          "あなたの旅を振り返ります…",
-        ],
+        lines: ["— MONSTER CHRONICLE —", "あなたの旅を振り返ります…"],
       },
       { type: "wait", ms: 3000 },
 
@@ -154,10 +151,7 @@ export function createSoumaFinalBattleScript(): EventScript {
       {
         type: "dialogue",
         speaker: "ソウマ",
-        lines: [
-          "…待ってたよ。",
-          "全力で来い。お前にそう言えるようになった自分が、少し誇らしい。",
-        ],
+        lines: ["…待ってたよ。", "全力で来い。お前にそう言えるようになった自分が、少し誇らしい。"],
       },
       {
         type: "battle",

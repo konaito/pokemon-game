@@ -6,35 +6,35 @@ type StatName = "atk" | "def" | "spAtk" | "spDef" | "speed";
 /** 性格による上昇/下降ステータスのマッピング */
 const NATURE_TABLE: Record<NatureId, { up: StatName | null; down: StatName | null }> = {
   // 無補正（対角線）
-  hardy:  { up: null, down: null },
+  hardy: { up: null, down: null },
   docile: { up: null, down: null },
   serious: { up: null, down: null },
   bashful: { up: null, down: null },
   quirky: { up: null, down: null },
   // atk↑
-  lonely:  { up: "atk", down: "def" },
-  brave:   { up: "atk", down: "speed" },
+  lonely: { up: "atk", down: "def" },
+  brave: { up: "atk", down: "speed" },
   adamant: { up: "atk", down: "spAtk" },
   naughty: { up: "atk", down: "spDef" },
   // def↑
-  bold:    { up: "def", down: "atk" },
+  bold: { up: "def", down: "atk" },
   relaxed: { up: "def", down: "speed" },
-  impish:  { up: "def", down: "spAtk" },
-  lax:     { up: "def", down: "spDef" },
+  impish: { up: "def", down: "spAtk" },
+  lax: { up: "def", down: "spDef" },
   // speed↑
-  timid:   { up: "speed", down: "atk" },
-  hasty:   { up: "speed", down: "def" },
-  jolly:   { up: "speed", down: "spAtk" },
-  naive:   { up: "speed", down: "spDef" },
+  timid: { up: "speed", down: "atk" },
+  hasty: { up: "speed", down: "def" },
+  jolly: { up: "speed", down: "spAtk" },
+  naive: { up: "speed", down: "spDef" },
   // spAtk↑
-  modest:  { up: "spAtk", down: "atk" },
-  mild:    { up: "spAtk", down: "def" },
-  quiet:   { up: "spAtk", down: "speed" },
-  rash:    { up: "spAtk", down: "spDef" },
+  modest: { up: "spAtk", down: "atk" },
+  mild: { up: "spAtk", down: "def" },
+  quiet: { up: "spAtk", down: "speed" },
+  rash: { up: "spAtk", down: "spDef" },
   // spDef↑
-  calm:    { up: "spDef", down: "atk" },
-  gentle:  { up: "spDef", down: "def" },
-  sassy:   { up: "spDef", down: "speed" },
+  calm: { up: "spDef", down: "atk" },
+  gentle: { up: "spDef", down: "def" },
+  sassy: { up: "spDef", down: "speed" },
   careful: { up: "spDef", down: "spAtk" },
 };
 

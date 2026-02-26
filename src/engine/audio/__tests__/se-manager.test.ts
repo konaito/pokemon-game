@@ -1,10 +1,5 @@
 import { describe, it, expect } from "vitest";
-import {
-  createSeManager,
-  resolveDamageSe,
-  generateCaptureSe,
-  SE,
-} from "../se-manager";
+import { createSeManager, resolveDamageSe, generateCaptureSe, SE } from "../se-manager";
 
 describe("createSeManager", () => {
   it("初期マスターボリュームは0.8", () => {
@@ -16,9 +11,7 @@ describe("createSeManager", () => {
     it("SEを再生する（マスターボリュームが適用される）", () => {
       const mgr = createSeManager();
       mgr.play(SE.CONFIRM);
-      expect(mgr.getEventLog()).toEqual([
-        { type: "play", seId: "se-confirm", volume: 0.8 },
-      ]);
+      expect(mgr.getEventLog()).toEqual([{ type: "play", seId: "se-confirm", volume: 0.8 }]);
     });
 
     it("個別音量を指定できる", () => {
@@ -45,9 +38,7 @@ describe("createSeManager", () => {
       const mgr = createSeManager();
       mgr.setMasterVolume(0.5);
       expect(mgr.getMasterVolume()).toBe(0.5);
-      expect(mgr.getEventLog()).toEqual([
-        { type: "master_volume_change", volume: 0.5 },
-      ]);
+      expect(mgr.getEventLog()).toEqual([{ type: "master_volume_change", volume: 0.5 }]);
     });
 
     it("マスターボリュームは0-1にクランプされる", () => {
@@ -117,18 +108,11 @@ describe("generateCaptureSe", () => {
 
   it("捕獲失敗（1回揺れ）", () => {
     const seq = generateCaptureSe(1, false);
-    expect(seq).toEqual([
-      SE.BALL_THROW,
-      SE.BALL_SHAKE,
-      SE.CATCH_FAIL,
-    ]);
+    expect(seq).toEqual([SE.BALL_THROW, SE.BALL_SHAKE, SE.CATCH_FAIL]);
   });
 
   it("捕獲失敗（0回揺れ）", () => {
     const seq = generateCaptureSe(0, false);
-    expect(seq).toEqual([
-      SE.BALL_THROW,
-      SE.CATCH_FAIL,
-    ]);
+    expect(seq).toEqual([SE.BALL_THROW, SE.CATCH_FAIL]);
   });
 });

@@ -84,11 +84,17 @@ export function getStageMultiplier(stage: number): number {
 /** ステータス名の日本語表示 */
 function getStatName(stat: keyof BaseStats): string {
   switch (stat) {
-    case "atk": return "こうげき";
-    case "def": return "ぼうぎょ";
-    case "spAtk": return "とくこう";
-    case "spDef": return "とくぼう";
-    case "speed": return "すばやさ";
-    case "hp": return "HP";
+    case "atk":
+      return "こうげき";
+    case "def":
+      return "ぼうぎょ";
+    case "spAtk":
+      return "とくこう";
+    case "spDef":
+      return "とくぼう";
+    case "speed":
+      return "すばやさ";
+    case "hp":
+      return "HP";
   }
 }
