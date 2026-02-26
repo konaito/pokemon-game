@@ -1,4 +1,5 @@
 import type { MapId, MonsterId } from "@/types";
+import type { FlagRequirement } from "@/engine/state/story-flags";
 
 /** タイルの種類 */
 export type TileType = "ground" | "wall" | "grass" | "water" | "ledge" | "door" | "sign";
@@ -34,16 +35,40 @@ export interface EncounterEntry {
   weight: number;
 }
 
+/** 条件付きダイアログ — ストーリーフラグに基づいて分岐 */
+export interface ConditionalDialogue {
+  /** この条件を満たす場合にこのダイアログを使用 */
+  condition: FlagRequirement;
+  /** 条件を満たした場合のダイアログテキスト */
+  dialogue: string[];
+}
+
+/** NPC会話完了時に発火するイベント */
+export interface NpcEvent {
+  /** 設定するフラグ */
+  setFlags?: Record<string, boolean>;
+  /** 回復イベント */
+  heal?: boolean;
+  /** アイテム付与 */
+  giveItem?: { itemId: string; quantity: number };
+}
+
 /** NPC定義 */
 export interface NpcDefinition {
   id: string;
   name: string;
   x: number;
   y: number;
-  /** 会話テキスト（配列で複数ページ） */
+  /** デフォルト会話テキスト（配列で複数ページ） */
   dialogue: string[];
+  /** 条件付きダイアログ（上から順に評価、最初に条件を満たしたものを使用） */
+  conditionalDialogues?: ConditionalDialogue[];
   /** トレーナーとして戦闘するか */
   isTrainer: boolean;
+  /** 会話完了時に実行するイベント */
+  onInteract?: NpcEvent;
+  /** このNPCが出現するための条件（未設定なら常に出現） */
+  appearCondition?: FlagRequirement;
 }
 
 /** マップ定義 */
