@@ -189,6 +189,7 @@ export class BattleEngine {
         action.monster.ivs,
         action.monster.evs,
         action.monster.level,
+        action.monster.nature,
       ).hp;
       const result = executeStruggle(
         action.monster,
@@ -233,12 +234,14 @@ export class BattleEngine {
       this.playerActive.ivs,
       this.playerActive.evs,
       this.playerActive.level,
+      this.playerActive.nature,
     ).speed;
     const opponentSpeed = calcAllStats(
       opponentSpecies.baseStats,
       this.opponentActive.ivs,
       this.opponentActive.evs,
       this.opponentActive.level,
+      this.opponentActive.nature,
     ).speed;
 
     const escapeChance = Math.min(
@@ -353,7 +356,7 @@ export class BattleEngine {
     const applyToMonster = (monster: MonsterInstance) => {
       if (!monster.status || monster.currentHp <= 0) return;
       const species = this.speciesResolver(monster.speciesId);
-      const maxHp = calcAllStats(species.baseStats, monster.ivs, monster.evs, monster.level).hp;
+      const maxHp = calcAllStats(species.baseStats, monster.ivs, monster.evs, monster.level, monster.nature).hp;
       const hpBefore = monster.currentHp;
       monster.currentHp = applyStatusDamage(monster, maxHp);
       if (monster.currentHp < hpBefore) {

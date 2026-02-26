@@ -93,8 +93,10 @@ export function generateWildMonster(
   };
   const evs = { hp: 0, atk: 0, def: 0, spAtk: 0, spDef: 0, speed: 0 };
 
+  const nature = randomNature(random);
+
   // maxHpを計算してcurrentHpに設定
-  const maxHp = calcAllStats(species.baseStats, ivs, evs, level).hp;
+  const maxHp = calcAllStats(species.baseStats, ivs, evs, level, nature).hp;
 
   // learnsetから現在レベルまでの技を最大4つ設定
   const learnableMoves = species.learnset
@@ -110,7 +112,7 @@ export function generateWildMonster(
     speciesId: entry.speciesId,
     level,
     exp: 0,
-    nature: randomNature(random),
+    nature,
     ivs,
     evs,
     currentHp: maxHp,
