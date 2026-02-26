@@ -48,13 +48,23 @@ export function executeMove(
     };
   }
 
-  messages.push(`${attackerSpecies.name}の${move.name}！`);
-
-  // PP消費
+  // PP確認 & 消費
   const moveInstance = attacker.moves.find((m) => m.moveId === move.id);
-  if (moveInstance && moveInstance.currentPp > 0) {
+  if (moveInstance) {
+    if (moveInstance.currentPp <= 0) {
+      messages.push("しかし技のPPが足りない！");
+      return {
+        hit: false,
+        damage: null,
+        defenderHpAfter: defender.currentHp,
+        statusApplied: null,
+        messages,
+      };
+    }
     moveInstance.currentPp--;
   }
+
+  messages.push(`${attackerSpecies.name}の${move.name}！`);
 
   // 2. 命中判定
   const hitRoll = rng() * 100;
@@ -69,7 +79,30 @@ export function executeMove(
     };
   }
 
-  // 3. ダメージ計算
+  // 3. ステータス技の処理（ダメージなし、効果のみ）
+  if (move.category === "status") {
+    let statusApplied: StatusCondition | null = null;
+    if (move.effect?.statusCondition && defender.status === null) {
+      const chance = move.effect.statusChance ?? 100;
+      if (rng() * 100 < chance) {
+        statusApplied = move.effect.statusCondition;
+        messages.push(`${defenderSpecies.name}は${getStatusMessage(statusApplied)}`);
+      } else {
+        messages.push("しかし効果がなかった！");
+      }
+    } else if (defender.status !== null) {
+      messages.push("しかし効果がなかった！");
+    }
+    return {
+      hit: true,
+      damage: null,
+      defenderHpAfter: defender.currentHp,
+      statusApplied,
+      messages,
+    };
+  }
+
+  // 4. ダメージ計算
   const damageResult = calculateDamage({
     attacker,
     attackerSpecies,
@@ -79,7 +112,7 @@ export function executeMove(
     random: () => rng(),
   });
 
-  // 4. HP更新
+  // 5. HP更新
   const defenderHpAfter = Math.max(0, defender.currentHp - damageResult.damage);
 
   // メッセージ生成
@@ -95,7 +128,7 @@ export function executeMove(
     messages.push("急所に当たった！");
   }
 
-  // 5. 追加効果（状態異常付与）
+  // 6. 追加効果（状態異常付与 — ダメージ技の追加効果）
   let statusApplied: StatusCondition | null = null;
   if (
     move.effect?.statusCondition &&

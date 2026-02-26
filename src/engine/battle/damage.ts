@@ -1,6 +1,7 @@
 import type { MoveDefinition, MonsterInstance, MonsterSpecies } from "@/types";
 import { getMultiTypeEffectiveness } from "@/engine/type/effectiveness";
 import { calcAllStats } from "@/engine/monster/stats";
+import { getStatusEffect } from "./status";
 
 /** ダメージ計算結果 */
 export interface DamageResult {
@@ -50,8 +51,13 @@ export function calculateDamage(ctx: DamageContext): DamageResult {
   );
 
   // 物理 or 特殊に応じてA/Dを選択
-  const attackStat = move.category === "physical" ? attackerStats.atk : attackerStats.spAtk;
+  let attackStat = move.category === "physical" ? attackerStats.atk : attackerStats.spAtk;
   const defenseStat = move.category === "physical" ? defenderStats.def : defenderStats.spDef;
+
+  // やけど時の物理攻撃力半減
+  if (attacker.status === "burn" && move.category === "physical") {
+    attackStat = Math.floor(attackStat * getStatusEffect("burn").attackModifier);
+  }
 
   // 基本ダメージ
   const baseDamage =
@@ -66,6 +72,11 @@ export function calculateDamage(ctx: DamageContext): DamageResult {
   // タイプ相性
   const effectiveness = getMultiTypeEffectiveness(move.type, [...defenderSpecies.types]);
 
+  // タイプ無効 → ダメージ0（最低保証なし）
+  if (effectiveness === 0) {
+    return { damage: 0, effectiveness: 0, isCritical: false, isStab };
+  }
+
   // 急所判定（1/24の確率）
   const isCritical = random() < 1 / 24;
   const criticalModifier = isCritical ? 1.5 : 1;
@@ -73,7 +84,7 @@ export function calculateDamage(ctx: DamageContext): DamageResult {
   // 乱数補正（0.85 - 1.00の範囲）
   const randomModifier = 0.85 + random() * 0.15;
 
-  // 最終ダメージ
+  // 最終ダメージ（等倍以上なら最低1保証）
   const damage = Math.max(
     1,
     Math.floor(baseDamage * stabModifier * effectiveness * criticalModifier * randomModifier),
