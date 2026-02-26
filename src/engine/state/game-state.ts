@@ -63,7 +63,12 @@ export function createNewPlayerState(name: string): PlayerState {
       party: [],
       boxes: Array.from({ length: 8 }, () => []),
     },
-    bag: { items: [] },
+    bag: {
+      items: [
+        { itemId: "monster-ball", quantity: 5 },
+        { itemId: "potion", quantity: 3 },
+      ],
+    },
     pokedexSeen: new Set(),
     pokedexCaught: new Set(),
   };
@@ -75,7 +80,9 @@ export type GameAction =
   | { type: "SET_STARTER"; monster: MonsterInstance }
   | { type: "UPDATE_PLAYER"; updates: Partial<PlayerState> }
   | { type: "SET_STORY_FLAG"; flag: string; value: boolean }
-  | { type: "LOAD_GAME"; state: GameState };
+  | { type: "LOAD_GAME"; state: GameState }
+  | { type: "UPDATE_OVERWORLD"; updates: Partial<OverworldState> }
+  | { type: "SET_OVERWORLD"; overworld: OverworldState };
 
 /** ゲーム状態のReducer */
 export function gameReducer(state: GameState, action: GameAction): GameState {
@@ -102,6 +109,12 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
           pokedexSeen: new Set([...state.player.pokedexSeen, action.monster.speciesId]),
           pokedexCaught: new Set([...state.player.pokedexCaught, action.monster.speciesId]),
         },
+        overworld: {
+          currentMapId: "wasuremachi",
+          playerX: 4,
+          playerY: 4,
+          direction: "down" as const,
+        },
       };
     case "UPDATE_PLAYER":
       if (!state.player) return state;
@@ -116,6 +129,17 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
       };
     case "LOAD_GAME":
       return action.state;
+    case "UPDATE_OVERWORLD":
+      if (!state.overworld) return state;
+      return {
+        ...state,
+        overworld: { ...state.overworld, ...action.updates },
+      };
+    case "SET_OVERWORLD":
+      return {
+        ...state,
+        overworld: action.overworld,
+      };
     default:
       return state;
   }

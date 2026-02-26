@@ -1,0 +1,756 @@
+/**
+ * 全マップデータ（ジム2〜8の町 + ルート + ポケモンリーグ）
+ * wasuremachi, route-1, hajimari-forest は個別ファイル
+ */
+import type { MapDefinition } from "@/engine/map/map-data";
+
+const W = "wall" as const;
+const G = "ground" as const;
+const T = "grass" as const;
+
+// ===== ツチグモ村（ジム1:ノーマル）=====
+export const TSUCHIGUMO_VILLAGE: MapDefinition = {
+  id: "tsuchigumo-village",
+  name: "ツチグモ村",
+  width: 10,
+  height: 10,
+  tiles: [
+    [W, W, W, W, W, G, G, W, W, W],
+    [W, G, G, G, G, G, G, G, G, W],
+    [W, G, W, G, G, G, G, W, G, W],
+    [W, G, W, G, G, G, G, W, G, W],
+    [G, G, G, G, G, G, G, G, G, G],
+    [G, G, G, G, G, G, G, G, G, G],
+    [W, G, W, G, G, G, G, W, G, W],
+    [W, G, W, G, G, G, G, W, G, W],
+    [W, G, G, G, G, G, G, G, G, W],
+    [W, W, W, W, G, G, W, W, W, W],
+  ],
+  connections: [
+    { targetMapId: "hajimari-forest", targetX: 5, targetY: 10, sourceX: 5, sourceY: 0 },
+    { targetMapId: "hajimari-forest", targetX: 6, targetY: 10, sourceX: 6, sourceY: 0 },
+    { targetMapId: "route-2", targetX: 4, targetY: 0, sourceX: 4, sourceY: 9 },
+    { targetMapId: "route-2", targetX: 5, targetY: 0, sourceX: 5, sourceY: 9 },
+  ],
+  encounters: [],
+  encounterRate: 0,
+  npcs: [
+    {
+      id: "npc-gym1-healer",
+      name: "回復のおねえさん",
+      x: 2,
+      y: 3,
+      dialogue: ["モンスターを回復しますね！"],
+      isTrainer: false,
+      onInteract: { heal: true },
+    },
+    {
+      id: "npc-gym1-leader",
+      name: "マサキ",
+      x: 8,
+      y: 3,
+      dialogue: [
+        "やあ、新しい挑戦者だね。",
+        "僕はマサキ。この島で一番最初の試練を担当している。",
+        "それを見せてくれ！",
+      ],
+      isTrainer: true,
+      onInteract: { setFlags: { gym1_battle_triggered: true } },
+    },
+  ],
+};
+
+// ===== ルート2 =====
+export const ROUTE_2: MapDefinition = {
+  id: "route-2",
+  name: "ルート2",
+  width: 12,
+  height: 10,
+  tiles: [
+    [W, W, W, W, G, G, W, W, W, W, W, W],
+    [W, T, T, G, G, G, G, G, T, T, T, W],
+    [W, T, T, G, G, G, G, G, T, T, T, W],
+    [W, G, G, G, G, G, G, G, G, G, G, W],
+    [W, G, G, G, W, W, G, G, G, G, G, W],
+    [W, G, G, G, W, W, G, G, G, G, G, W],
+    [W, G, T, T, G, G, G, T, T, G, G, W],
+    [W, G, T, T, G, G, G, T, T, G, G, W],
+    [W, G, G, G, G, G, G, G, G, G, G, W],
+    [W, W, W, W, W, G, G, W, W, W, W, W],
+  ],
+  connections: [
+    { targetMapId: "tsuchigumo-village", targetX: 4, targetY: 8, sourceX: 4, sourceY: 0 },
+    { targetMapId: "tsuchigumo-village", targetX: 5, targetY: 8, sourceX: 5, sourceY: 0 },
+    { targetMapId: "morinoha-town", targetX: 5, targetY: 0, sourceX: 5, sourceY: 9 },
+    { targetMapId: "morinoha-town", targetX: 6, targetY: 0, sourceX: 6, sourceY: 9 },
+  ],
+  encounters: [
+    { speciesId: "konezumi", minLevel: 7, maxLevel: 10, weight: 25 },
+    { speciesId: "tobibato", minLevel: 7, maxLevel: 10, weight: 25 },
+    { speciesId: "mayumushi", minLevel: 7, maxLevel: 10, weight: 25 },
+    { speciesId: "dokudama", minLevel: 7, maxLevel: 10, weight: 15 },
+    { speciesId: "hikarineko", minLevel: 8, maxLevel: 11, weight: 10 },
+  ],
+  encounterRate: 20,
+  npcs: [],
+};
+
+// ===== モリノハの町（ジム2:虫）=====
+export const MORINOHA_TOWN: MapDefinition = {
+  id: "morinoha-town",
+  name: "モリノハの町",
+  width: 10,
+  height: 10,
+  tiles: [
+    [W, W, W, W, W, G, G, W, W, W],
+    [W, G, G, G, G, G, G, G, G, W],
+    [W, G, W, G, G, G, G, W, G, W],
+    [W, G, G, G, G, G, G, G, G, W],
+    [G, G, G, G, G, G, G, G, G, G],
+    [W, G, G, G, G, G, G, G, G, W],
+    [W, G, W, G, G, G, G, W, G, W],
+    [W, G, G, G, G, G, G, G, G, W],
+    [W, G, G, G, G, G, G, G, G, W],
+    [W, W, W, W, G, G, W, W, W, W],
+  ],
+  connections: [
+    { targetMapId: "route-2", targetX: 5, targetY: 8, sourceX: 5, sourceY: 0 },
+    { targetMapId: "route-2", targetX: 6, targetY: 8, sourceX: 6, sourceY: 0 },
+    { targetMapId: "route-3", targetX: 4, targetY: 0, sourceX: 4, sourceY: 9 },
+    { targetMapId: "route-3", targetX: 5, targetY: 0, sourceX: 5, sourceY: 9 },
+  ],
+  encounters: [],
+  encounterRate: 0,
+  npcs: [
+    {
+      id: "npc-gym2-healer",
+      name: "回復のおねえさん",
+      x: 2,
+      y: 3,
+      dialogue: ["回復しますね！"],
+      isTrainer: false,
+      onInteract: { heal: true },
+    },
+    {
+      id: "npc-gym2-leader",
+      name: "カイコ",
+      x: 8,
+      y: 3,
+      dialogue: ["虫タイプの研究をしているの。挑戦する？"],
+      isTrainer: true,
+    },
+  ],
+};
+
+// ===== ルート3 =====
+export const ROUTE_3: MapDefinition = {
+  id: "route-3",
+  name: "ルート3",
+  width: 12,
+  height: 10,
+  tiles: [
+    [W, W, W, W, G, G, W, W, W, W, W, W],
+    [W, G, T, T, G, G, G, G, T, T, G, W],
+    [W, G, T, T, G, G, G, G, T, T, G, W],
+    [W, G, G, G, G, G, G, G, G, G, G, W],
+    [W, G, G, G, G, G, G, G, G, G, G, W],
+    [W, G, G, T, T, G, G, G, T, T, G, W],
+    [W, G, G, T, T, G, G, G, T, T, G, W],
+    [W, G, G, G, G, G, G, G, G, G, G, W],
+    [W, G, G, G, G, G, G, G, G, G, G, W],
+    [W, W, W, W, W, G, G, W, W, W, W, W],
+  ],
+  connections: [
+    { targetMapId: "morinoha-town", targetX: 4, targetY: 8, sourceX: 4, sourceY: 0 },
+    { targetMapId: "morinoha-town", targetX: 5, targetY: 8, sourceX: 5, sourceY: 0 },
+    { targetMapId: "inazuma-city", targetX: 5, targetY: 0, sourceX: 5, sourceY: 9 },
+    { targetMapId: "inazuma-city", targetX: 6, targetY: 0, sourceX: 6, sourceY: 9 },
+  ],
+  encounters: [
+    { speciesId: "tobibato", minLevel: 12, maxLevel: 15, weight: 20 },
+    { speciesId: "dokudama", minLevel: 12, maxLevel: 16, weight: 20 },
+    { speciesId: "hikarineko", minLevel: 13, maxLevel: 16, weight: 15 },
+    { speciesId: "kawadojou", minLevel: 12, maxLevel: 15, weight: 20 },
+    { speciesId: "hidane", minLevel: 14, maxLevel: 17, weight: 15 },
+    { speciesId: "hanausagi", minLevel: 13, maxLevel: 16, weight: 10 },
+  ],
+  encounterRate: 22,
+  npcs: [],
+};
+
+// ===== イナヅマシティ（ジム3:電気）=====
+export const INAZUMA_CITY: MapDefinition = {
+  id: "inazuma-city",
+  name: "イナヅマシティ",
+  width: 10,
+  height: 10,
+  tiles: [
+    [W, W, W, W, W, G, G, W, W, W],
+    [W, G, G, G, G, G, G, G, G, W],
+    [W, G, W, G, G, G, G, W, G, W],
+    [W, G, G, G, G, G, G, G, G, W],
+    [G, G, G, G, G, G, G, G, G, G],
+    [W, G, G, G, G, G, G, G, G, W],
+    [W, G, W, G, G, G, G, W, G, W],
+    [W, G, G, G, G, G, G, G, G, W],
+    [W, G, G, G, G, G, G, G, G, W],
+    [W, W, W, W, G, G, W, W, W, W],
+  ],
+  connections: [
+    { targetMapId: "route-3", targetX: 5, targetY: 8, sourceX: 5, sourceY: 0 },
+    { targetMapId: "route-3", targetX: 6, targetY: 8, sourceX: 6, sourceY: 0 },
+    { targetMapId: "route-4", targetX: 4, targetY: 0, sourceX: 4, sourceY: 9 },
+    { targetMapId: "route-4", targetX: 5, targetY: 0, sourceX: 5, sourceY: 9 },
+  ],
+  encounters: [],
+  encounterRate: 0,
+  npcs: [
+    {
+      id: "npc-gym3-healer",
+      name: "回復のおねえさん",
+      x: 2,
+      y: 3,
+      dialogue: ["回復しますね！"],
+      isTrainer: false,
+      onInteract: { heal: true },
+    },
+    {
+      id: "npc-gym3-leader",
+      name: "ライゾウ",
+      x: 8,
+      y: 3,
+      dialogue: ["ビリビリ来るぜ！挑戦するか！"],
+      isTrainer: true,
+    },
+  ],
+};
+
+// ===== ルート4 =====
+export const ROUTE_4: MapDefinition = {
+  id: "route-4",
+  name: "ルート4",
+  width: 12,
+  height: 10,
+  tiles: [
+    [W, W, W, W, G, G, W, W, W, W, W, W],
+    [W, T, T, G, G, G, G, G, T, T, G, W],
+    [W, T, T, G, G, G, G, G, T, T, G, W],
+    [W, G, G, G, G, G, G, G, G, G, G, W],
+    [W, G, G, G, G, G, G, G, G, G, G, W],
+    [W, G, G, T, T, T, G, G, G, T, T, W],
+    [W, G, G, T, T, T, G, G, G, T, T, W],
+    [W, G, G, G, G, G, G, G, G, G, G, W],
+    [W, G, G, G, G, G, G, G, G, G, G, W],
+    [W, W, W, W, W, G, G, W, W, W, W, W],
+  ],
+  connections: [
+    { targetMapId: "inazuma-city", targetX: 4, targetY: 8, sourceX: 4, sourceY: 0 },
+    { targetMapId: "inazuma-city", targetX: 5, targetY: 8, sourceX: 5, sourceY: 0 },
+    { targetMapId: "kagari-city", targetX: 5, targetY: 0, sourceX: 5, sourceY: 9 },
+    { targetMapId: "kagari-city", targetX: 6, targetY: 0, sourceX: 6, sourceY: 9 },
+  ],
+  encounters: [
+    { speciesId: "hidane", minLevel: 18, maxLevel: 22, weight: 20 },
+    { speciesId: "kaenjishi", minLevel: 20, maxLevel: 24, weight: 10 },
+    { speciesId: "tsuchikobushi", minLevel: 18, maxLevel: 22, weight: 20 },
+    { speciesId: "mogurakko", minLevel: 18, maxLevel: 22, weight: 20 },
+    { speciesId: "kusakabi", minLevel: 19, maxLevel: 23, weight: 15 },
+    { speciesId: "kanamori", minLevel: 20, maxLevel: 24, weight: 15 },
+  ],
+  encounterRate: 22,
+  npcs: [],
+};
+
+// ===== カガリ市（ジム4:炎）=====
+export const KAGARI_CITY: MapDefinition = {
+  id: "kagari-city",
+  name: "カガリ市",
+  width: 10,
+  height: 10,
+  tiles: [
+    [W, W, W, W, W, G, G, W, W, W],
+    [W, G, G, G, G, G, G, G, G, W],
+    [W, G, W, G, G, G, G, W, G, W],
+    [W, G, G, G, G, G, G, G, G, W],
+    [G, G, G, G, G, G, G, G, G, G],
+    [W, G, G, G, G, G, G, G, G, W],
+    [W, G, W, G, G, G, G, W, G, W],
+    [W, G, G, G, G, G, G, G, G, W],
+    [W, G, G, G, G, G, G, G, G, W],
+    [W, W, W, W, G, G, W, W, W, W],
+  ],
+  connections: [
+    { targetMapId: "route-4", targetX: 5, targetY: 8, sourceX: 5, sourceY: 0 },
+    { targetMapId: "route-4", targetX: 6, targetY: 8, sourceX: 6, sourceY: 0 },
+    { targetMapId: "route-5", targetX: 4, targetY: 0, sourceX: 4, sourceY: 9 },
+    { targetMapId: "route-5", targetX: 5, targetY: 0, sourceX: 5, sourceY: 9 },
+  ],
+  encounters: [],
+  encounterRate: 0,
+  npcs: [
+    {
+      id: "npc-gym4-healer",
+      name: "回復のおねえさん",
+      x: 2,
+      y: 3,
+      dialogue: ["回復しますね！"],
+      isTrainer: false,
+      onInteract: { heal: true },
+    },
+    {
+      id: "npc-gym4-leader",
+      name: "カガリ",
+      x: 8,
+      y: 3,
+      dialogue: ["お前の心に火はあるか？"],
+      isTrainer: true,
+    },
+  ],
+};
+
+// ===== ルート5 =====
+export const ROUTE_5: MapDefinition = {
+  id: "route-5",
+  name: "ルート5",
+  width: 12,
+  height: 10,
+  tiles: [
+    [W, W, W, W, G, G, W, W, W, W, W, W],
+    [W, G, T, T, G, G, G, T, T, G, G, W],
+    [W, G, T, T, G, G, G, T, T, G, G, W],
+    [W, G, G, G, G, G, G, G, G, G, G, W],
+    [W, G, G, G, G, G, G, G, G, G, G, W],
+    [W, G, T, T, G, G, G, G, T, T, G, W],
+    [W, G, T, T, G, G, G, G, T, T, G, W],
+    [W, G, G, G, G, G, G, G, G, G, G, W],
+    [W, G, G, G, G, G, G, G, G, G, G, W],
+    [W, W, W, W, W, G, G, W, W, W, W, W],
+  ],
+  connections: [
+    { targetMapId: "kagari-city", targetX: 4, targetY: 8, sourceX: 4, sourceY: 0 },
+    { targetMapId: "kagari-city", targetX: 5, targetY: 8, sourceX: 5, sourceY: 0 },
+    { targetMapId: "gouki-town", targetX: 5, targetY: 0, sourceX: 5, sourceY: 9 },
+    { targetMapId: "gouki-town", targetX: 6, targetY: 0, sourceX: 6, sourceY: 9 },
+  ],
+  encounters: [
+    { speciesId: "tsuchikobushi", minLevel: 24, maxLevel: 28, weight: 20 },
+    { speciesId: "iwakenjin", minLevel: 26, maxLevel: 30, weight: 10 },
+    { speciesId: "yurabi", minLevel: 24, maxLevel: 28, weight: 20 },
+    { speciesId: "yamigarasu", minLevel: 25, maxLevel: 29, weight: 15 },
+    { speciesId: "kanamori", minLevel: 25, maxLevel: 29, weight: 15 },
+    { speciesId: "dokubana", minLevel: 26, maxLevel: 30, weight: 20 },
+  ],
+  encounterRate: 22,
+  npcs: [],
+};
+
+// ===== ゴウキの町（ジム5:格闘）=====
+export const GOUKI_TOWN: MapDefinition = {
+  id: "gouki-town",
+  name: "ゴウキの町",
+  width: 10,
+  height: 10,
+  tiles: [
+    [W, W, W, W, W, G, G, W, W, W],
+    [W, G, G, G, G, G, G, G, G, W],
+    [W, G, W, G, G, G, G, W, G, W],
+    [W, G, G, G, G, G, G, G, G, W],
+    [G, G, G, G, G, G, G, G, G, G],
+    [W, G, G, G, G, G, G, G, G, W],
+    [W, G, W, G, G, G, G, W, G, W],
+    [W, G, G, G, G, G, G, G, G, W],
+    [W, G, G, G, G, G, G, G, G, W],
+    [W, W, W, W, G, G, W, W, W, W],
+  ],
+  connections: [
+    { targetMapId: "route-5", targetX: 5, targetY: 8, sourceX: 5, sourceY: 0 },
+    { targetMapId: "route-5", targetX: 6, targetY: 8, sourceX: 6, sourceY: 0 },
+    { targetMapId: "route-6", targetX: 4, targetY: 0, sourceX: 4, sourceY: 9 },
+    { targetMapId: "route-6", targetX: 5, targetY: 0, sourceX: 5, sourceY: 9 },
+  ],
+  encounters: [],
+  encounterRate: 0,
+  npcs: [
+    {
+      id: "npc-gym5-healer",
+      name: "回復のおねえさん",
+      x: 2,
+      y: 3,
+      dialogue: ["回復しますね！"],
+      isTrainer: false,
+      onInteract: { heal: true },
+    },
+    {
+      id: "npc-gym5-leader",
+      name: "ゴウキ",
+      x: 8,
+      y: 3,
+      dialogue: ["言葉はいらぬ。拳で語り合おう。"],
+      isTrainer: true,
+    },
+  ],
+};
+
+// ===== ルート6 =====
+export const ROUTE_6: MapDefinition = {
+  id: "route-6",
+  name: "ルート6",
+  width: 12,
+  height: 10,
+  tiles: [
+    [W, W, W, W, G, G, W, W, W, W, W, W],
+    [W, T, T, G, G, G, G, G, T, T, G, W],
+    [W, T, T, G, G, G, G, G, T, T, G, W],
+    [W, G, G, G, G, G, G, G, G, G, G, W],
+    [W, G, G, G, G, G, G, G, G, G, G, W],
+    [W, G, T, T, T, G, G, T, T, T, G, W],
+    [W, G, T, T, T, G, G, T, T, T, G, W],
+    [W, G, G, G, G, G, G, G, G, G, G, W],
+    [W, G, G, G, G, G, G, G, G, G, G, W],
+    [W, W, W, W, W, G, G, W, W, W, W, W],
+  ],
+  connections: [
+    { targetMapId: "gouki-town", targetX: 4, targetY: 8, sourceX: 4, sourceY: 0 },
+    { targetMapId: "gouki-town", targetX: 5, targetY: 8, sourceX: 5, sourceY: 0 },
+    { targetMapId: "kirifuri-village", targetX: 5, targetY: 0, sourceX: 5, sourceY: 9 },
+    { targetMapId: "kirifuri-village", targetX: 6, targetY: 0, sourceX: 6, sourceY: 9 },
+  ],
+  encounters: [
+    { speciesId: "yurabi", minLevel: 30, maxLevel: 34, weight: 20 },
+    { speciesId: "kageboushi", minLevel: 31, maxLevel: 35, weight: 15 },
+    { speciesId: "kurooni", minLevel: 30, maxLevel: 34, weight: 15 },
+    { speciesId: "yamigarasu", minLevel: 30, maxLevel: 34, weight: 15 },
+    { speciesId: "fubukirei", minLevel: 32, maxLevel: 36, weight: 10 },
+    { speciesId: "tsukiusagi", minLevel: 31, maxLevel: 35, weight: 15 },
+    { speciesId: "dokubana", minLevel: 30, maxLevel: 34, weight: 10 },
+  ],
+  encounterRate: 25,
+  npcs: [],
+};
+
+// ===== キリフリ村（ジム6:ゴースト）=====
+export const KIRIFURI_VILLAGE: MapDefinition = {
+  id: "kirifuri-village",
+  name: "キリフリ村",
+  width: 10,
+  height: 10,
+  tiles: [
+    [W, W, W, W, W, G, G, W, W, W],
+    [W, G, G, G, G, G, G, G, G, W],
+    [W, G, W, G, G, G, G, W, G, W],
+    [W, G, G, G, G, G, G, G, G, W],
+    [G, G, G, G, G, G, G, G, G, G],
+    [W, G, G, G, G, G, G, G, G, W],
+    [W, G, W, G, G, G, G, W, G, W],
+    [W, G, G, G, G, G, G, G, G, W],
+    [W, G, G, G, G, G, G, G, G, W],
+    [W, W, W, W, G, G, W, W, W, W],
+  ],
+  connections: [
+    { targetMapId: "route-6", targetX: 5, targetY: 8, sourceX: 5, sourceY: 0 },
+    { targetMapId: "route-6", targetX: 6, targetY: 8, sourceX: 6, sourceY: 0 },
+    { targetMapId: "route-7", targetX: 4, targetY: 0, sourceX: 4, sourceY: 9 },
+    { targetMapId: "route-7", targetX: 5, targetY: 0, sourceX: 5, sourceY: 9 },
+  ],
+  encounters: [],
+  encounterRate: 0,
+  npcs: [
+    {
+      id: "npc-gym6-healer",
+      name: "回復のおねえさん",
+      x: 2,
+      y: 3,
+      dialogue: ["回復しますね！"],
+      isTrainer: false,
+      onInteract: { heal: true },
+    },
+    {
+      id: "npc-gym6-leader",
+      name: "キリフリ",
+      x: 8,
+      y: 3,
+      dialogue: ["ふふ…よく来たわね。"],
+      isTrainer: true,
+    },
+  ],
+};
+
+// ===== ルート7 =====
+export const ROUTE_7: MapDefinition = {
+  id: "route-7",
+  name: "ルート7",
+  width: 12,
+  height: 10,
+  tiles: [
+    [W, W, W, W, G, G, W, W, W, W, W, W],
+    [W, T, T, G, G, G, G, T, T, G, G, W],
+    [W, T, T, G, G, G, G, T, T, G, G, W],
+    [W, G, G, G, G, G, G, G, G, G, G, W],
+    [W, G, G, T, T, G, G, G, T, T, G, W],
+    [W, G, G, T, T, G, G, G, T, T, G, W],
+    [W, G, G, G, G, G, G, G, G, G, G, W],
+    [W, G, G, G, G, G, G, G, G, G, G, W],
+    [W, G, G, G, G, G, G, G, G, G, G, W],
+    [W, W, W, W, W, G, G, W, W, W, W, W],
+  ],
+  connections: [
+    { targetMapId: "kirifuri-village", targetX: 4, targetY: 8, sourceX: 4, sourceY: 0 },
+    { targetMapId: "kirifuri-village", targetX: 5, targetY: 8, sourceX: 5, sourceY: 0 },
+    { targetMapId: "fuyuha-town", targetX: 5, targetY: 0, sourceX: 5, sourceY: 9 },
+    { targetMapId: "fuyuha-town", targetX: 6, targetY: 0, sourceX: 6, sourceY: 9 },
+  ],
+  encounters: [
+    { speciesId: "yukiusagi", minLevel: 34, maxLevel: 38, weight: 25 },
+    { speciesId: "kogoriiwa", minLevel: 35, maxLevel: 39, weight: 15 },
+    { speciesId: "fubukirei", minLevel: 35, maxLevel: 39, weight: 15 },
+    { speciesId: "kiokudama", minLevel: 34, maxLevel: 38, weight: 15 },
+    { speciesId: "denjimushi", minLevel: 35, maxLevel: 39, weight: 15 },
+    { speciesId: "tatsunoko", minLevel: 36, maxLevel: 40, weight: 15 },
+  ],
+  encounterRate: 22,
+  npcs: [],
+};
+
+// ===== フユハの町（ジム7:氷）=====
+export const FUYUHA_TOWN: MapDefinition = {
+  id: "fuyuha-town",
+  name: "フユハの町",
+  width: 10,
+  height: 10,
+  tiles: [
+    [W, W, W, W, W, G, G, W, W, W],
+    [W, G, G, G, G, G, G, G, G, W],
+    [W, G, W, G, G, G, G, W, G, W],
+    [W, G, G, G, G, G, G, G, G, W],
+    [G, G, G, G, G, G, G, G, G, G],
+    [W, G, G, G, G, G, G, G, G, W],
+    [W, G, W, G, G, G, G, W, G, W],
+    [W, G, G, G, G, G, G, G, G, W],
+    [W, G, G, G, G, G, G, G, G, W],
+    [W, W, W, W, G, G, W, W, W, W],
+  ],
+  connections: [
+    { targetMapId: "route-7", targetX: 5, targetY: 8, sourceX: 5, sourceY: 0 },
+    { targetMapId: "route-7", targetX: 6, targetY: 8, sourceX: 6, sourceY: 0 },
+    { targetMapId: "route-8", targetX: 4, targetY: 0, sourceX: 4, sourceY: 9 },
+    { targetMapId: "route-8", targetX: 5, targetY: 0, sourceX: 5, sourceY: 9 },
+  ],
+  encounters: [],
+  encounterRate: 0,
+  npcs: [
+    {
+      id: "npc-gym7-healer",
+      name: "回復のおねえさん",
+      x: 2,
+      y: 3,
+      dialogue: ["回復しますね！"],
+      isTrainer: false,
+      onInteract: { heal: true },
+    },
+    {
+      id: "npc-gym7-leader",
+      name: "フユハ",
+      x: 8,
+      y: 3,
+      dialogue: ["氷は記憶を閉じ込める。"],
+      isTrainer: true,
+    },
+  ],
+};
+
+// ===== ルート8 =====
+export const ROUTE_8: MapDefinition = {
+  id: "route-8",
+  name: "ルート8",
+  width: 12,
+  height: 10,
+  tiles: [
+    [W, W, W, W, G, G, W, W, W, W, W, W],
+    [W, T, T, G, G, G, G, T, T, G, G, W],
+    [W, T, T, G, G, G, G, T, T, G, G, W],
+    [W, G, G, G, G, G, G, G, G, G, G, W],
+    [W, G, G, T, T, G, G, T, T, G, G, W],
+    [W, G, G, T, T, G, G, T, T, G, G, W],
+    [W, G, G, G, G, G, G, G, G, G, G, W],
+    [W, G, G, G, G, G, G, G, G, G, G, W],
+    [W, G, G, G, G, G, G, G, G, G, G, W],
+    [W, W, W, W, W, G, G, W, W, W, W, W],
+  ],
+  connections: [
+    { targetMapId: "fuyuha-town", targetX: 4, targetY: 8, sourceX: 4, sourceY: 0 },
+    { targetMapId: "fuyuha-town", targetX: 5, targetY: 8, sourceX: 5, sourceY: 0 },
+    { targetMapId: "tatsumi-city", targetX: 5, targetY: 0, sourceX: 5, sourceY: 9 },
+    { targetMapId: "tatsumi-city", targetX: 6, targetY: 0, sourceX: 6, sourceY: 9 },
+  ],
+  encounters: [
+    { speciesId: "tatsunoko", minLevel: 38, maxLevel: 42, weight: 20 },
+    { speciesId: "ryuubi", minLevel: 40, maxLevel: 44, weight: 10 },
+    { speciesId: "haganedake", minLevel: 39, maxLevel: 43, weight: 15 },
+    { speciesId: "umihebi", minLevel: 39, maxLevel: 43, weight: 15 },
+    { speciesId: "raijindou", minLevel: 40, maxLevel: 44, weight: 10 },
+    { speciesId: "koorigitsune", minLevel: 38, maxLevel: 42, weight: 15 },
+    { speciesId: "omoidama", minLevel: 39, maxLevel: 43, weight: 15 },
+  ],
+  encounterRate: 25,
+  npcs: [],
+};
+
+// ===== タツミシティ（ジム8:ドラゴン）=====
+export const TATSUMI_CITY: MapDefinition = {
+  id: "tatsumi-city",
+  name: "タツミシティ",
+  width: 10,
+  height: 10,
+  tiles: [
+    [W, W, W, W, W, G, G, W, W, W],
+    [W, G, G, G, G, G, G, G, G, W],
+    [W, G, W, G, G, G, G, W, G, W],
+    [W, G, G, G, G, G, G, G, G, W],
+    [G, G, G, G, G, G, G, G, G, G],
+    [W, G, G, G, G, G, G, G, G, W],
+    [W, G, W, G, G, G, G, W, G, W],
+    [W, G, G, G, G, G, G, G, G, W],
+    [W, G, G, G, G, G, G, G, G, W],
+    [W, W, W, W, G, G, W, W, W, W],
+  ],
+  connections: [
+    { targetMapId: "route-8", targetX: 5, targetY: 8, sourceX: 5, sourceY: 0 },
+    { targetMapId: "route-8", targetX: 6, targetY: 8, sourceX: 6, sourceY: 0 },
+    {
+      targetMapId: "pokemon-league",
+      targetX: 5,
+      targetY: 0,
+      sourceX: 4,
+      sourceY: 9,
+      requirement: "gym8_cleared",
+      blockedMessage: "全てのバッジが必要だ…",
+    },
+    {
+      targetMapId: "pokemon-league",
+      targetX: 6,
+      targetY: 0,
+      sourceX: 5,
+      sourceY: 9,
+      requirement: "gym8_cleared",
+      blockedMessage: "全てのバッジが必要だ…",
+    },
+  ],
+  encounters: [],
+  encounterRate: 0,
+  npcs: [
+    {
+      id: "npc-gym8-healer",
+      name: "回復のおねえさん",
+      x: 2,
+      y: 3,
+      dialogue: ["回復しますね！"],
+      isTrainer: false,
+      onInteract: { heal: true },
+    },
+    {
+      id: "npc-gym8-leader",
+      name: "タツミ",
+      x: 8,
+      y: 3,
+      dialogue: ["竜の試練に挑むか。覚悟はいいか。"],
+      isTrainer: true,
+    },
+  ],
+};
+
+// ===== ポケモンリーグ =====
+export const POKEMON_LEAGUE: MapDefinition = {
+  id: "pokemon-league",
+  name: "ポケモンリーグ",
+  width: 10,
+  height: 10,
+  tiles: [
+    [W, W, W, W, W, G, G, W, W, W],
+    [W, G, G, G, G, G, G, G, G, W],
+    [W, G, G, G, G, G, G, G, G, W],
+    [W, G, G, G, G, G, G, G, G, W],
+    [W, G, G, G, G, G, G, G, G, W],
+    [W, G, G, G, G, G, G, G, G, W],
+    [W, G, G, G, G, G, G, G, G, W],
+    [W, G, G, G, G, G, G, G, G, W],
+    [W, G, G, G, G, G, G, G, G, W],
+    [W, W, W, W, W, W, W, W, W, W],
+  ],
+  connections: [
+    { targetMapId: "tatsumi-city", targetX: 4, targetY: 8, sourceX: 5, sourceY: 0 },
+    { targetMapId: "tatsumi-city", targetX: 5, targetY: 8, sourceX: 6, sourceY: 0 },
+  ],
+  encounters: [],
+  encounterRate: 0,
+  npcs: [
+    {
+      id: "npc-league-healer",
+      name: "回復のおねえさん",
+      x: 2,
+      y: 7,
+      dialogue: ["四天王に挑む前に回復しますね！"],
+      isTrainer: false,
+      onInteract: { heal: true },
+    },
+    {
+      id: "npc-league-elite1",
+      name: "四天王 ツバサ",
+      x: 5,
+      y: 6,
+      dialogue: ["風のように自由に生きる吟遊詩人。挑戦を受けよう。"],
+      isTrainer: true,
+    },
+    {
+      id: "npc-league-elite2",
+      name: "四天王 クロガネ",
+      x: 5,
+      y: 5,
+      dialogue: ["鋼は錆びぬ。鋼は折れぬ。鋼は忘れぬ。"],
+      isTrainer: true,
+    },
+    {
+      id: "npc-league-elite3",
+      name: "四天王 ミヤビ",
+      x: 5,
+      y: 4,
+      dialogue: ["あなたの物語の結末を見届けてあげる。"],
+      isTrainer: true,
+    },
+    {
+      id: "npc-league-elite4",
+      name: "四天王 ゲンブ",
+      x: 5,
+      y: 3,
+      dialogue: ["大地の記憶に刻まれるほどの戦いを見せろ。"],
+      isTrainer: true,
+    },
+    {
+      id: "npc-league-champion",
+      name: "チャンピオン アカツキ",
+      x: 5,
+      y: 2,
+      dialogue: ["…来たか。最後の勝負だ。"],
+      isTrainer: true,
+    },
+  ],
+};
+
+/** 追加マップの一覧 */
+export const ADDITIONAL_MAPS: Record<string, MapDefinition> = {
+  "tsuchigumo-village": TSUCHIGUMO_VILLAGE,
+  "route-2": ROUTE_2,
+  "morinoha-town": MORINOHA_TOWN,
+  "route-3": ROUTE_3,
+  "inazuma-city": INAZUMA_CITY,
+  "route-4": ROUTE_4,
+  "kagari-city": KAGARI_CITY,
+  "route-5": ROUTE_5,
+  "gouki-town": GOUKI_TOWN,
+  "route-6": ROUTE_6,
+  "kirifuri-village": KIRIFURI_VILLAGE,
+  "route-7": ROUTE_7,
+  "fuyuha-town": FUYUHA_TOWN,
+  "route-8": ROUTE_8,
+  "tatsumi-city": TATSUMI_CITY,
+  "pokemon-league": POKEMON_LEAGUE,
+};

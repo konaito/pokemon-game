@@ -4,6 +4,7 @@ import { useState, useCallback, useEffect } from "react";
 import type { MapDefinition } from "@/engine/map/map-data";
 import type { PlayerPosition, Direction } from "@/engine/map/player-movement";
 import { movePlayer, getFacingNpc } from "@/engine/map/player-movement";
+import type { StoryFlags } from "@/engine/state/story-flags";
 import { MessageWindow } from "../ui/MessageWindow";
 
 /**
@@ -18,6 +19,8 @@ const VIEWPORT_TILES_Y = 11;
 export interface OverworldScreenProps {
   map: MapDefinition;
   initialPosition: PlayerPosition;
+  storyFlags?: StoryFlags;
+  inputBlocked?: boolean;
   onMapTransition?: (targetMapId: string, targetX: number, targetY: number) => void;
   onEncounter?: () => void;
   onNpcInteract?: (npcId: string) => void;
@@ -48,20 +51,28 @@ const DIRECTION_KEYS: Record<string, Direction> = {
 export function OverworldScreen({
   map,
   initialPosition,
+  storyFlags = {},
+  inputBlocked = false,
   onMapTransition,
   onEncounter,
   onNpcInteract,
   onMenuOpen,
 }: OverworldScreenProps) {
   const [position, setPosition] = useState<PlayerPosition>(initialPosition);
-  const [dialogueMessages, setDialogueMessages] = useState<string[] | null>(null);
+  const [blockedMsg, setBlockedMsg] = useState<string[] | null>(null);
 
   const handleMove = useCallback(
     (direction: Direction) => {
-      if (dialogueMessages) return; // 会話中は移動不可
+      if (blockedMsg) return; // メッセージ表示中は移動不可
 
-      const result = movePlayer(position, direction, map);
+      const result = movePlayer(position, direction, map, storyFlags);
       setPosition(result.position);
+
+      // 進行ゲートでブロックされた場合
+      if (result.blockedMessage) {
+        setBlockedMsg([result.blockedMessage]);
+        return;
+      }
 
       if (result.mapTransition) {
         onMapTransition?.(
@@ -72,12 +83,8 @@ export function OverworldScreen({
         return;
       }
 
+      // NPC衝突 — 移動時はインタラクションを起こさない（Aボタンで明示的に話しかける）
       if (result.facingNpcId) {
-        onNpcInteract?.(result.facingNpcId);
-        const npc = map.npcs.find((n) => n.id === result.facingNpcId);
-        if (npc) {
-          setDialogueMessages(npc.dialogue);
-        }
         return;
       }
 
@@ -85,24 +92,22 @@ export function OverworldScreen({
         onEncounter?.();
       }
     },
-    [position, map, dialogueMessages, onMapTransition, onEncounter, onNpcInteract],
+    [position, map, storyFlags, blockedMsg, onMapTransition, onEncounter],
   );
 
   const handleInteract = useCallback(() => {
-    if (dialogueMessages) return;
+    if (blockedMsg) return;
 
     const npcId = getFacingNpc(position, map);
     if (npcId) {
       onNpcInteract?.(npcId);
-      const npc = map.npcs.find((n) => n.id === npcId);
-      if (npc) {
-        setDialogueMessages(npc.dialogue);
-      }
     }
-  }, [position, map, dialogueMessages, onNpcInteract]);
+  }, [position, map, blockedMsg, onNpcInteract]);
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
+      if (inputBlocked) return;
+
       const direction = DIRECTION_KEYS[e.key];
       if (direction) {
         e.preventDefault();
@@ -123,7 +128,7 @@ export function OverworldScreen({
 
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [handleMove, handleInteract, onMenuOpen]);
+  }, [handleMove, handleInteract, onMenuOpen, inputBlocked]);
 
   // ビューポートのオフセット計算（プレイヤーを中心に）
   const offsetX = Math.max(
@@ -217,10 +222,8 @@ export function OverworldScreen({
         </div>
       </div>
 
-      {/* 会話ウィンドウ */}
-      {dialogueMessages && (
-        <MessageWindow messages={dialogueMessages} onComplete={() => setDialogueMessages(null)} />
-      )}
+      {/* ブロックメッセージ */}
+      {blockedMsg && <MessageWindow messages={blockedMsg} onComplete={() => setBlockedMsg(null)} />}
     </div>
   );
 }
