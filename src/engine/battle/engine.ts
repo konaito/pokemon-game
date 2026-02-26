@@ -1,14 +1,11 @@
-import type { MonsterInstance, MonsterSpecies, MoveDefinition } from "@/types";
+import type { MonsterInstance, SpeciesResolver, MoveResolver } from "@/types";
 import { type BattleState, type BattleAction, initBattle, getActiveMonster } from "./state-machine";
 import { determineTurnOrder, type TurnAction } from "./turn-order";
 import { executeMove, executeStruggle } from "./move-executor";
 import { applyStatusDamage } from "./status";
 import { calcExpGain, grantExp } from "./experience";
 import { calcAllStats } from "@/engine/monster/stats";
-
-/** 種族データを引けるリゾルバ */
-export type SpeciesResolver = (speciesId: string) => MonsterSpecies;
-export type MoveResolver = (moveId: string) => MoveDefinition;
+import { checkEvolution, evolve } from "@/engine/monster/evolution";
 
 /** バトルエンジン */
 export class BattleEngine {
@@ -300,6 +297,15 @@ export class BattleEngine {
         this.state.messages.push(
           `${playerSpecies.name}はレベル${this.playerActive.level}に上がった！`,
         );
+
+        // 進化チェック
+        const evoTarget = checkEvolution(this.playerActive, playerSpecies);
+        if (evoTarget) {
+          const newSpecies = this.speciesResolver(evoTarget);
+          this.state.messages.push(`おや…？ ${playerSpecies.name}のようすが…！`);
+          evolve(this.playerActive, playerSpecies, newSpecies);
+          this.state.messages.push(`${playerSpecies.name}は${newSpecies.name}に進化した！`);
+        }
       }
 
       // 次のモンスターがいるか
