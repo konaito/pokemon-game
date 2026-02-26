@@ -29,7 +29,11 @@ describe("ゲーム状態管理", () => {
     expect(player.name).toBe("サトシ");
     expect(player.money).toBe(3000);
     expect(player.partyState.party).toHaveLength(0);
-    expect(player.bag.items).toHaveLength(0);
+    expect(player.bag.items).toHaveLength(2);
+    expect(player.bag.items).toEqual([
+      { itemId: "monster-ball", quantity: 5 },
+      { itemId: "potion", quantity: 3 },
+    ]);
   });
 
   describe("gameReducer", () => {
