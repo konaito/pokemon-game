@@ -139,9 +139,11 @@ export function validateSaveData(data: unknown): data is SaveData {
 
   const player = state.player as Record<string, unknown>;
   if (typeof player.name !== "string") return false;
-  if (!Array.isArray(player.partyState)) {
-    if (typeof player.partyState !== "object" || player.partyState === null) return false;
-  }
+  if (typeof player.partyState !== "object" || player.partyState === null) return false;
+
+  const ps = player.partyState as Record<string, unknown>;
+  if (!Array.isArray(ps.party)) return false;
+  if (!Array.isArray(ps.boxes)) return false;
 
   return true;
 }

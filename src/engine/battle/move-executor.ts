@@ -132,7 +132,7 @@ export function executeMove(
   let statusApplied: StatusCondition | null = null;
   if (
     move.effect?.statusCondition &&
-    move.effect.statusChance &&
+    move.effect.statusChance !== undefined &&
     defender.status === null &&
     defenderHpAfter > 0
   ) {
