@@ -4,12 +4,16 @@
 import type { MonsterSpecies } from "@/types";
 import { STARTERS } from "./starters";
 import { EARLY_MONSTERS } from "./early-monsters";
+import { MID_MONSTERS } from "./mid-monsters";
+import { LATE_MONSTERS } from "./late-monsters";
 import { LEGENDARY_MONSTERS } from "./legendary";
 
 /** 全モンスター種族データ */
 export const ALL_SPECIES: MonsterSpecies[] = [
   ...STARTERS,
   ...EARLY_MONSTERS,
+  ...MID_MONSTERS,
+  ...LATE_MONSTERS,
   ...LEGENDARY_MONSTERS,
 ];
 
@@ -25,4 +29,6 @@ export function getAllSpeciesIds(): string[] {
 
 export { STARTERS } from "./starters";
 export { EARLY_MONSTERS } from "./early-monsters";
+export { MID_MONSTERS } from "./mid-monsters";
+export { LATE_MONSTERS } from "./late-monsters";
 export { LEGENDARY_MONSTERS } from "./legendary";
