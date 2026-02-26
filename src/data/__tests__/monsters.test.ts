@@ -3,6 +3,7 @@ import {
   ALL_SPECIES,
   STARTERS,
   EARLY_MONSTERS,
+  LEGENDARY_MONSTERS,
   getSpeciesById,
   getAllSpeciesIds,
 } from "../monsters";
@@ -194,6 +195,57 @@ describe("序盤モンスターデータ", () => {
     expect(ids).toContain("konezumi");
     expect(ids).toContain("tobibato");
     expect(ids.length).toBe(ALL_SPECIES.length);
+  });
+});
+
+describe("伝説のモンスターデータ", () => {
+  it("伝説のモンスターは2匹", () => {
+    expect(LEGENDARY_MONSTERS).toHaveLength(2);
+  });
+
+  it("オモイデはエスパー/フェアリー", () => {
+    const omoide = getSpeciesById("omoide");
+    expect(omoide).toBeDefined();
+    expect(omoide!.name).toBe("オモイデ");
+    expect(omoide!.types).toEqual(["psychic", "fairy"]);
+  });
+
+  it("ワスレヌはエスパー/あく", () => {
+    const wasurenu = getSpeciesById("wasurenu");
+    expect(wasurenu).toBeDefined();
+    expect(wasurenu!.name).toBe("ワスレヌ");
+    expect(wasurenu!.types).toEqual(["psychic", "dark"]);
+  });
+
+  it("伝説のモンスターの種族値合計は600", () => {
+    for (const mon of LEGENDARY_MONSTERS) {
+      const total =
+        mon.baseStats.hp +
+        mon.baseStats.atk +
+        mon.baseStats.def +
+        mon.baseStats.spAtk +
+        mon.baseStats.spDef +
+        mon.baseStats.speed;
+      expect(total, mon.name).toBe(600);
+    }
+  });
+
+  it("伝説のモンスターはslow経験値グループ", () => {
+    for (const mon of LEGENDARY_MONSTERS) {
+      expect(mon.expGroup, mon.name).toBe("slow");
+    }
+  });
+
+  it("伝説のモンスターは進化しない", () => {
+    for (const mon of LEGENDARY_MONSTERS) {
+      expect(mon.evolvesTo, mon.name).toBeUndefined();
+    }
+  });
+
+  it("2体ともエスパータイプを共有している", () => {
+    for (const mon of LEGENDARY_MONSTERS) {
+      expect(mon.types).toContain("psychic");
+    }
   });
 });
 
