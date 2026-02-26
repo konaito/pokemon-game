@@ -9,12 +9,12 @@ import { useState, useEffect, useCallback } from "react";
 
 export type EvolutionPhase =
   | "idle"
-  | "start"        // おめでとう！テキスト表示
-  | "glow"         // 白く光り始める
-  | "flash"        // 画面全体フラッシュ
-  | "transform"    // シルエット変化
-  | "reveal"       // 新モンスター登場
-  | "complete";    // 完了
+  | "start" // おめでとう！テキスト表示
+  | "glow" // 白く光り始める
+  | "flash" // 画面全体フラッシュ
+  | "transform" // シルエット変化
+  | "reveal" // 新モンスター登場
+  | "complete"; // 完了
 
 export interface EvolutionAnimationProps {
   /** 進化前のモンスター名 */
@@ -95,43 +95,53 @@ export function EvolutionAnimation({
           const pulse = Math.sin(glowStep * 0.5) * 0.15;
           setGlowIntensity(Math.min(1, base + pulse));
         }, 100);
-        timers.push(setTimeout(() => {
-          clearInterval(glowInterval);
-          setGlowIntensity(1);
-          setPhase("flash");
-        }, duration));
+        timers.push(
+          setTimeout(() => {
+            clearInterval(glowInterval);
+            setGlowIntensity(1);
+            setPhase("flash");
+          }, duration),
+        );
         break;
       }
 
       case "flash":
         // 全画面フラッシュ
         setFlashOpacity(1);
-        timers.push(setTimeout(() => {
-          setFlashOpacity(0);
-          setPhase("transform");
-        }, duration));
+        timers.push(
+          setTimeout(() => {
+            setFlashOpacity(0);
+            setPhase("transform");
+          }, duration),
+        );
         break;
 
       case "transform": {
         // シルエット変化アニメーション
         setSilhouetteScale(1.3);
-        timers.push(setTimeout(() => {
-          setSilhouetteScale(0.8);
-        }, duration * 0.3));
-        timers.push(setTimeout(() => {
-          setSilhouetteScale(1);
-          setGlowIntensity(0);
-          setPhase("reveal");
-        }, duration));
+        timers.push(
+          setTimeout(() => {
+            setSilhouetteScale(0.8);
+          }, duration * 0.3),
+        );
+        timers.push(
+          setTimeout(() => {
+            setSilhouetteScale(1);
+            setGlowIntensity(0);
+            setPhase("reveal");
+          }, duration),
+        );
         break;
       }
 
       case "reveal":
         // 新モンスター登場テキスト
-        timers.push(setTimeout(() => {
-          setPhase("complete");
-          onComplete();
-        }, duration));
+        timers.push(
+          setTimeout(() => {
+            setPhase("complete");
+            onComplete();
+          }, duration),
+        );
         break;
     }
 
@@ -197,9 +207,7 @@ export function EvolutionAnimation({
       {phase === "start" && (
         <div className="absolute top-8 w-full text-center">
           <p className="font-mono text-2xl text-white">おや…？</p>
-          <p className="mt-2 font-mono text-xl text-gray-300">
-            {fromName}のようすが…！
-          </p>
+          <p className="mt-2 font-mono text-xl text-gray-300">{fromName}のようすが…！</p>
         </div>
       )}
 
@@ -237,21 +245,15 @@ export function EvolutionAnimation({
       {/* テキスト: 進化完了 */}
       {phase === "reveal" && (
         <div className="absolute bottom-16 w-full text-center">
-          <p className="font-mono text-lg text-gray-300">
-            おめでとう！ {fromName}は
-          </p>
-          <p className="mt-1 font-mono text-2xl font-bold text-white">
-            {toName}に　しんかした！
-          </p>
+          <p className="font-mono text-lg text-gray-300">おめでとう！ {fromName}は</p>
+          <p className="mt-1 font-mono text-2xl font-bold text-white">{toName}に　しんかした！</p>
         </div>
       )}
 
       {/* キャンセルヒント */}
       {cancellable && (phase === "start" || phase === "glow") && (
         <div className="absolute bottom-4 w-full text-center">
-          <p className="font-mono text-xs text-gray-600">
-            Bボタン(X)を3回押すと進化をキャンセル
-          </p>
+          <p className="font-mono text-xs text-gray-600">Bボタン(X)を3回押すと進化をキャンセル</p>
         </div>
       )}
     </div>

@@ -54,8 +54,7 @@ export function canMatch(
 
   const expansionSteps = Math.floor(maxWait / config.toleranceExpansionInterval);
   const tolerance =
-    config.baseToleranceRange +
-    expansionSteps * config.toleranceExpansionPerInterval;
+    config.baseToleranceRange + expansionSteps * config.toleranceExpansionPerInterval;
 
   return Math.abs(a.rating - b.rating) <= tolerance;
 }

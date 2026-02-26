@@ -1,4 +1,10 @@
-import type { MonsterInstance, MonsterSpecies, MoveDefinition, StatusCondition, BaseStats } from "@/types";
+import type {
+  MonsterInstance,
+  MonsterSpecies,
+  MoveDefinition,
+  StatusCondition,
+  BaseStats,
+} from "@/types";
 import { calculateDamage, type DamageResult } from "./damage";
 import { canAct } from "./status";
 import type { StatStages } from "./stat-stage";
@@ -179,7 +185,14 @@ export function executeMove(
     };
   }
 
-  return { hit: true, damage: damageResult, defenderHpAfter, statusApplied, statChanges: statChangeResult, messages };
+  return {
+    hit: true,
+    damage: damageResult,
+    defenderHpAfter,
+    statusApplied,
+    statChanges: statChangeResult,
+    messages,
+  };
 }
 
 /**

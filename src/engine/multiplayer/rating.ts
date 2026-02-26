@@ -19,13 +19,7 @@ export interface PlayerRating {
 }
 
 /** ランク定義 */
-export type RankTier =
-  | "bronze"
-  | "silver"
-  | "gold"
-  | "platinum"
-  | "diamond"
-  | "master";
+export type RankTier = "bronze" | "silver" | "gold" | "platinum" | "diamond" | "master";
 
 export interface RankInfo {
   tier: RankTier;
@@ -46,10 +40,7 @@ const RANK_TABLE: RankInfo[] = [
 /**
  * Elo方式の期待勝率を計算
  */
-export function calculateExpectedScore(
-  ratingA: number,
-  ratingB: number,
-): number {
+export function calculateExpectedScore(ratingA: number, ratingB: number): number {
   return 1 / (1 + Math.pow(10, (ratingB - ratingA) / 400));
 }
 

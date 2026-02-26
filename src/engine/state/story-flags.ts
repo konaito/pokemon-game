@@ -11,9 +11,7 @@ export type StoryFlags = Record<string, boolean>;
  * - string: そのフラグがtrueであること
  * - { flag: string; value: boolean }: 指定の値であること
  */
-export type FlagCondition =
-  | string
-  | { flag: string; value: boolean };
+export type FlagCondition = string | { flag: string; value: boolean };
 
 /**
  * 複合フラグ条件

@@ -95,9 +95,7 @@ export function generateWildMonster(
   const maxHp = calcAllStats(species.baseStats, ivs, evs, level, nature).hp;
 
   // learnsetから現在レベルまでの技を最大4つ設定
-  const learnableMoves = species.learnset
-    .filter((e) => e.level <= level)
-    .slice(-4); // 最新の4つを取得
+  const learnableMoves = species.learnset.filter((e) => e.level <= level).slice(-4); // 最新の4つを取得
   const moves = learnableMoves.map((e) => {
     const moveDef = moveResolver(e.moveId);
     return { moveId: e.moveId, currentPp: moveDef.pp };

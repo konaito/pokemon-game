@@ -13,11 +13,31 @@ export type MapId = string;
 
 /** 性格ID（25種類） */
 export type NatureId =
-  | "hardy" | "lonely" | "brave" | "adamant" | "naughty"
-  | "bold" | "docile" | "relaxed" | "impish" | "lax"
-  | "timid" | "hasty" | "serious" | "jolly" | "naive"
-  | "modest" | "mild" | "quiet" | "bashful" | "rash"
-  | "calm" | "gentle" | "sassy" | "careful" | "quirky";
+  | "hardy"
+  | "lonely"
+  | "brave"
+  | "adamant"
+  | "naughty"
+  | "bold"
+  | "docile"
+  | "relaxed"
+  | "impish"
+  | "lax"
+  | "timid"
+  | "hasty"
+  | "serious"
+  | "jolly"
+  | "naive"
+  | "modest"
+  | "mild"
+  | "quiet"
+  | "bashful"
+  | "rash"
+  | "calm"
+  | "gentle"
+  | "sassy"
+  | "careful"
+  | "quirky";
 
 /** 経験値グループ */
 export type ExpGroup = "fast" | "medium_fast" | "medium_slow" | "slow";

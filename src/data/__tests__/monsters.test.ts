@@ -75,7 +75,7 @@ describe("モンスターデータの整合性", () => {
       for (let i = 1; i < species.learnset.length; i++) {
         expect(
           species.learnset[i].level,
-          `${species.name}の${species.learnset[i].moveId}`
+          `${species.name}の${species.learnset[i].moveId}`,
         ).toBeGreaterThanOrEqual(species.learnset[i - 1].level);
       }
     }
@@ -88,21 +88,13 @@ describe("御三家データ", () => {
   });
 
   it("最初の段階は炎・水・草の3タイプ", () => {
-    const firstStages = STARTERS.filter((s) =>
-      ["himori", "shizukumo", "konohana"].includes(s.id)
-    );
+    const firstStages = STARTERS.filter((s) => ["himori", "shizukumo", "konohana"].includes(s.id));
     expect(firstStages).toHaveLength(3);
-    expect(firstStages.map((s) => s.types[0]).sort()).toEqual([
-      "fire",
-      "grass",
-      "water",
-    ]);
+    expect(firstStages.map((s) => s.types[0]).sort()).toEqual(["fire", "grass", "water"]);
   });
 
   it("最終進化は副タイプを持つ", () => {
-    const finalStages = STARTERS.filter((s) =>
-      ["enjuu", "taikaiou", "taijushin"].includes(s.id)
-    );
+    const finalStages = STARTERS.filter((s) => ["enjuu", "taikaiou", "taijushin"].includes(s.id));
     expect(finalStages).toHaveLength(3);
     for (const mon of finalStages) {
       expect(mon.types.length, mon.name).toBe(2);
@@ -110,9 +102,7 @@ describe("御三家データ", () => {
   });
 
   it("最終進化の種族値合計は500-530の範囲", () => {
-    const finalStages = STARTERS.filter((s) =>
-      ["enjuu", "taikaiou", "taijushin"].includes(s.id)
-    );
+    const finalStages = STARTERS.filter((s) => ["enjuu", "taikaiou", "taijushin"].includes(s.id));
     for (const mon of finalStages) {
       const total =
         mon.baseStats.hp +
@@ -230,10 +220,12 @@ describe("中盤モンスターデータ", () => {
   });
 
   it("中盤モンスターのレベル帯が序盤より高い", () => {
-    const midMaxLevels = MID_MONSTERS.filter((m) => m.evolvesTo?.length)
-      .map((m) => m.evolvesTo![0].level);
-    const earlyMaxLevels = EARLY_MONSTERS.filter((m) => m.evolvesTo?.length)
-      .map((m) => m.evolvesTo![0].level);
+    const midMaxLevels = MID_MONSTERS.filter((m) => m.evolvesTo?.length).map(
+      (m) => m.evolvesTo![0].level,
+    );
+    const earlyMaxLevels = EARLY_MONSTERS.filter((m) => m.evolvesTo?.length).map(
+      (m) => m.evolvesTo![0].level,
+    );
 
     if (midMaxLevels.length > 0 && earlyMaxLevels.length > 0) {
       const midAvg = midMaxLevels.reduce((a, b) => a + b, 0) / midMaxLevels.length;
@@ -283,10 +275,12 @@ describe("終盤モンスターデータ", () => {
   });
 
   it("終盤モンスターの進化レベルが中盤より高い", () => {
-    const lateMaxLevels = LATE_MONSTERS.filter((m) => m.evolvesTo?.length)
-      .map((m) => m.evolvesTo![0].level);
-    const midMaxLevels = MID_MONSTERS.filter((m) => m.evolvesTo?.length)
-      .map((m) => m.evolvesTo![0].level);
+    const lateMaxLevels = LATE_MONSTERS.filter((m) => m.evolvesTo?.length).map(
+      (m) => m.evolvesTo![0].level,
+    );
+    const midMaxLevels = MID_MONSTERS.filter((m) => m.evolvesTo?.length).map(
+      (m) => m.evolvesTo![0].level,
+    );
 
     if (lateMaxLevels.length > 0 && midMaxLevels.length > 0) {
       const lateAvg = lateMaxLevels.reduce((a, b) => a + b, 0) / lateMaxLevels.length;

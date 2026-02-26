@@ -1,9 +1,5 @@
 import { describe, it, expect } from "vitest";
-import {
-  canTriggerScript,
-  resolveCommands,
-  executeScript,
-} from "../event-script";
+import { canTriggerScript, resolveCommands, executeScript } from "../event-script";
 import type { EventScript, EventCommand } from "../event-script";
 
 describe("canTriggerScript", () => {
@@ -45,9 +41,7 @@ describe("resolveCommands", () => {
   });
 
   it("speakerなしのdialogue", () => {
-    const commands: EventCommand[] = [
-      { type: "dialogue", lines: ["ナレーション"] },
-    ];
+    const commands: EventCommand[] = [{ type: "dialogue", lines: ["ナレーション"] }];
     const outputs = resolveCommands(commands, {});
     expect(outputs[0]).toEqual({
       type: "dialogue",
@@ -57,13 +51,9 @@ describe("resolveCommands", () => {
   });
 
   it("set_flagコマンドを解決する", () => {
-    const commands: EventCommand[] = [
-      { type: "set_flag", flag: "intro_done", value: true },
-    ];
+    const commands: EventCommand[] = [{ type: "set_flag", flag: "intro_done", value: true }];
     const outputs = resolveCommands(commands, {});
-    expect(outputs).toEqual([
-      { type: "set_flag", flag: "intro_done", value: true },
-    ]);
+    expect(outputs).toEqual([{ type: "set_flag", flag: "intro_done", value: true }]);
   });
 
   it("healコマンドを解決する", () => {
@@ -72,13 +62,9 @@ describe("resolveCommands", () => {
   });
 
   it("give_itemコマンドを解決する", () => {
-    const commands: EventCommand[] = [
-      { type: "give_item", itemId: "potion", quantity: 5 },
-    ];
+    const commands: EventCommand[] = [{ type: "give_item", itemId: "potion", quantity: 5 }];
     const outputs = resolveCommands(commands, {});
-    expect(outputs).toEqual([
-      { type: "give_item", itemId: "potion", quantity: 5 },
-    ]);
+    expect(outputs).toEqual([{ type: "give_item", itemId: "potion", quantity: 5 }]);
   });
 
   it("battleコマンドを解決する", () => {
@@ -100,13 +86,9 @@ describe("resolveCommands", () => {
   });
 
   it("move_playerコマンドを解決する", () => {
-    const commands: EventCommand[] = [
-      { type: "move_player", mapId: "town-2", x: 5, y: 3 },
-    ];
+    const commands: EventCommand[] = [{ type: "move_player", mapId: "town-2", x: 5, y: 3 }];
     const outputs = resolveCommands(commands, {});
-    expect(outputs).toEqual([
-      { type: "move_player", mapId: "town-2", x: 5, y: 3 },
-    ]);
+    expect(outputs).toEqual([{ type: "move_player", mapId: "town-2", x: 5, y: 3 }]);
   });
 
   it("waitコマンドを解決する", () => {
@@ -154,9 +136,7 @@ describe("branch コマンド", () => {
       },
     ];
     const outputs = resolveCommands(commands, {});
-    expect(outputs).toEqual([
-      { type: "dialogue", speaker: undefined, lines: ["まだだ。"] },
-    ]);
+    expect(outputs).toEqual([{ type: "dialogue", speaker: undefined, lines: ["まだだ。"] }]);
   });
 
   it("elseが未定義で条件を満たさない場合、出力なし", () => {
@@ -260,9 +240,7 @@ describe("executeScript", () => {
         {
           type: "branch",
           condition: "has_starter",
-          then: [
-            { type: "dialogue", speaker: "博士", lines: ["モンスターの調子はどうだ？"] },
-          ],
+          then: [{ type: "dialogue", speaker: "博士", lines: ["モンスターの調子はどうだ？"] }],
           else: [
             { type: "dialogue", speaker: "博士", lines: ["君にモンスターをあげよう！"] },
             { type: "give_item", itemId: "potion", quantity: 5 },

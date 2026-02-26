@@ -34,10 +34,7 @@ describe("createBgmManager", () => {
       mgr.play("town-1");
       mgr.clearEventLog();
       mgr.play("route-1");
-      expect(mgr.getEventLog()).toEqual([
-        { type: "stop" },
-        { type: "play", trackId: "route-1" },
-      ]);
+      expect(mgr.getEventLog()).toEqual([{ type: "stop" }, { type: "play", trackId: "route-1" }]);
       expect(mgr.getState().currentTrackId).toBe("route-1");
     });
   });
@@ -153,9 +150,7 @@ describe("createBgmManager", () => {
     it("停止中からのcrossFadeはfade_inのみ", () => {
       const mgr = createBgmManager();
       mgr.crossFade("town-1", 1000);
-      expect(mgr.getEventLog()).toEqual([
-        { type: "fade_in", trackId: "town-1", durationMs: 500 },
-      ]);
+      expect(mgr.getEventLog()).toEqual([{ type: "fade_in", trackId: "town-1", durationMs: 500 }]);
     });
   });
 

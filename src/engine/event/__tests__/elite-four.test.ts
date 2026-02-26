@@ -28,9 +28,7 @@ describe("四天王 & チャンピオン戦", () => {
     });
 
     it("四天王のパーティレベルが段階的に上がる", () => {
-      const maxLevels = ELITE_FOUR.map((m) =>
-        Math.max(...m.party.map((p) => p.level))
-      );
+      const maxLevels = ELITE_FOUR.map((m) => Math.max(...m.party.map((p) => p.level)));
       for (let i = 1; i < maxLevels.length; i++) {
         expect(maxLevels[i]).toBeGreaterThanOrEqual(maxLevels[i - 1]);
       }
@@ -49,9 +47,7 @@ describe("四天王 & チャンピオン戦", () => {
 
     it("チャンピオンのレベルは四天王より高い", () => {
       const champMax = Math.max(...CHAMPION.party.map((p) => p.level));
-      const eliteMax = Math.max(
-        ...ELITE_FOUR.flatMap((m) => m.party.map((p) => p.level))
-      );
+      const eliteMax = Math.max(...ELITE_FOUR.flatMap((m) => m.party.map((p) => p.level)));
       expect(champMax).toBeGreaterThan(eliteMax);
     });
   });

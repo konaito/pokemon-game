@@ -58,8 +58,8 @@ export function calculateDamage(ctx: DamageContext): DamageResult {
   );
 
   // 物理 or 特殊に応じてA/Dを選択
-  const atkKey = move.category === "physical" ? "atk" as const : "spAtk" as const;
-  const defKey = move.category === "physical" ? "def" as const : "spDef" as const;
+  const atkKey = move.category === "physical" ? ("atk" as const) : ("spAtk" as const);
+  const defKey = move.category === "physical" ? ("def" as const) : ("spDef" as const);
 
   let attackStat = attackerStats[atkKey];
   let defenseStat = defenderStats[defKey];

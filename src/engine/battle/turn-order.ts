@@ -61,7 +61,9 @@ export function determineTurnOrder(
     playerSpeed = Math.floor(playerSpeed * getStageMultiplier(playerAction.statStages.speed));
   }
   if (playerAction.monster.status) {
-    playerSpeed = Math.floor(playerSpeed * getStatusEffect(playerAction.monster.status).speedModifier);
+    playerSpeed = Math.floor(
+      playerSpeed * getStatusEffect(playerAction.monster.status).speedModifier,
+    );
   }
 
   let opponentSpeed = calcAllStats(
@@ -75,7 +77,9 @@ export function determineTurnOrder(
     opponentSpeed = Math.floor(opponentSpeed * getStageMultiplier(opponentAction.statStages.speed));
   }
   if (opponentAction.monster.status) {
-    opponentSpeed = Math.floor(opponentSpeed * getStatusEffect(opponentAction.monster.status).speedModifier);
+    opponentSpeed = Math.floor(
+      opponentSpeed * getStatusEffect(opponentAction.monster.status).speedModifier,
+    );
   }
 
   if (playerSpeed !== opponentSpeed) {

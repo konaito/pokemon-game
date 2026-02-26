@@ -24,14 +24,8 @@ const testGym: GymDefinition = {
   ],
   badgeName: "グレーバッジ",
   mapId: "gym-1-map",
-  leaderIntroDialogue: [
-    "ようこそ、いわジムへ！",
-    "お前の実力を見せてもらおう！",
-  ],
-  leaderDefeatDialogue: [
-    "やるな…お前の実力を認めよう。",
-    "このバッジを受け取ってくれ。",
-  ],
+  leaderIntroDialogue: ["ようこそ、いわジムへ！", "お前の実力を見せてもらおう！"],
+  leaderDefeatDialogue: ["やるな…お前の実力を認めよう。", "このバッジを受け取ってくれ。"],
   rewardItemId: "tm-rock-throw",
 };
 

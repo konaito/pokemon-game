@@ -21,10 +21,7 @@ export interface NpcInteractionResult {
  * conditionalDialoguesを上から順に評価し、最初に条件を満たしたものを返す。
  * いずれも満たさない場合はデフォルトのdialogueを返す。
  */
-export function resolveNpcDialogue(
-  npc: NpcDefinition,
-  storyFlags: StoryFlags = {},
-): string[] {
+export function resolveNpcDialogue(npc: NpcDefinition, storyFlags: StoryFlags = {}): string[] {
   if (npc.conditionalDialogues) {
     for (const cd of npc.conditionalDialogues) {
       if (checkFlagRequirement(storyFlags, cd.condition)) {
@@ -46,7 +43,10 @@ export function isNpcVisible(npc: NpcDefinition, storyFlags: StoryFlags = {}): b
 /**
  * マップ上の可視NPCリストを取得
  */
-export function getVisibleNpcs(npcs: NpcDefinition[], storyFlags: StoryFlags = {}): NpcDefinition[] {
+export function getVisibleNpcs(
+  npcs: NpcDefinition[],
+  storyFlags: StoryFlags = {},
+): NpcDefinition[] {
   return npcs.filter((npc) => isNpcVisible(npc, storyFlags));
 }
 

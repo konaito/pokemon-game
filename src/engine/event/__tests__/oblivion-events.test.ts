@@ -36,7 +36,7 @@ describe("オブリヴィオン団イベント", () => {
 
       // マボロシとの会話
       const maboroshiDialogue = outputs.find(
-        (o) => o.type === "dialogue" && "speaker" in o && o.speaker === "マボロシ"
+        (o) => o.type === "dialogue" && "speaker" in o && o.speaker === "マボロシ",
       );
       expect(maboroshiDialogue).toBeDefined();
 
