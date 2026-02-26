@@ -1,5 +1,6 @@
 import { describe, it, expect } from "vitest";
 import { checkEvolution, evolve } from "../evolution";
+import type { EvolutionContext } from "../evolution";
 import type { MonsterInstance, MonsterSpecies } from "@/types";
 
 function createDummyMonster(level: number = 10, currentHp: number = 30): MonsterInstance {
@@ -49,8 +50,59 @@ const noEvoSpecies: MonsterSpecies = {
   learnset: [],
 };
 
+// アイテム進化用の種族
+const itemEvoSpecies: MonsterSpecies = {
+  id: "eevee-fire",
+  name: "イーブイ",
+  types: ["normal"],
+  baseStats: { hp: 55, atk: 55, def: 50, spAtk: 45, spDef: 65, speed: 55 },
+  baseExpYield: 65,
+  expGroup: "medium_fast",
+  learnset: [],
+  evolvesTo: [{ id: "flareon", level: 1, condition: "item:fire-stone" }],
+};
+
+// 時間帯進化用の種族（分岐進化）
+const timeEvoSpecies: MonsterSpecies = {
+  id: "eevee-time",
+  name: "イーブイ（時間）",
+  types: ["normal"],
+  baseStats: { hp: 55, atk: 55, def: 50, spAtk: 45, spDef: 65, speed: 55 },
+  baseExpYield: 65,
+  expGroup: "medium_fast",
+  learnset: [],
+  evolvesTo: [
+    { id: "espeon", level: 30, condition: "time:day" },
+    { id: "umbreon", level: 30, condition: "time:night" },
+  ],
+};
+
+// なつき進化用の種族
+const friendshipEvoSpecies: MonsterSpecies = {
+  id: "togepi",
+  name: "トゲピー",
+  types: ["fairy"],
+  baseStats: { hp: 35, atk: 20, def: 65, spAtk: 40, spDef: 65, speed: 20 },
+  baseExpYield: 49,
+  expGroup: "fast",
+  learnset: [],
+  evolvesTo: [{ id: "togetic", level: 1, condition: "friendship" }],
+};
+
+// 通信進化用の種族
+const tradeEvoSpecies: MonsterSpecies = {
+  id: "kadabra",
+  name: "ユンゲラー",
+  types: ["psychic"],
+  baseStats: { hp: 40, atk: 35, def: 30, spAtk: 120, spDef: 70, speed: 105 },
+  baseExpYield: 140,
+  expGroup: "medium_slow",
+  learnset: [],
+  evolvesTo: [{ id: "alakazam", level: 1, condition: "trade" }],
+};
+
 describe("進化システム", () => {
-  describe("checkEvolution", () => {
+  describe("checkEvolution — レベル進化", () => {
     it("レベルが進化条件を満たしていれば進化先IDを返す", () => {
       const monster = createDummyMonster(16);
       const result = checkEvolution(monster, charmander);
@@ -70,6 +122,94 @@ describe("進化システム", () => {
     });
   });
 
+  describe("checkEvolution — アイテム進化", () => {
+    it("正しいアイテムを使用すれば進化する", () => {
+      const monster = createDummyMonster(25);
+      monster.speciesId = "eevee-fire";
+      const ctx: EvolutionContext = { usedItemId: "fire-stone" };
+      expect(checkEvolution(monster, itemEvoSpecies, ctx)).toBe("flareon");
+    });
+
+    it("アイテムなしでは進化しない", () => {
+      const monster = createDummyMonster(25);
+      monster.speciesId = "eevee-fire";
+      expect(checkEvolution(monster, itemEvoSpecies)).toBeNull();
+    });
+
+    it("間違ったアイテムでは進化しない", () => {
+      const monster = createDummyMonster(25);
+      monster.speciesId = "eevee-fire";
+      const ctx: EvolutionContext = { usedItemId: "water-stone" };
+      expect(checkEvolution(monster, itemEvoSpecies, ctx)).toBeNull();
+    });
+  });
+
+  describe("checkEvolution — 時間帯進化（分岐進化）", () => {
+    it("昼にレベル条件を満たすとespeonに進化", () => {
+      const monster = createDummyMonster(30);
+      monster.speciesId = "eevee-time";
+      const ctx: EvolutionContext = { timeOfDay: "day" };
+      expect(checkEvolution(monster, timeEvoSpecies, ctx)).toBe("espeon");
+    });
+
+    it("夜にレベル条件を満たすとumbreonに進化", () => {
+      const monster = createDummyMonster(30);
+      monster.speciesId = "eevee-time";
+      const ctx: EvolutionContext = { timeOfDay: "night" };
+      expect(checkEvolution(monster, timeEvoSpecies, ctx)).toBe("umbreon");
+    });
+
+    it("時間帯指定なしでは進化しない", () => {
+      const monster = createDummyMonster(30);
+      monster.speciesId = "eevee-time";
+      expect(checkEvolution(monster, timeEvoSpecies)).toBeNull();
+    });
+
+    it("レベルが足りなければ時間帯が合っていても進化しない", () => {
+      const monster = createDummyMonster(29);
+      monster.speciesId = "eevee-time";
+      const ctx: EvolutionContext = { timeOfDay: "day" };
+      expect(checkEvolution(monster, timeEvoSpecies, ctx)).toBeNull();
+    });
+  });
+
+  describe("checkEvolution — なつき進化", () => {
+    it("なつき度220以上で進化する", () => {
+      const monster = createDummyMonster(5);
+      monster.speciesId = "togepi";
+      const ctx: EvolutionContext = { friendship: 220 };
+      expect(checkEvolution(monster, friendshipEvoSpecies, ctx)).toBe("togetic");
+    });
+
+    it("なつき度不足では進化しない", () => {
+      const monster = createDummyMonster(5);
+      monster.speciesId = "togepi";
+      const ctx: EvolutionContext = { friendship: 219 };
+      expect(checkEvolution(monster, friendshipEvoSpecies, ctx)).toBeNull();
+    });
+
+    it("なつき度未指定では進化しない", () => {
+      const monster = createDummyMonster(5);
+      monster.speciesId = "togepi";
+      expect(checkEvolution(monster, friendshipEvoSpecies)).toBeNull();
+    });
+  });
+
+  describe("checkEvolution — 通信進化", () => {
+    it("通信交換で進化する", () => {
+      const monster = createDummyMonster(30);
+      monster.speciesId = "kadabra";
+      const ctx: EvolutionContext = { isTrade: true };
+      expect(checkEvolution(monster, tradeEvoSpecies, ctx)).toBe("alakazam");
+    });
+
+    it("通信交換なしでは進化しない", () => {
+      const monster = createDummyMonster(30);
+      monster.speciesId = "kadabra";
+      expect(checkEvolution(monster, tradeEvoSpecies)).toBeNull();
+    });
+  });
+
   describe("evolve", () => {
     it("speciesIdが更新される", () => {
       const monster = createDummyMonster(16, 30);
@@ -78,18 +218,12 @@ describe("進化システム", () => {
     });
 
     it("最大HPの増加分が現在HPに加算される", () => {
-      // charmander base HP: 39, charmeleon base HP: 58
-      // レベル16, IV=15, EV=0 での HP:
-      // calcHp(39, 15, 0, 16) = ((2*39+15+0)*16/100) + 16 + 10 = (93*16/100)+26 = 14+26 = 40
-      // calcHp(58, 15, 0, 16) = ((2*58+15+0)*16/100) + 16 + 10 = (131*16/100)+26 = 20+26 = 46
-      // 差分 = 6
       const monster = createDummyMonster(16, 35);
       evolve(monster, charmander, charmeleon);
       expect(monster.currentHp).toBe(41); // 35 + 6
     });
 
     it("現在HPが新しい最大HPを超えない", () => {
-      // 新maxHP = 46 の場合、currentHp=45 + 差分6 = 51 → min(46, 51) = 46
       const monster = createDummyMonster(16, 45);
       evolve(monster, charmander, charmeleon);
       expect(monster.currentHp).toBeLessThanOrEqual(46);
