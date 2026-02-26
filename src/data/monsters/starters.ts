@@ -1,0 +1,162 @@
+/**
+ * 御三家（スターター）モンスターデータ
+ * ヒモリ系列（炎）、シズクモ系列（水）、コノハナ系列（草）
+ */
+import type { MonsterSpecies } from "@/types";
+
+export const STARTERS: MonsterSpecies[] = [
+  // === ヒモリ系列（炎 → 炎 → 炎/格闘）===
+  {
+    id: "himori",
+    name: "ヒモリ",
+    types: ["fire"],
+    baseStats: { hp: 45, atk: 60, def: 40, spAtk: 50, spDef: 40, speed: 65 },
+    baseExpYield: 62,
+    expGroup: "medium_slow",
+    learnset: [
+      { level: 1, moveId: "tackle" },
+      { level: 1, moveId: "growl" },
+      { level: 5, moveId: "ember" },
+      { level: 9, moveId: "quick-attack" },
+      { level: 13, moveId: "bite" },
+    ],
+    evolvesTo: [{ id: "hinomori", level: 16 }],
+  },
+  {
+    id: "hinomori",
+    name: "ヒノモリ",
+    types: ["fire"],
+    baseStats: { hp: 60, atk: 80, def: 55, spAtk: 65, spDef: 55, speed: 80 },
+    baseExpYield: 142,
+    expGroup: "medium_slow",
+    learnset: [
+      { level: 1, moveId: "tackle" },
+      { level: 1, moveId: "growl" },
+      { level: 1, moveId: "ember" },
+      { level: 9, moveId: "quick-attack" },
+      { level: 13, moveId: "bite" },
+      { level: 17, moveId: "flame-wheel" },
+      { level: 21, moveId: "double-kick" },
+    ],
+    evolvesTo: [{ id: "enjuu", level: 36 }],
+  },
+  {
+    id: "enjuu",
+    name: "エンジュウ",
+    types: ["fire", "fighting"],
+    baseStats: { hp: 76, atk: 104, def: 71, spAtk: 80, spDef: 71, speed: 108 },
+    baseExpYield: 240,
+    expGroup: "medium_slow",
+    learnset: [
+      { level: 1, moveId: "tackle" },
+      { level: 1, moveId: "growl" },
+      { level: 1, moveId: "ember" },
+      { level: 1, moveId: "quick-attack" },
+      { level: 13, moveId: "bite" },
+      { level: 17, moveId: "flame-wheel" },
+      { level: 21, moveId: "double-kick" },
+    ],
+  },
+
+  // === シズクモ系列（水 → 水 → 水/超）===
+  {
+    id: "shizukumo",
+    name: "シズクモ",
+    types: ["water"],
+    baseStats: { hp: 50, atk: 40, def: 45, spAtk: 60, spDef: 50, speed: 55 },
+    baseExpYield: 63,
+    expGroup: "medium_slow",
+    learnset: [
+      { level: 1, moveId: "tackle" },
+      { level: 1, moveId: "tail-whip" },
+      { level: 5, moveId: "water-gun" },
+      { level: 9, moveId: "bubble" },
+      { level: 13, moveId: "quick-attack" },
+    ],
+    evolvesTo: [{ id: "namikozou", level: 16 }],
+  },
+  {
+    id: "namikozou",
+    name: "ナミコゾウ",
+    types: ["water"],
+    baseStats: { hp: 65, atk: 55, def: 60, spAtk: 80, spDef: 65, speed: 70 },
+    baseExpYield: 144,
+    expGroup: "medium_slow",
+    learnset: [
+      { level: 1, moveId: "tackle" },
+      { level: 1, moveId: "tail-whip" },
+      { level: 1, moveId: "water-gun" },
+      { level: 9, moveId: "bubble" },
+      { level: 13, moveId: "quick-attack" },
+      { level: 17, moveId: "water-pulse" },
+    ],
+    evolvesTo: [{ id: "taikaiou", level: 36 }],
+  },
+  {
+    id: "taikaiou",
+    name: "タイカイオウ",
+    types: ["water", "psychic"],
+    baseStats: { hp: 81, atk: 71, def: 76, spAtk: 104, spDef: 81, speed: 97 },
+    baseExpYield: 239,
+    expGroup: "medium_slow",
+    learnset: [
+      { level: 1, moveId: "tackle" },
+      { level: 1, moveId: "tail-whip" },
+      { level: 1, moveId: "water-gun" },
+      { level: 1, moveId: "bubble" },
+      { level: 13, moveId: "quick-attack" },
+      { level: 17, moveId: "water-pulse" },
+    ],
+  },
+
+  // === コノハナ系列（草 → 草 → 草/岩）===
+  {
+    id: "konohana",
+    name: "コノハナ",
+    types: ["grass"],
+    baseStats: { hp: 55, atk: 45, def: 55, spAtk: 45, spDef: 55, speed: 45 },
+    baseExpYield: 64,
+    expGroup: "medium_slow",
+    learnset: [
+      { level: 1, moveId: "tackle" },
+      { level: 1, moveId: "leer" },
+      { level: 5, moveId: "vine-whip" },
+      { level: 9, moveId: "leech-seed" },
+      { level: 13, moveId: "razor-leaf" },
+    ],
+    evolvesTo: [{ id: "morinoko", level: 16 }],
+  },
+  {
+    id: "morinoko",
+    name: "モリノコ",
+    types: ["grass"],
+    baseStats: { hp: 70, atk: 60, def: 70, spAtk: 60, spDef: 70, speed: 60 },
+    baseExpYield: 142,
+    expGroup: "medium_slow",
+    learnset: [
+      { level: 1, moveId: "tackle" },
+      { level: 1, moveId: "leer" },
+      { level: 1, moveId: "vine-whip" },
+      { level: 9, moveId: "leech-seed" },
+      { level: 13, moveId: "razor-leaf" },
+      { level: 17, moveId: "rock-throw" },
+    ],
+    evolvesTo: [{ id: "taijushin", level: 36 }],
+  },
+  {
+    id: "taijushin",
+    name: "タイジュシン",
+    types: ["grass", "rock"],
+    baseStats: { hp: 95, atk: 82, def: 97, spAtk: 75, spDef: 87, speed: 74 },
+    baseExpYield: 236,
+    expGroup: "medium_slow",
+    learnset: [
+      { level: 1, moveId: "tackle" },
+      { level: 1, moveId: "leer" },
+      { level: 1, moveId: "vine-whip" },
+      { level: 1, moveId: "leech-seed" },
+      { level: 13, moveId: "razor-leaf" },
+      { level: 17, moveId: "rock-throw" },
+    ],
+  },
+];
