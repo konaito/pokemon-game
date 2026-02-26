@@ -102,3 +102,46 @@ export type StatusCondition = "poison" | "burn" | "paralysis" | "sleep" | "freez
 
 /** タイプ相性の倍率 */
 export type TypeEffectiveness = 0 | 0.5 | 1 | 2;
+
+/** アイテムカテゴリ */
+export type ItemCategory = "ball" | "medicine" | "battle" | "key";
+
+/** アイテム定義 */
+export interface ItemDefinition {
+  id: ItemId;
+  name: string;
+  description: string;
+  category: ItemCategory;
+  price: number;
+  /** バトル中に使用可能か */
+  usableInBattle: boolean;
+  /** 効果（アイテム種別ごとに異なる） */
+  effect: ItemEffect;
+}
+
+/** アイテム効果 */
+export type ItemEffect =
+  | { type: "heal_hp"; amount: number }
+  | { type: "heal_status"; status: StatusCondition | "all" }
+  | { type: "heal_pp"; amount: number | "all" }
+  | { type: "ball"; catchRateModifier: number }
+  | { type: "none" };
+
+/** バッグ内のアイテム（個数管理） */
+export interface BagItem {
+  itemId: ItemId;
+  quantity: number;
+}
+
+/** プレイヤーのバッグ */
+export interface Bag {
+  items: BagItem[];
+}
+
+/** パーティ + ボックスの管理 */
+export interface PartyState {
+  /** 手持ち（最大6匹） */
+  party: MonsterInstance[];
+  /** ボックス（預かりシステム） */
+  boxes: MonsterInstance[][];
+}
