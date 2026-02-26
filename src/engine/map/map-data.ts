@@ -23,6 +23,10 @@ export interface MapConnection {
   /** 接続元の座標範囲（ドアや出入口の位置） */
   sourceX: number;
   sourceY: number;
+  /** 通過に必要なフラグ条件（未設定なら常に通過可能） */
+  requirement?: FlagRequirement;
+  /** 条件未達時に表示するメッセージ */
+  blockedMessage?: string;
 }
 
 /** 野生モンスター出現テーブルのエントリ */
