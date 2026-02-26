@@ -11,12 +11,12 @@
 
 ポケモンは「ゲーム」ではない。ポケモンは以下の**4つのシステムが噛み合った体験装置**である。
 
-| レイヤー | 本質 | 具体例 |
-|---|---|---|
-| **収集（Collection）** | 「世界の全体像」を自分の手で埋めていく充足感 | 図鑑、捕獲、出現率の偏り |
-| **育成（Cultivation）** | 「時間の投資」が目に見える形で返ってくる快感 | レベル、努力値、進化 |
-| **交換（Exchange）** | 「他者との非対称性」が交流の動機になる | バージョン違い、通信交換 |
-| **対戦（Battle）** | 「知識と判断」の応酬が深い戦略性を生む | タイプ相性、読み合い、構築 |
+| レイヤー                | 本質                                         | 具体例                     |
+| ----------------------- | -------------------------------------------- | -------------------------- |
+| **収集（Collection）**  | 「世界の全体像」を自分の手で埋めていく充足感 | 図鑑、捕獲、出現率の偏り   |
+| **育成（Cultivation）** | 「時間の投資」が目に見える形で返ってくる快感 | レベル、努力値、進化       |
+| **交換（Exchange）**    | 「他者との非対称性」が交流の動機になる       | バージョン違い、通信交換   |
+| **対戦（Battle）**      | 「知識と判断」の応酬が深い戦略性を生む       | タイプ相性、読み合い、構築 |
 
 **重要な洞察**: この4つは独立していない。収集が育成の動機を生み、育成が対戦の深さを生み、対戦が交換の必要性を生み、交換が収集を加速させる。**循環構造**こそがポケモンの本体である。
 
@@ -56,6 +56,7 @@
 ```
 
 じゃんけんと違う点:
+
 - **非対称性**: AがBに強いからといって、BがAに弱いとは限らない（ノーマル→ゴースト は無効だが逆は等倍）
 - **多重タイプ**: 1体が2タイプを持てるため、「弱点が弱点でなくなる」組み合わせが生まれる
 - **4つの技枠**: 自タイプ以外の技を持てるため、見た目の相性だけでは結果が読めない
@@ -86,12 +87,12 @@
 
 ### 4.2 多層的なゴール設計
 
-| ゴールの種類 | 具体例 | 心理的効果 |
-|---|---|---|
-| 短期 | 次のジムバッジを取る | 即時の達成感 |
-| 中期 | チャンピオンを倒す | 物語の完結 |
-| 長期 | 図鑑を完成させる | 完璧主義の充足 |
-| 無限 | 対戦で最強になる | 終わりなき挑戦 |
+| ゴールの種類 | 具体例               | 心理的効果     |
+| ------------ | -------------------- | -------------- |
+| 短期         | 次のジムバッジを取る | 即時の達成感   |
+| 中期         | チャンピオンを倒す   | 物語の完結     |
+| 長期         | 図鑑を完成させる     | 完璧主義の充足 |
+| 無限         | 対戦で最強になる     | 終わりなき挑戦 |
 
 プレイヤーが「どのゴールを追うか」を自分で選べることが重要。
 
@@ -124,10 +125,10 @@ interface Species {
   name: string;
   types: [Type] | [Type, Type];
   baseStats: Stats;
-  learnset: LearnsetEntry[];    // レベルで覚える技
-  evolutionChain: Evolution[];  // 進化条件と進化先
-  catchRate: number;            // 捕獲率 (0-255)
-  description: string;          // 図鑑テキスト
+  learnset: LearnsetEntry[]; // レベルで覚える技
+  evolutionChain: Evolution[]; // 進化条件と進化先
+  catchRate: number; // 捕獲率 (0-255)
+  description: string; // 図鑑テキスト
 }
 
 // 個体（実際にプレイヤーが持つ1匹）
@@ -137,10 +138,10 @@ interface Monster {
   level: number;
   experience: number;
   currentHp: number;
-  stats: Stats;                 // 種族値 + 個体値 + 努力値から計算
-  individualValues: Stats;      // 個体値（生まれつきの才能）
-  effortValues: Stats;          // 努力値（育成の結果）
-  moves: Move[];                // 現在覚えている技（最大4つ）
+  stats: Stats; // 種族値 + 個体値 + 努力値から計算
+  individualValues: Stats; // 個体値（生まれつきの才能）
+  effortValues: Stats; // 努力値（育成の結果）
+  moves: Move[]; // 現在覚えている技（最大4つ）
   status: StatusCondition | null;
 }
 
@@ -159,19 +160,33 @@ interface Move {
   id: number;
   name: string;
   type: Type;
-  category: 'physical' | 'special' | 'status';
-  power: number;         // 威力
-  accuracy: number;      // 命中率
-  pp: number;            // 使用回数
-  effect?: MoveEffect;   // 追加効果
+  category: "physical" | "special" | "status";
+  power: number; // 威力
+  accuracy: number; // 命中率
+  pp: number; // 使用回数
+  effect?: MoveEffect; // 追加効果
 }
 
 // タイプ
 type Type =
-  | 'normal' | 'fire' | 'water' | 'grass' | 'electric'
-  | 'ice' | 'fighting' | 'poison' | 'ground' | 'flying'
-  | 'psychic' | 'bug' | 'rock' | 'ghost' | 'dragon'
-  | 'dark' | 'steel' | 'fairy';
+  | "normal"
+  | "fire"
+  | "water"
+  | "grass"
+  | "electric"
+  | "ice"
+  | "fighting"
+  | "poison"
+  | "ground"
+  | "flying"
+  | "psychic"
+  | "bug"
+  | "rock"
+  | "ghost"
+  | "dragon"
+  | "dark"
+  | "steel"
+  | "fairy";
 ```
 
 ### 5.3 ダメージ計算の核心
@@ -182,19 +197,20 @@ function calculateDamage(attacker: Monster, defender: Monster, move: Move): numb
   const level = attacker.level;
   const power = move.power;
 
-  const [attackStat, defenseStat] = move.category === 'physical'
-    ? [attacker.stats.attack, defender.stats.defense]
-    : [attacker.stats.specialAttack, defender.stats.specialDefense];
+  const [attackStat, defenseStat] =
+    move.category === "physical"
+      ? [attacker.stats.attack, defender.stats.defense]
+      : [attacker.stats.specialAttack, defender.stats.specialDefense];
 
   // 基本ダメージ
   const baseDamage = Math.floor(
-    (((2 * level / 5 + 2) * power * attackStat / defenseStat) / 50) + 2
+    (((2 * level) / 5 + 2) * power * attackStat) / defenseStat / 50 + 2,
   );
 
   // 乗算修正
-  const stab = attacker.species.types.includes(move.type) ? 1.5 : 1.0;  // タイプ一致ボーナス
+  const stab = attacker.species.types.includes(move.type) ? 1.5 : 1.0; // タイプ一致ボーナス
   const typeEffectiveness = getTypeEffectiveness(move.type, defender.species.types);
-  const random = (Math.floor(Math.random() * 16) + 85) / 100;  // 85-100%の乱数
+  const random = (Math.floor(Math.random() * 16) + 85) / 100; // 85-100%の乱数
 
   return Math.floor(baseDamage * stab * typeEffectiveness * random);
 }
@@ -202,12 +218,12 @@ function calculateDamage(attacker: Monster, defender: Monster, move: Move): numb
 
 ### 5.4 技術スタック候補
 
-| 選択肢 | 適用場面 | メリット |
-|---|---|---|
-| **TypeScript + Canvas/WebGL** | ブラウザゲーム | 配布が楽、クロスプラットフォーム |
-| **TypeScript + Phaser** | 2D RPG | バトル・マップ・UIの土台が揃う |
-| **TypeScript + React** | UI重視・カードゲーム風 | コンポーネント設計と相性が良い |
-| **Electron + TypeScript** | デスクトップアプリ | オフライン対応、ネイティブ機能 |
+| 選択肢                        | 適用場面               | メリット                         |
+| ----------------------------- | ---------------------- | -------------------------------- |
+| **TypeScript + Canvas/WebGL** | ブラウザゲーム         | 配布が楽、クロスプラットフォーム |
+| **TypeScript + Phaser**       | 2D RPG                 | バトル・マップ・UIの土台が揃う   |
+| **TypeScript + React**        | UI重視・カードゲーム風 | コンポーネント設計と相性が良い   |
+| **Electron + TypeScript**     | デスクトップアプリ     | オフライン対応、ネイティブ機能   |
 
 ---
 
@@ -217,13 +233,13 @@ function calculateDamage(attacker: Monster, defender: Monster, move: Move): numb
 
 ### 6.1 ずらせるレイヤー
 
-| レイヤー | ポケモンの選択 | ずらしの例 |
-|---|---|---|
-| **世界観** | ファンタジー×生物学 | SF×ロボット、神話×精霊、現代×細菌 |
-| **収集の対象** | 生き物（151→1000+） | 武器、言語、料理、音楽 |
-| **バトルの形式** | 1vs1ターン制 | チーム戦、リアルタイム、カード式 |
-| **進化の条件** | レベル/アイテム/通信 | 感情、環境、プレイヤーの選択 |
-| **交換の動機** | バージョン違い | 地域限定、時間限定、条件限定 |
+| レイヤー         | ポケモンの選択       | ずらしの例                        |
+| ---------------- | -------------------- | --------------------------------- |
+| **世界観**       | ファンタジー×生物学  | SF×ロボット、神話×精霊、現代×細菌 |
+| **収集の対象**   | 生き物（151→1000+）  | 武器、言語、料理、音楽            |
+| **バトルの形式** | 1vs1ターン制         | チーム戦、リアルタイム、カード式  |
+| **進化の条件**   | レベル/アイテム/通信 | 感情、環境、プレイヤーの選択      |
+| **交換の動機**   | バージョン違い       | 地域限定、時間限定、条件限定      |
 
 ### 6.2 「ポケモンが選ばなかった道」を選ぶ
 
@@ -240,24 +256,28 @@ function calculateDamage(attacker: Monster, defender: Monster, move: Move): numb
 ## 7. 開発ロードマップ（提案）
 
 ### Phase 1: プロトタイプ（コアメカニクス検証）
+
 - タイプ相性テーブルの設計
 - ダメージ計算エンジン
 - CLIベースの1vs1バトル
 - 3-5種のテストモンスター
 
 ### Phase 2: ゲームループ（体験の最小単位）
+
 - マップ移動とエンカウント
 - 捕獲メカニクス
 - パーティ管理（6匹）
 - 回復・ショップ
 
 ### Phase 3: 深さの追加
+
 - 進化システム
 - 技マシン/技の習得
 - トレーナー戦AI
 - 図鑑UI
 
 ### Phase 4: 社会性
+
 - 対人戦（ローカル or オンライン）
 - 交換システム
 - ランキング/レーティング
