@@ -50,7 +50,35 @@ export class BattleEngine {
 
     // 逃走処理
     if (playerAction.type === "run") {
-      return this.handleRun();
+      // トレーナー戦は逃走不可（ターン消費せず再選択）
+      if (this.state.battleType === "trainer") {
+        this.state.messages.push("トレーナー戦からは逃げられない！");
+        return this.state.messages;
+      }
+
+      this.handleRun();
+      if (this.state.result) return this.state.messages;
+
+      // 逃走失敗: 相手のターンを実行
+      const opponentAction = this.selectOpponentAction();
+      if (opponentAction.type === "fight") {
+        const opponentSpecies = this.speciesResolver(this.opponentActive.speciesId);
+        const move = this.moveResolver(this.opponentActive.moves[opponentAction.moveIndex].moveId);
+        const turnAction: TurnAction = {
+          side: "opponent",
+          action: opponentAction,
+          monster: this.opponentActive,
+          species: opponentSpecies,
+          move,
+        };
+        this.executeAction(turnAction);
+        this.checkFaint();
+      }
+
+      this.applyEndOfTurnEffects();
+      this.checkFaint();
+      this.state.turnNumber++;
+      return this.state.messages;
     }
 
     // 交代処理
@@ -142,13 +170,8 @@ export class BattleEngine {
     }
   }
 
-  /** 逃走処理 */
-  private handleRun(): string[] {
-    if (this.state.battleType === "trainer") {
-      this.state.messages.push("トレーナー戦からは逃げられない！");
-      return this.state.messages;
-    }
-
+  /** 野生バトルの逃走処理（結果はthis.state.messages / this.state.resultに書き込み） */
+  private handleRun(): void {
     // 逃走成功率: (playerSpeed * 128 / opponentSpeed + 30 * attempts) / 256
     const playerSpecies = this.speciesResolver(this.playerActive.speciesId);
     const opponentSpecies = this.speciesResolver(this.opponentActive.speciesId);
@@ -174,8 +197,6 @@ export class BattleEngine {
     } else {
       this.state.messages.push("逃げられなかった！");
     }
-
-    return this.state.messages;
   }
 
   /** 交代処理 */

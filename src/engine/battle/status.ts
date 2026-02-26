@@ -64,6 +64,7 @@ export function applyStatusDamage(monster: MonsterInstance, maxHp: number): numb
 
 /**
  * 行動可能かチェック（眠り・氷の解除判定含む）
+ * 解除に成功した場合、monster.status を null にクリアする
  * @returns true = 行動可能
  */
 export function canAct(monster: MonsterInstance, random?: () => number): boolean {
@@ -71,17 +72,25 @@ export function canAct(monster: MonsterInstance, random?: () => number): boolean
   const rng = random ?? Math.random;
   const effect = getStatusEffect(monster.status);
 
-  // 眠り: 33%で起きる
+  // 眠り: 33%で起きる → 成功時にステータスクリア
   if (monster.status === "sleep") {
-    return rng() < 1 / 3;
+    if (rng() < 1 / 3) {
+      monster.status = null;
+      return true;
+    }
+    return false;
   }
 
-  // 氷: 20%で解凍
+  // 氷: 20%で解凍 → 成功時にステータスクリア
   if (monster.status === "freeze") {
-    return rng() < 0.2;
+    if (rng() < 0.2) {
+      monster.status = null;
+      return true;
+    }
+    return false;
   }
 
-  // 麻痺: 25%で行動不能
+  // 麻痺: 25%で行動不能（ステータスは残る）
   if (effect.immobilizeChance > 0) {
     return rng() >= effect.immobilizeChance;
   }

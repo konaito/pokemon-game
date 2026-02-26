@@ -163,9 +163,7 @@ describe("calculateDamage", () => {
     });
 
     expect(result.effectiveness).toBe(0);
-    // ダメージ計算式上、effectiveness=0 なので floor 後は0。
-    // ただしmax(1, ...)があるので最終的に1になる（ゲームの仕様差異）。
-    // 本実装ではmax(1)を適用している（将来的に無効判定は別レイヤーで処理）
+    expect(result.damage).toBe(0);
   });
 
   it("急所が出ると1.5倍になる", () => {

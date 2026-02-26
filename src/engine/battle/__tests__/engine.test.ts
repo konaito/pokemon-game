@@ -27,6 +27,22 @@ const species: Record<string, MonsterSpecies> = {
   },
 };
 
+const ghostSpecies: MonsterSpecies = {
+  id: "ghost-mon",
+  name: "ユウレイ",
+  types: ["ghost"],
+  baseStats: { hp: 60, atk: 60, def: 60, spAtk: 60, spDef: 60, speed: 60 },
+  learnset: [{ level: 1, moveId: "shadow-ball" }],
+};
+
+const normalSpecies: MonsterSpecies = {
+  id: "normal-mon",
+  name: "ノーマン",
+  types: ["normal"],
+  baseStats: { hp: 80, atk: 80, def: 80, spAtk: 80, spDef: 80, speed: 80 },
+  learnset: [{ level: 1, moveId: "tackle" }],
+};
+
 const moves: Record<string, MoveDefinition> = {
   ember: {
     id: "ember",
@@ -68,20 +84,57 @@ const moves: Record<string, MoveDefinition> = {
     pp: 30,
     priority: 1,
   },
+  tackle: {
+    id: "tackle",
+    name: "たいあたり",
+    type: "normal",
+    category: "physical",
+    power: 40,
+    accuracy: 100,
+    pp: 35,
+    priority: 0,
+  },
+  "shadow-ball": {
+    id: "shadow-ball",
+    name: "シャドーボール",
+    type: "ghost",
+    category: "special",
+    power: 80,
+    accuracy: 100,
+    pp: 15,
+    priority: 0,
+  },
+  hypnosis: {
+    id: "hypnosis",
+    name: "さいみんじゅつ",
+    type: "psychic",
+    category: "status",
+    power: null,
+    accuracy: 100,
+    pp: 20,
+    priority: 0,
+    effect: { statusCondition: "sleep", statusChance: 100 },
+  },
 };
 
-const speciesResolver = (id: string) => species[id];
+const allSpecies: Record<string, MonsterSpecies> = {
+  ...species,
+  "ghost-mon": ghostSpecies,
+  "normal-mon": normalSpecies,
+};
+
+const speciesResolver = (id: string) => allSpecies[id];
 const moveResolver = (id: string) => moves[id];
 
 function createInstance(speciesId: string, level: number = 50): MonsterInstance {
-  const sp = species[speciesId];
+  const sp = allSpecies[speciesId];
   return {
     speciesId,
     level,
     exp: level * level * level,
     ivs: { hp: 15, atk: 15, def: 15, spAtk: 15, spDef: 15, speed: 15 },
     evs: { hp: 0, atk: 0, def: 0, spAtk: 0, spDef: 0, speed: 0 },
-    currentHp: 200, // 十分なHP
+    currentHp: 200,
     moves: sp.learnset.map((l) => ({ moveId: l.moveId, currentPp: moves[l.moveId].pp })),
     status: null,
   };
@@ -241,5 +294,159 @@ describe("BattleEngine - 統合テスト", () => {
     // 先にクサネコの技が出る（先制技なので）
     const firstMoveMsg = messages.find((m) => m.includes("の"));
     expect(firstMoveMsg).toContain("クサネコ");
+  });
+});
+
+describe("BattleEngine - バグ修正検証", () => {
+  it("Bug1: 眠りから回復したらステータスがクリアされる", () => {
+    const player = [createInstance("fire-starter")];
+    player[0].status = "sleep";
+    const opponent = [createInstance("grass-starter")];
+
+    // rng < 1/3 で眠りから覚める
+    const engine = new BattleEngine(
+      player,
+      opponent,
+      "wild",
+      speciesResolver,
+      moveResolver,
+      () => 0.1, // 0.1 < 1/3 → 眠りから覚める
+    );
+
+    engine.executeTurn({ type: "fight", moveIndex: 0 });
+    // 眠りが治っていることを確認
+    expect(player[0].status).toBeNull();
+  });
+
+  it("Bug1: 氷から回復したらステータスがクリアされる", () => {
+    const player = [createInstance("fire-starter")];
+    player[0].status = "freeze";
+    const opponent = [createInstance("grass-starter")];
+
+    const engine = new BattleEngine(
+      player,
+      opponent,
+      "wild",
+      speciesResolver,
+      moveResolver,
+      () => 0.1, // 0.1 < 0.2 → 氷から解凍
+    );
+
+    engine.executeTurn({ type: "fight", moveIndex: 0 });
+    expect(player[0].status).toBeNull();
+  });
+
+  it("Bug2: タイプ無効（ノーマル→ゴースト）はダメージ0", () => {
+    const player = [createInstance("normal-mon")];
+    player[0].currentHp = 200;
+    const opponent = [createInstance("ghost-mon")];
+    opponent[0].currentHp = 100;
+
+    const engine = new BattleEngine(
+      player,
+      opponent,
+      "wild",
+      speciesResolver,
+      moveResolver,
+      () => 0.5,
+    );
+
+    const hpBefore = opponent[0].currentHp;
+    engine.executeTurn({ type: "fight", moveIndex: 0 });
+    // ノーマル→ゴーストは無効なのでHPが変わらない
+    // （相手のゴースト技はノーマルに無効なので互いにダメージなし）
+    expect(opponent[0].currentHp).toBe(hpBefore);
+  });
+
+  it("Bug3: PP=0の技は使えない", () => {
+    const player = [createInstance("fire-starter")];
+    player[0].moves[0].currentPp = 0; // PP切れ
+    const opponent = [createInstance("grass-starter")];
+
+    const engine = new BattleEngine(
+      player,
+      opponent,
+      "wild",
+      speciesResolver,
+      moveResolver,
+      () => 0.5,
+    );
+
+    const messages = engine.executeTurn({ type: "fight", moveIndex: 0 });
+    expect(messages.some((m) => m.includes("PPが足りない"))).toBe(true);
+  });
+
+  it("Bug4: 逃走失敗時に相手が攻撃してくる", () => {
+    const player = [createInstance("grass-starter", 5)]; // 遅い低レベル
+    player[0].currentHp = 200;
+    const opponent = [createInstance("fire-starter", 50)]; // 速い高レベル
+
+    const engine = new BattleEngine(
+      player,
+      opponent,
+      "wild",
+      speciesResolver,
+      moveResolver,
+      () => 0.99, // 逃走失敗しやすい
+    );
+
+    const hpBefore = player[0].currentHp;
+    engine.executeTurn({ type: "run" });
+    // 逃走失敗後に相手が攻撃してくるのでHPが減る
+    expect(player[0].currentHp).toBeLessThan(hpBefore);
+  });
+
+  it("Bug5: やけど状態で物理攻撃のダメージが減少する", () => {
+    // やけど無し vs やけど有りの物理ダメージ比較
+    const playerNoBurn = [createInstance("grass-starter")];
+    const playerBurn = [createInstance("grass-starter")];
+    playerBurn[0].status = "burn";
+    const opponent1 = [createInstance("fire-starter")];
+    opponent1[0].currentHp = 999;
+    const opponent2 = [createInstance("fire-starter")];
+    opponent2[0].currentHp = 999;
+
+    const engine1 = new BattleEngine(
+      playerNoBurn,
+      opponent1,
+      "wild",
+      speciesResolver,
+      moveResolver,
+      () => 0.5,
+    );
+    const engine2 = new BattleEngine(
+      playerBurn,
+      opponent2,
+      "wild",
+      speciesResolver,
+      moveResolver,
+      () => 0.5,
+    );
+
+    engine1.executeTurn({ type: "fight", moveIndex: 0 }); // つるのムチ（物理）
+    engine2.executeTurn({ type: "fight", moveIndex: 0 });
+
+    const damage1 = 999 - opponent1[0].currentHp;
+    const damage2 = 999 - opponent2[0].currentHp;
+    // やけど有りのほうがダメージが少ない
+    expect(damage2).toBeLessThan(damage1);
+  });
+
+  it("Bug6: ステータス技（さいみんじゅつ）で相手を眠らせる", () => {
+    const player = [createInstance("fire-starter")];
+    player[0].moves.push({ moveId: "hypnosis", currentPp: 20 });
+    const opponent = [createInstance("grass-starter")];
+
+    const engine = new BattleEngine(
+      player,
+      opponent,
+      "wild",
+      speciesResolver,
+      moveResolver,
+      () => 0.5, // 命中、状態異常付与成功
+    );
+
+    engine.executeTurn({ type: "fight", moveIndex: 1 }); // さいみんじゅつ
+    expect(opponent[0].status).toBe("sleep");
   });
 });
