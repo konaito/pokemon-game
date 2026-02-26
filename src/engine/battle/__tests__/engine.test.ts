@@ -10,6 +10,8 @@ const species: Record<string, MonsterSpecies> = {
     name: "ヒノコン",
     types: ["fire"],
     baseStats: { hp: 45, atk: 60, def: 50, spAtk: 80, spDef: 60, speed: 70 },
+    baseExpYield: 62,
+    expGroup: "medium_fast",
     learnset: [{ level: 1, moveId: "ember" }],
   },
   "water-starter": {
@@ -17,6 +19,8 @@ const species: Record<string, MonsterSpecies> = {
     name: "ミズリン",
     types: ["water"],
     baseStats: { hp: 50, atk: 50, def: 65, spAtk: 70, spDef: 70, speed: 60 },
+    baseExpYield: 63,
+    expGroup: "medium_fast",
     learnset: [{ level: 1, moveId: "water-gun" }],
   },
   "grass-starter": {
@@ -24,6 +28,8 @@ const species: Record<string, MonsterSpecies> = {
     name: "クサネコ",
     types: ["grass"],
     baseStats: { hp: 55, atk: 55, def: 60, spAtk: 65, spDef: 65, speed: 50 },
+    baseExpYield: 64,
+    expGroup: "medium_fast",
     learnset: [{ level: 1, moveId: "vine-whip" }],
   },
 };
@@ -33,6 +39,8 @@ const ghostSpecies: MonsterSpecies = {
   name: "ユウレイ",
   types: ["ghost"],
   baseStats: { hp: 60, atk: 60, def: 60, spAtk: 60, spDef: 60, speed: 60 },
+  baseExpYield: 60,
+  expGroup: "medium_fast",
   learnset: [{ level: 1, moveId: "shadow-ball" }],
 };
 
@@ -41,6 +49,8 @@ const normalSpecies: MonsterSpecies = {
   name: "ノーマン",
   types: ["normal"],
   baseStats: { hp: 80, atk: 80, def: 80, spAtk: 80, spDef: 80, speed: 80 },
+  baseExpYield: 80,
+  expGroup: "medium_fast",
   learnset: [{ level: 1, moveId: "tackle" }],
 };
 
@@ -130,9 +140,11 @@ const moveResolver = (id: string) => moves[id];
 function createInstance(speciesId: string, level: number = 50): MonsterInstance {
   const sp = allSpecies[speciesId];
   return {
+    uid: `test-${speciesId}-${level}`,
     speciesId,
     level,
     exp: level * level * level,
+    nature: "hardy",
     ivs: { hp: 15, atk: 15, def: 15, spAtk: 15, spDef: 15, speed: 15 },
     evs: { hp: 0, atk: 0, def: 0, spAtk: 0, spDef: 0, speed: 0 },
     currentHp: 200,

@@ -5,9 +5,11 @@ import type { MonsterInstance, MonsterSpecies, MoveDefinition } from "@/types";
 /** テスト用ヘルパー: デフォルトのモンスターインスタンスを生成 */
 function createMonster(overrides?: Partial<MonsterInstance>): MonsterInstance {
   return {
+    uid: "test-damage",
     speciesId: "test-monster",
     level: 50,
     exp: 0,
+    nature: "hardy",
     ivs: { hp: 31, atk: 31, def: 31, spAtk: 31, spDef: 31, speed: 31 },
     evs: { hp: 0, atk: 0, def: 0, spAtk: 0, spDef: 0, speed: 0 },
     currentHp: 100,
@@ -24,6 +26,8 @@ function createSpecies(overrides?: Partial<MonsterSpecies>): MonsterSpecies {
     name: "テストモンスター",
     types: ["normal"],
     baseStats: { hp: 80, atk: 80, def: 80, spAtk: 80, spDef: 80, speed: 80 },
+    baseExpYield: 80,
+    expGroup: "medium_fast",
     learnset: [],
     ...overrides,
   };

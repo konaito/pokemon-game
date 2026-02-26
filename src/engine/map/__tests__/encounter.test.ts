@@ -22,6 +22,8 @@ const testSpecies: Record<string, MonsterSpecies> = {
     name: "ラッタ",
     types: ["normal"],
     baseStats: { hp: 30, atk: 56, def: 35, spAtk: 25, spDef: 35, speed: 72 },
+    baseExpYield: 51,
+    expGroup: "medium_fast",
     learnset: [
       { level: 1, moveId: "tackle" },
       { level: 4, moveId: "tail-whip" },
@@ -33,6 +35,8 @@ const testSpecies: Record<string, MonsterSpecies> = {
     name: "ポッポ",
     types: ["normal", "flying"],
     baseStats: { hp: 40, atk: 45, def: 40, spAtk: 35, spDef: 35, speed: 56 },
+    baseExpYield: 50,
+    expGroup: "medium_slow",
     learnset: [
       { level: 1, moveId: "tackle" },
       { level: 5, moveId: "gust" },
@@ -43,6 +47,8 @@ const testSpecies: Record<string, MonsterSpecies> = {
     name: "ピカチュウ",
     types: ["electric"],
     baseStats: { hp: 35, atk: 55, def: 40, spAtk: 50, spDef: 50, speed: 90 },
+    baseExpYield: 112,
+    expGroup: "medium_fast",
     learnset: [
       { level: 1, moveId: "thunder-shock" },
       { level: 4, moveId: "tail-whip" },

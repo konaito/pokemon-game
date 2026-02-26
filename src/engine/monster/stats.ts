@@ -1,4 +1,5 @@
-import type { BaseStats, IVs, EVs } from "@/types";
+import type { BaseStats, IVs, EVs, NatureId } from "@/types";
+import { getNatureModifiers } from "./nature";
 
 /**
  * HPの実数値を計算
@@ -27,19 +28,22 @@ export function calcStat(
 
 /**
  * 全ステータスの実数値を一括計算
+ * @param nature 性格（省略時は補正なし）
  */
 export function calcAllStats(
   baseStats: BaseStats,
   ivs: IVs,
   evs: EVs,
   level: number,
+  nature?: NatureId,
 ): BaseStats & { hp: number } {
+  const mods = nature ? getNatureModifiers(nature) : undefined;
   return {
     hp: calcHp(baseStats.hp, ivs.hp, evs.hp, level),
-    atk: calcStat(baseStats.atk, ivs.atk, evs.atk, level),
-    def: calcStat(baseStats.def, ivs.def, evs.def, level),
-    spAtk: calcStat(baseStats.spAtk, ivs.spAtk, evs.spAtk, level),
-    spDef: calcStat(baseStats.spDef, ivs.spDef, evs.spDef, level),
-    speed: calcStat(baseStats.speed, ivs.speed, evs.speed, level),
+    atk: calcStat(baseStats.atk, ivs.atk, evs.atk, level, mods?.atk),
+    def: calcStat(baseStats.def, ivs.def, evs.def, level, mods?.def),
+    spAtk: calcStat(baseStats.spAtk, ivs.spAtk, evs.spAtk, level, mods?.spAtk),
+    spDef: calcStat(baseStats.spDef, ivs.spDef, evs.spDef, level, mods?.spDef),
+    speed: calcStat(baseStats.speed, ivs.speed, evs.speed, level, mods?.speed),
   };
 }

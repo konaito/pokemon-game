@@ -11,6 +11,17 @@ export type MoveId = string;
 export type ItemId = string;
 export type MapId = string;
 
+/** 性格ID（25種類） */
+export type NatureId =
+  | "hardy" | "lonely" | "brave" | "adamant" | "naughty"
+  | "bold" | "docile" | "relaxed" | "impish" | "lax"
+  | "timid" | "hasty" | "serious" | "jolly" | "naive"
+  | "modest" | "mild" | "quiet" | "bashful" | "rash"
+  | "calm" | "gentle" | "sassy" | "careful" | "quirky";
+
+/** 経験値グループ */
+export type ExpGroup = "fast" | "medium_fast" | "medium_slow" | "slow";
+
 /** タイプID */
 export type TypeId =
   | "normal"
@@ -54,16 +65,20 @@ export interface MonsterSpecies {
   name: string;
   types: [TypeId] | [TypeId, TypeId];
   baseStats: BaseStats;
+  baseExpYield: number;
+  expGroup: ExpGroup;
   learnset: { level: number; moveId: MoveId }[];
-  evolvesTo?: { id: MonsterId; level: number };
+  evolvesTo?: { id: MonsterId; level: number; condition?: string }[];
 }
 
 /** 個体としてのモンスター */
 export interface MonsterInstance {
+  uid: string;
   speciesId: MonsterId;
   nickname?: string;
   level: number;
   exp: number;
+  nature: NatureId;
   ivs: IVs;
   evs: EVs;
   currentHp: number;

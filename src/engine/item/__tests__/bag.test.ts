@@ -11,9 +11,11 @@ import type { ItemDefinition, MonsterInstance } from "@/types";
 
 function createDummyMonster(hp: number = 30): MonsterInstance {
   return {
+    uid: "test-bag",
     speciesId: "test",
     level: 10,
     exp: 1000,
+    nature: "hardy",
     ivs: { hp: 15, atk: 15, def: 15, spAtk: 15, spDef: 15, speed: 15 },
     evs: { hp: 0, atk: 0, def: 0, spAtk: 0, spDef: 0, speed: 0 },
     currentHp: hp,
