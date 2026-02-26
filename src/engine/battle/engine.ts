@@ -289,7 +289,8 @@ export class BattleEngine {
         this.opponentActive.level,
         this.state.battleType === "trainer",
       );
-      const { levelsGained } = grantExp(this.playerActive, expGain);
+      const playerSpeciesForExp = this.speciesResolver(this.playerActive.speciesId);
+      const { levelsGained } = grantExp(this.playerActive, expGain, playerSpeciesForExp.expGroup);
       const playerSpecies = this.speciesResolver(this.playerActive.speciesId);
       this.state.messages.push(`${playerSpecies.name}は${expGain}の経験値を得た！`);
       if (levelsGained > 0) {

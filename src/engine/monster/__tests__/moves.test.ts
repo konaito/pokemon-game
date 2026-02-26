@@ -4,9 +4,11 @@ import type { MonsterSpecies, MonsterInstance, MoveDefinition } from "@/types";
 
 function createDummyMonster(moves: { moveId: string; currentPp: number }[] = []): MonsterInstance {
   return {
+    uid: "test-moves",
     speciesId: "test",
     level: 10,
     exp: 1000,
+    nature: "hardy",
     ivs: { hp: 15, atk: 15, def: 15, spAtk: 15, spDef: 15, speed: 15 },
     evs: { hp: 0, atk: 0, def: 0, spAtk: 0, spDef: 0, speed: 0 },
     currentHp: 30,
@@ -53,6 +55,8 @@ const dummySpecies: MonsterSpecies = {
   name: "テストモン",
   types: ["fire"],
   baseStats: { hp: 45, atk: 60, def: 40, spAtk: 70, spDef: 50, speed: 65 },
+  baseExpYield: 62,
+  expGroup: "medium_fast",
   learnset: [
     { level: 1, moveId: "tackle" },
     { level: 5, moveId: "ember" },

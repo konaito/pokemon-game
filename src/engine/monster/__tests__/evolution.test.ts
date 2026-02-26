@@ -4,9 +4,11 @@ import type { MonsterInstance, MonsterSpecies } from "@/types";
 
 function createDummyMonster(level: number = 10, currentHp: number = 30): MonsterInstance {
   return {
+    uid: `test-charmander-${level}`,
     speciesId: "charmander",
     level,
     exp: 1000,
+    nature: "hardy",
     ivs: { hp: 15, atk: 15, def: 15, spAtk: 15, spDef: 15, speed: 15 },
     evs: { hp: 0, atk: 0, def: 0, spAtk: 0, spDef: 0, speed: 0 },
     currentHp,
@@ -20,8 +22,10 @@ const charmander: MonsterSpecies = {
   name: "ヒトカゲ",
   types: ["fire"],
   baseStats: { hp: 39, atk: 52, def: 43, spAtk: 60, spDef: 50, speed: 65 },
+  baseExpYield: 62,
+  expGroup: "medium_fast",
   learnset: [],
-  evolvesTo: { id: "charmeleon", level: 16 },
+  evolvesTo: [{ id: "charmeleon", level: 16 }],
 };
 
 const charmeleon: MonsterSpecies = {
@@ -29,8 +33,10 @@ const charmeleon: MonsterSpecies = {
   name: "リザード",
   types: ["fire"],
   baseStats: { hp: 58, atk: 64, def: 58, spAtk: 80, spDef: 65, speed: 80 },
+  baseExpYield: 142,
+  expGroup: "medium_fast",
   learnset: [],
-  evolvesTo: { id: "charizard", level: 36 },
+  evolvesTo: [{ id: "charizard", level: 36 }],
 };
 
 const noEvoSpecies: MonsterSpecies = {
@@ -38,6 +44,8 @@ const noEvoSpecies: MonsterSpecies = {
   name: "ピカチュウ",
   types: ["electric"],
   baseStats: { hp: 35, atk: 55, def: 40, spAtk: 50, spDef: 50, speed: 90 },
+  baseExpYield: 112,
+  expGroup: "medium_fast",
   learnset: [],
 };
 

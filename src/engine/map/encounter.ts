@@ -1,6 +1,8 @@
 import type { MonsterInstance, MonsterSpecies, MoveDefinition } from "@/types";
 import type { MapDefinition, EncounterEntry } from "./map-data";
 import { calcAllStats } from "@/engine/monster/stats";
+import { randomNature } from "@/engine/monster/nature";
+import { generateUid } from "@/engine/monster/uid";
 
 /**
  * エンカウントシステム (#34)
@@ -104,9 +106,11 @@ export function generateWildMonster(
   });
 
   return {
+    uid: generateUid(),
     speciesId: entry.speciesId,
     level,
     exp: 0,
+    nature: randomNature(random),
     ivs,
     evs,
     currentHp: maxHp,

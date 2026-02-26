@@ -29,9 +29,11 @@ const STARTERS: StarterOption[] = [
 
 function createStarterInstance(speciesId: string): MonsterInstance {
   return {
+    uid: crypto.randomUUID(),
     speciesId,
     level: 5,
     exp: 0,
+    nature: "hardy",
     ivs: { hp: 20, atk: 20, def: 20, spAtk: 20, spDef: 20, speed: 20 },
     evs: { hp: 0, atk: 0, def: 0, spAtk: 0, spDef: 0, speed: 0 },
     currentHp: 20,
