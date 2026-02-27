@@ -112,6 +112,12 @@ export function Game() {
   const state = useGameState();
   const dispatch = useGameDispatch();
 
+  // --- セーブデータ存在チェック（ハイドレーション対策：マウント後に判定） ---
+  const [hasSaveData, setHasSaveData] = useState(false);
+  useEffect(() => {
+    setHasSaveData(localStorage.getItem("pokemon_save_1") !== null);
+  }, []);
+
   // --- バトル状態 ---
   const [battleEngine, setBattleEngine] = useState<BattleEngine | null>(null);
   const [battleMessages, setBattleMessages] = useState<string[]>([]);
@@ -1131,9 +1137,7 @@ export function Game() {
         <TitleScreen
           onNewGame={(name) => dispatch({ type: "START_NEW_GAME", playerName: name })}
           onContinue={handleLoadGame}
-          hasSaveData={
-            typeof window !== "undefined" && localStorage.getItem("pokemon_save_1") !== null
-          }
+          hasSaveData={hasSaveData}
         />
       );
 
