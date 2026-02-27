@@ -3,7 +3,7 @@
  * チャンピオン勝利後のエンディング〜エピローグ
  */
 
-import type { EventScript, EventCommand } from "./event-script";
+import type { EventScript } from "./event-script";
 
 /**
  * エンディングシーケンスのスクリプトを生成

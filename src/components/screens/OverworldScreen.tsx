@@ -62,9 +62,12 @@ export function OverworldScreen({
 
   // マップ名をフェードアウト
   useEffect(() => {
-    setShowMapName(true);
-    const timer = setTimeout(() => setShowMapName(false), 3000);
-    return () => clearTimeout(timer);
+    const showTimer = setTimeout(() => setShowMapName(true), 0);
+    const hideTimer = setTimeout(() => setShowMapName(false), 3000);
+    return () => {
+      clearTimeout(showTimer);
+      clearTimeout(hideTimer);
+    };
   }, [map.id]);
 
   const handleMove = useCallback(

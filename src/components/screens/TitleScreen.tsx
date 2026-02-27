@@ -21,11 +21,12 @@ export function TitleScreen({ onNewGame, onContinue, hasSaveData = false }: Titl
   const [titlePhase, setTitlePhase] = useState(0);
 
   useEffect(() => {
-    setMounted(true);
+    const t0 = setTimeout(() => setMounted(true), 0);
     const t1 = setTimeout(() => setTitlePhase(1), 300);
     const t2 = setTimeout(() => setTitlePhase(2), 800);
     const t3 = setTimeout(() => setTitlePhase(3), 1400);
     return () => {
+      clearTimeout(t0);
       clearTimeout(t1);
       clearTimeout(t2);
       clearTimeout(t3);

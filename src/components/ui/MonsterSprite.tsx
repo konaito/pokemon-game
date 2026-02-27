@@ -707,12 +707,10 @@ export function MonsterSprite({
  * 小さいサイズでシンプル表示
  */
 export function MonsterMiniSprite({
-  speciesId,
   types,
   size = 24,
   className = "",
 }: {
-  speciesId: string;
   types: string[];
   size?: number;
   className?: string;

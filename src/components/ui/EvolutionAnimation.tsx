@@ -67,7 +67,7 @@ export function EvolutionAnimation({
   const [glowIntensity, setGlowIntensity] = useState(0);
   const [flashOpacity, setFlashOpacity] = useState(0);
   const [silhouetteScale, setSilhouetteScale] = useState(1);
-  const [cancelPressCount, setCancelPressCount] = useState(0);
+  const [, setCancelPressCount] = useState(0);
 
   // フェーズ遷移
   useEffect(() => {

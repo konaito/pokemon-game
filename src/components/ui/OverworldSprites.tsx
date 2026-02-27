@@ -361,15 +361,7 @@ const NPC_SVG_PATHS: Record<NpcAppearance, React.ReactNode> = {
 export type ItemCategory = "medicine" | "ball" | "battle" | "key";
 
 /** 12x12ピクセルアートのアイテムアイコン */
-export function ItemIcon({
-  category,
-  itemId,
-  size = 20,
-}: {
-  category: ItemCategory;
-  itemId?: string;
-  size?: number;
-}) {
+export function ItemIcon({ category, size = 20 }: { category: ItemCategory; size?: number }) {
   return (
     <svg viewBox="0 0 12 12" width={size} height={size} style={{ imageRendering: "pixelated" }}>
       {ITEM_SVG_PATHS[category]}
