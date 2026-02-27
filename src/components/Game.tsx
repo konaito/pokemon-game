@@ -1178,6 +1178,21 @@ export function Game() {
             onNpcInteract={handleNpcInteract}
             onMenuOpen={handleMenuOpen}
             onPositionChange={handlePositionChange}
+            leadMonster={
+              state.player?.partyState.party[0]
+                ? (() => {
+                    const m = state.player!.partyState.party[0];
+                    const sp = speciesResolver(m.speciesId);
+                    return {
+                      name: m.nickname ?? sp.name,
+                      currentHp: m.currentHp,
+                      maxHp: getMaxHp(m),
+                      level: m.level,
+                      speciesId: m.speciesId,
+                    };
+                  })()
+                : null
+            }
           />
           {renderOverlay()}
           {messageOverlay}

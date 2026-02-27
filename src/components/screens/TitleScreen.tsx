@@ -64,6 +64,8 @@ export function TitleScreen({ onNewGame, onContinue, hasSaveData = false }: Titl
       className="relative flex h-full w-full flex-col items-center justify-center overflow-hidden bg-[#1a1a2e]"
       onKeyDown={handleKeyDown}
       tabIndex={0}
+      role="main"
+      aria-label="Monster Chronicle タイトル画面"
     >
       {/* 背景エフェクト */}
       <div className="pointer-events-none absolute inset-0">

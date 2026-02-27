@@ -73,8 +73,10 @@ export function MenuScreen({
       style={{ backgroundColor: "rgba(10, 10, 26, 0.6)" }}
       onKeyDown={handleKeyDown}
       tabIndex={0}
+      role="dialog"
+      aria-label="メインメニュー"
     >
-      <div className="rpg-window animate-fade-in w-60">
+      <div className="rpg-window animate-fade-in w-60" role="menu">
         {/* プレイヤー情報 */}
         <div className="border-b border-[#533483]/30 px-4 py-3">
           <p className="game-text-shadow font-[family-name:var(--font-dotgothic)] text-sm text-white">
@@ -95,6 +97,9 @@ export function MenuScreen({
               }`}
               onClick={() => handleSelect(i)}
               onMouseEnter={() => setSelectedIndex(i)}
+              role="menuitem"
+              aria-label={`${item.label}: ${item.description}`}
+              aria-current={i === selectedIndex ? "true" : undefined}
             >
               <span
                 className="w-4 text-center text-xs"
