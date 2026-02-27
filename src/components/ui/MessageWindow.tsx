@@ -3,21 +3,17 @@
 import { useState, useEffect, useCallback } from "react";
 
 /**
- * テキストメッセージシステム (#81)
- * タイプライター演出、選択肢表示、ページ送り
+ * メッセージウィンドウ (#81)
+ * RPG風ウィンドウフレーム + タイプライター演出
  */
 
 export interface MessageWindowProps {
-  /** 表示するメッセージ（配列で複数ページ） */
   messages: string[];
-  /** 全メッセージ表示完了時のコールバック */
   onComplete?: () => void;
-  /** 1文字あたりの表示間隔（ms） */
   charDelay?: number;
-  /** 選択肢（最後のメッセージの後に表示） */
   choices?: { label: string; value: string }[];
-  /** 選択肢が選ばれた時のコールバック */
   onChoice?: (value: string) => void;
+  speaker?: string;
 }
 
 export function MessageWindow({
@@ -26,6 +22,7 @@ export function MessageWindow({
   charDelay = 30,
   choices,
   onChoice,
+  speaker,
 }: MessageWindowProps) {
   const [pageIndex, setPageIndex] = useState(0);
   const [displayedText, setDisplayedText] = useState("");
@@ -36,7 +33,6 @@ export function MessageWindow({
   const currentMessage = messages[pageIndex] ?? "";
   const isLastPage = pageIndex >= messages.length - 1;
 
-  // タイプライター効果
   useEffect(() => {
     setDisplayedText("");
     setIsTyping(true);
@@ -62,7 +58,6 @@ export function MessageWindow({
 
   const handleAdvance = useCallback(() => {
     if (isTyping) {
-      // タイプ中にクリック→即時全文表示
       setDisplayedText(currentMessage);
       setIsTyping(false);
       if (isLastPage && choices && choices.length > 0) {
@@ -71,7 +66,7 @@ export function MessageWindow({
       return;
     }
 
-    if (showChoices) return; // 選択肢表示中は進まない
+    if (showChoices) return;
 
     if (!isLastPage) {
       setPageIndex((prev) => prev + 1);
@@ -103,44 +98,65 @@ export function MessageWindow({
 
   return (
     <div
-      className="fixed bottom-0 left-0 right-0 z-50 mx-auto max-w-2xl p-4"
+      className="fixed bottom-0 left-0 right-0 z-50 mx-auto max-w-2xl p-3"
       onKeyDown={handleKeyDown}
       onClick={handleAdvance}
       tabIndex={0}
       role="dialog"
       aria-label="メッセージウィンドウ"
     >
-      <div className="rounded-lg border-4 border-white/30 bg-gray-900/95 p-4 shadow-lg">
-        <p className="min-h-[3rem] font-mono text-lg leading-relaxed text-white">
-          {displayedText}
-          {isTyping && <span className="animate-pulse">▌</span>}
-        </p>
+      {/* 話者名タグ */}
+      {speaker && (
+        <div className="animate-fade-in mb-[-1px] ml-3 inline-block rounded-t-md border-2 border-b-0 border-[#533483] bg-[#16213e] px-4 py-1">
+          <span className="game-text-shadow font-[family-name:var(--font-dotgothic)] text-sm text-[#e94560]">
+            {speaker}
+          </span>
+        </div>
+      )}
 
-        {!isTyping && !showChoices && (
-          <div className="mt-2 flex justify-end">
-            <span className="animate-bounce text-white">▼</span>
-          </div>
-        )}
+      {/* メインウィンドウ */}
+      <div className="rpg-window animate-slide-up">
+        <div className="rpg-window-inner">
+          <p className="game-text-shadow min-h-[3.5rem] font-[family-name:var(--font-dotgothic)] text-lg leading-relaxed text-white">
+            {displayedText}
+            {isTyping && <span className="cursor-blink ml-0.5 text-[#e94560]">▌</span>}
+          </p>
 
-        {showChoices && choices && (
-          <div className="mt-3 space-y-1">
-            {choices.map((choice, i) => (
-              <button
-                key={choice.value}
-                className={`block w-full rounded px-3 py-1 text-left font-mono text-white transition-colors ${
-                  i === selectedChoice ? "bg-white/20" : "bg-transparent hover:bg-white/10"
-                }`}
-                onClick={(e) => {
-                  e.stopPropagation();
-                  onChoice?.(choice.value);
-                }}
-              >
-                {i === selectedChoice ? "▶ " : "  "}
-                {choice.label}
-              </button>
-            ))}
-          </div>
-        )}
+          {/* ページ送りインジケーター */}
+          {!isTyping && !showChoices && (
+            <div className="mt-1 flex justify-end">
+              <span className="animate-bounce text-sm text-[#e94560]">▼</span>
+            </div>
+          )}
+
+          {/* 選択肢 */}
+          {showChoices && choices && (
+            <div className="mt-3 space-y-1">
+              {choices.map((choice, i) => (
+                <button
+                  key={choice.value}
+                  className={`game-text-shadow block w-full rounded-md px-4 py-1.5 text-left font-[family-name:var(--font-dotgothic)] text-white transition-all ${
+                    i === selectedChoice
+                      ? "bg-white/15 shadow-[0_0_10px_rgba(233,69,96,0.15)]"
+                      : "bg-transparent hover:bg-white/5"
+                  }`}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onChoice?.(choice.value);
+                  }}
+                >
+                  <span
+                    className="mr-2 inline-block text-[#e94560] transition-opacity"
+                    style={{ opacity: i === selectedChoice ? 1 : 0 }}
+                  >
+                    ▶
+                  </span>
+                  {choice.label}
+                </button>
+              ))}
+            </div>
+          )}
+        </div>
       </div>
     </div>
   );

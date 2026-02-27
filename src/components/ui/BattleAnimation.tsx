@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
+import { TYPE_HEX } from "@/lib/design-tokens";
 
 /**
  * バトルアニメーション (#83)
@@ -17,28 +18,6 @@ export type BattleAnimationType =
   | "stat_up"
   | "stat_down"
   | "heal";
-
-/** タイプ別のエフェクト色 */
-const TYPE_COLORS: Record<string, string> = {
-  normal: "#A8A878",
-  fire: "#F08030",
-  water: "#6890F0",
-  grass: "#78C850",
-  electric: "#F8D030",
-  ice: "#98D8D8",
-  fighting: "#C03028",
-  poison: "#A040A0",
-  ground: "#E0C068",
-  flying: "#A890F0",
-  psychic: "#F85888",
-  bug: "#A8B820",
-  rock: "#B8A038",
-  ghost: "#705898",
-  dragon: "#7038F8",
-  dark: "#705848",
-  steel: "#B8B8D0",
-  fairy: "#EE99AC",
-};
 
 export interface BattleAnimationEvent {
   type: BattleAnimationType;
@@ -354,8 +333,8 @@ function getEffectColor(event: BattleAnimationEvent): string {
   if (event.type === "stat_up") return "#F8D030"; // 黄
   if (event.type === "stat_down") return "#6890F0"; // 青
   if (event.type === "damage" || event.type === "faint") return "#ffffff";
-  if (event.moveType && TYPE_COLORS[event.moveType]) {
-    return TYPE_COLORS[event.moveType];
+  if (event.moveType && TYPE_HEX[event.moveType]) {
+    return TYPE_HEX[event.moveType];
   }
   return "#ffffff";
 }

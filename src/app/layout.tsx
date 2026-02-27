@@ -1,20 +1,24 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { DotGothic16, Press_Start_2P } from "next/font/google";
 import "./globals.css";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
+const dotGothic = DotGothic16({
+  weight: "400",
   subsets: ["latin"],
+  variable: "--font-dotgothic",
+  display: "swap",
 });
 
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
+const pressStart = Press_Start_2P({
+  weight: "400",
   subsets: ["latin"],
+  variable: "--font-pressstart",
+  display: "swap",
 });
 
 export const metadata: Metadata = {
-  title: "Pokemon Game",
-  description: "A Pokemon-like game built with Next.js and TypeScript",
+  title: "Monster Chronicle",
+  description: "Monster Chronicle - モンスター育成RPG",
 };
 
 export default function RootLayout({
@@ -24,7 +28,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="ja">
-      <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>{children}</body>
+      <body className={`${dotGothic.variable} ${pressStart.variable} antialiased`}>{children}</body>
     </html>
   );
 }

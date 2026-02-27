@@ -1,26 +1,277 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
+/* ─── Monster Chronicle - Design System ─── */
 
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --color-background: #1a1a2e;
+  --color-foreground: #ededed;
+  --color-surface: #16213e;
+  --color-card: #0f3460;
+  --color-accent: #e94560;
+  --color-accent-soft: #533483;
+  --font-game: var(--font-dotgothic), "DotGothic16", monospace;
+  --font-game-title: var(--font-pressstart), "Press Start 2P", monospace;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+:root {
+  --background: #1a1a2e;
+  --foreground: #ededed;
 }
+
+/* ─── Base ─── */
 
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-game);
+  overflow: hidden;
+}
+
+/* ─── ゲーム全体のコンテナ ─── */
+
+.game-container {
+  position: relative;
+  width: 100vw;
+  height: 100vh;
+  max-width: 960px;
+  max-height: 640px;
+  margin: auto;
+  overflow: hidden;
+  border-radius: 8px;
+  box-shadow:
+    0 0 0 3px #533483,
+    0 0 0 5px #1a1a2e,
+    0 0 40px rgba(233, 69, 96, 0.15),
+    0 0 80px rgba(83, 52, 131, 0.1);
+  image-rendering: pixelated;
+}
+
+/* 大画面で中央配置時の外枠 */
+@media (min-width: 980px) and (min-height: 680px) {
+  .game-outer {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    background:
+      radial-gradient(ellipse at center, #16213e 0%, #0a0a1a 70%),
+      repeating-linear-gradient(
+        0deg,
+        transparent,
+        transparent 2px,
+        rgba(83, 52, 131, 0.03) 2px,
+        rgba(83, 52, 131, 0.03) 4px
+      );
+  }
+}
+
+/* 小画面ではフルスクリーン */
+@media (max-width: 979px), (max-height: 679px) {
+  .game-container {
+    max-width: 100vw;
+    max-height: 100vh;
+    border-radius: 0;
+    box-shadow: none;
+  }
+}
+
+/* ─── RPGウィンドウフレーム ─── */
+
+.rpg-window {
+  border: 2px solid #533483;
+  background: linear-gradient(180deg, rgba(22, 33, 62, 0.97) 0%, rgba(15, 52, 96, 0.97) 100%);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.08),
+    0 0 20px rgba(83, 52, 131, 0.3);
+  border-radius: 8px;
+}
+
+.rpg-window-inner {
+  border: 1px solid rgba(83, 52, 131, 0.3);
+  border-radius: 6px;
+  padding: 12px 16px;
+}
+
+/* ─── ピクセルパーフェクト ─── */
+
+.pixel-perfect {
+  image-rendering: pixelated;
+  image-rendering: crisp-edges;
+}
+
+/* ─── アニメーション ─── */
+
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes fade-out {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+}
+
+@keyframes slide-up {
+  from {
+    transform: translateY(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+@keyframes slide-down {
+  from {
+    transform: translateY(0);
+    opacity: 1;
+  }
+  to {
+    transform: translateY(100%);
+    opacity: 0;
+  }
+}
+
+@keyframes battle-intro {
+  0% {
+    clip-path: circle(0% at 50% 50%);
+  }
+  100% {
+    clip-path: circle(100% at 50% 50%);
+  }
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+@keyframes float {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-4px);
+  }
+}
+
+@keyframes damage-shake {
+  0%,
+  100% {
+    transform: translateX(0);
+  }
+  20% {
+    transform: translateX(-4px);
+  }
+  40% {
+    transform: translateX(4px);
+  }
+  60% {
+    transform: translateX(-3px);
+  }
+  80% {
+    transform: translateX(3px);
+  }
+}
+
+.animate-fade-in {
+  animation: fade-in 0.3s ease-out;
+}
+.animate-fade-out {
+  animation: fade-out 0.3s ease-out forwards;
+}
+.animate-slide-up {
+  animation: slide-up 0.3s ease-out;
+}
+.animate-slide-down {
+  animation: slide-down 0.3s ease-out forwards;
+}
+.animate-battle-intro {
+  animation: battle-intro 0.6s ease-out;
+}
+.animate-shimmer {
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.08), transparent);
+  background-size: 200% 100%;
+  animation: shimmer 2s infinite;
+}
+.animate-float {
+  animation: float 2s ease-in-out infinite;
+}
+.animate-damage-shake {
+  animation: damage-shake 0.3s ease-out;
+}
+
+/* ─── HP バー グラデーション ─── */
+
+.hp-bar-green {
+  background: linear-gradient(90deg, #22c55e, #34d399);
+}
+
+.hp-bar-yellow {
+  background: linear-gradient(90deg, #eab308, #fbbf24);
+}
+
+.hp-bar-red {
+  background: linear-gradient(90deg, #dc2626, #ef4444);
+}
+
+/* ─── 経験値バー ─── */
+
+.exp-bar {
+  background: linear-gradient(90deg, #3b82f6, #60a5fa);
+}
+
+/* ─── テキスト影（ゲーム文字用） ─── */
+
+.game-text-shadow {
+  text-shadow: 1px 1px 0 rgba(0, 0, 0, 0.5);
+}
+
+/* ─── セレクションカーソル ─── */
+
+.cursor-blink {
+  animation: blink 0.8s step-end infinite;
+}
+
+@keyframes blink {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0;
+  }
+}
+
+/* ─── スクロールバー（ゲーム風） ─── */
+
+::-webkit-scrollbar {
+  width: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: #16213e;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #533483;
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #e94560;
 }

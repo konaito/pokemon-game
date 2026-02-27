@@ -1,10 +1,12 @@
 "use client";
 
 import { useState } from "react";
+import { MonsterSprite } from "../ui/MonsterSprite";
+import { TYPE_ACCENT, TYPE_HEX } from "@/lib/design-tokens";
 
 /**
  * スターター選択画面 (#58)
- * 御三家から1匹を選ぶ
+ * 御三家から1匹を選ぶ - ハイブリッドデザイン
  */
 
 export interface StarterOption {
@@ -19,14 +21,6 @@ export interface StarterSelectProps {
   onSelect: (speciesId: string) => void;
   professorName?: string;
 }
-
-const TYPE_COLORS: Record<string, string> = {
-  fire: "text-orange-400 border-orange-400",
-  water: "text-blue-400 border-blue-400",
-  grass: "text-green-400 border-green-400",
-  electric: "text-yellow-400 border-yellow-400",
-  normal: "text-gray-300 border-gray-300",
-};
 
 export function StarterSelect({ starters, onSelect, professorName = "博士" }: StarterSelectProps) {
   const [selectedIndex, setSelectedIndex] = useState(0);
@@ -58,33 +52,45 @@ export function StarterSelect({ starters, onSelect, professorName = "博士" }: 
 
   return (
     <div
-      className="flex min-h-screen flex-col items-center justify-center bg-gray-950"
+      className="relative flex h-full w-full flex-col items-center justify-center overflow-hidden bg-[#1a1a2e]"
       onKeyDown={handleKeyDown}
       tabIndex={0}
     >
+      {/* 背景エフェクト */}
+      <div
+        className="pointer-events-none absolute inset-0 transition-all duration-500"
+        style={{
+          background: `radial-gradient(ellipse at 50% 60%, ${TYPE_HEX[selected.type] ?? "#533483"}20 0%, transparent 60%)`,
+        }}
+      />
+
       {/* 博士のセリフ */}
-      <div className="mb-8 max-w-lg rounded-lg bg-gray-900/80 px-6 py-4">
-        <p className="font-mono text-lg text-white">
-          {confirming
-            ? `${selected.name}でよいかな？`
-            : `${professorName}「この3匹から1匹を選ぶのじゃ！」`}
-        </p>
+      <div className="rpg-window animate-fade-in relative z-10 mb-8 max-w-lg">
+        <div className="rpg-window-inner">
+          <p className="game-text-shadow font-[family-name:var(--font-dotgothic)] text-lg text-white">
+            {confirming
+              ? `${selected.name}でよいかな？`
+              : `${professorName}「この3匹から1匹を選ぶのじゃ！」`}
+          </p>
+        </div>
       </div>
 
       {/* スターター選択カード */}
-      <div className="flex gap-6">
+      <div className="relative z-10 flex gap-5">
         {starters.map((starter, i) => {
           const isSelected = i === selectedIndex;
-          const colorClass = TYPE_COLORS[starter.type] ?? TYPE_COLORS.normal;
+          const accentClass = TYPE_ACCENT[starter.type] ?? TYPE_ACCENT.normal;
+          const hex = TYPE_HEX[starter.type] ?? "#A8A878";
 
           return (
             <button
               key={starter.speciesId}
-              className={`flex w-40 flex-col items-center rounded-xl border-2 p-4 transition-all ${
+              className={`group flex w-40 flex-col items-center rounded-xl border-2 p-5 transition-all duration-300 ${
                 isSelected
-                  ? `${colorClass} scale-110 bg-white/10 shadow-lg`
-                  : "border-gray-700 bg-gray-900 text-gray-500 hover:border-gray-500"
+                  ? `${accentClass} scale-110 bg-white/10`
+                  : "border-[#533483]/40 bg-[#16213e] text-gray-500 hover:border-[#533483]"
               }`}
+              style={isSelected ? { boxShadow: `0 0 30px ${hex}30, 0 0 60px ${hex}10` } : undefined}
               onClick={() => {
                 if (i === selectedIndex) {
                   setConfirming(true);
@@ -93,22 +99,27 @@ export function StarterSelect({ starters, onSelect, professorName = "博士" }: 
                 }
               }}
             >
-              {/* モンスターアイコン（プレースホルダー） */}
+              {/* モンスターアイコン */}
               <div
-                className={`mb-3 flex h-20 w-20 items-center justify-center rounded-full border-2 text-3xl ${
-                  isSelected ? colorClass : "border-gray-600"
+                className={`mb-3 flex h-20 w-20 items-center justify-center rounded-full border-2 transition-all ${
+                  isSelected ? `${accentClass} bg-white/5` : "border-[#533483]/30"
                 }`}
+                style={isSelected ? { boxShadow: `inset 0 0 20px ${hex}20` } : undefined}
               >
-                {starter.type === "fire" ? "🔥" : starter.type === "water" ? "💧" : "🌿"}
+                <MonsterSprite speciesId={starter.speciesId} types={[starter.type]} size={56} />
               </div>
 
               <span
-                className={`font-mono text-lg font-bold ${isSelected ? "text-white" : "text-gray-400"}`}
+                className={`game-text-shadow font-[family-name:var(--font-dotgothic)] text-lg font-bold transition-colors ${
+                  isSelected ? "text-white" : "text-gray-400"
+                }`}
               >
                 {starter.name}
               </span>
               <span
-                className={`mt-1 font-mono text-xs uppercase ${isSelected ? colorClass.split(" ")[0] : "text-gray-600"}`}
+                className={`mt-1 font-[family-name:var(--font-dotgothic)] text-xs uppercase transition-colors ${
+                  isSelected ? accentClass.split(" ")[0] : "text-gray-600"
+                }`}
               >
                 {starter.type}
               </span>
@@ -117,22 +128,24 @@ export function StarterSelect({ starters, onSelect, professorName = "博士" }: 
         })}
       </div>
 
-      {/* 選択中のモンスターの説明 */}
-      <div className="mt-8 max-w-md text-center">
-        <p className="font-mono text-gray-300">{selected?.description}</p>
+      {/* 説明文 */}
+      <div className="relative z-10 mt-6 max-w-md text-center">
+        <p className="game-text-shadow font-[family-name:var(--font-dotgothic)] text-gray-300">
+          {selected?.description}
+        </p>
       </div>
 
       {/* 確認ダイアログ */}
       {confirming && (
-        <div className="mt-6 flex gap-4">
+        <div className="animate-fade-in relative z-10 mt-5 flex gap-3">
           <button
-            className="rounded bg-emerald-600 px-6 py-2 font-mono text-white hover:bg-emerald-500"
+            className="rounded-md bg-[#e94560] px-6 py-2 font-[family-name:var(--font-dotgothic)] text-white transition-colors hover:bg-[#ff6b81]"
             onClick={() => onSelect(starters[selectedIndex].speciesId)}
           >
             はい
           </button>
           <button
-            className="rounded bg-gray-700 px-6 py-2 font-mono text-gray-300 hover:bg-gray-600"
+            className="rounded-md border border-[#533483] bg-[#16213e] px-6 py-2 font-[family-name:var(--font-dotgothic)] text-gray-300 transition-colors hover:border-gray-400 hover:text-white"
             onClick={() => setConfirming(false)}
           >
             いいえ
@@ -142,7 +155,9 @@ export function StarterSelect({ starters, onSelect, professorName = "博士" }: 
 
       {/* 操作ガイド */}
       {!confirming && (
-        <p className="mt-8 font-mono text-xs text-gray-600">← → で選択 / Enter で決定</p>
+        <p className="absolute bottom-4 font-[family-name:var(--font-dotgothic)] text-xs text-gray-600">
+          ← → で選択 / Enter で決定
+        </p>
       )}
     </div>
   );

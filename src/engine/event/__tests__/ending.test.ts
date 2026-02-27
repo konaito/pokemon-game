@@ -38,14 +38,14 @@ describe("エンディングシーケンス", () => {
       expect(speakers).toContain("ソウマ");
     });
 
-    it("コダマ町への移動を含む", () => {
+    it("ワスレ町への移動を含む", () => {
       const script = createEndingScript("テスト");
       const outputs = executeScript(script, { champion_defeated: true })!;
 
       const movePlayer = outputs.find((o) => o.type === "move_player");
       expect(movePlayer).toBeDefined();
       if (movePlayer && movePlayer.type === "move_player") {
-        expect(movePlayer.mapId).toBe("kodama-town");
+        expect(movePlayer.mapId).toBe("wasuremachi");
       }
     });
 
