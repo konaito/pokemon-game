@@ -6,7 +6,7 @@ import { applyStatusDamage } from "./status";
 import { calcExpGain, grantExp } from "./experience";
 import { calcAllStats } from "@/engine/monster/stats";
 import { checkEvolution, evolve } from "@/engine/monster/evolution";
-import { applyStatChanges, createStatStages, getStageMultiplier } from "./stat-stage";
+import { applyStatChanges, createStatStages } from "./stat-stage";
 
 /** バトルエンジン */
 export class BattleEngine {

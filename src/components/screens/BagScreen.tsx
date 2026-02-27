@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { ItemIcon, type ItemCategory } from "../ui/OverworldSprites";
 
 /**
  * バッグ画面 (#69)
@@ -87,9 +88,7 @@ export function BagScreen({ items, onUse, onBack }: BagScreenProps) {
                 setSelectedItem(0);
               }}
             >
-              <span className={i === selectedCategory ? "text-[#e94560]" : "text-gray-600"}>
-                {catInfo.icon}
-              </span>
+              <ItemIcon category={cat as ItemCategory} size={16} />
               {catInfo.label}
             </button>
           );
@@ -117,7 +116,10 @@ export function BagScreen({ items, onUse, onBack }: BagScreenProps) {
                   }}
                   onMouseEnter={() => setSelectedItem(i)}
                 >
-                  <span>{item.name}</span>
+                  <span className="flex items-center gap-2">
+                    <ItemIcon category={item.category as ItemCategory} size={14} />
+                    {item.name}
+                  </span>
                   <span className="text-sm text-gray-500">×{item.quantity}</span>
                 </button>
               ))}

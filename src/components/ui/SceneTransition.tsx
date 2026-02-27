@@ -30,11 +30,12 @@ export function SceneTransition({
 
   useEffect(() => {
     if (!active || type === "none") {
-      setPhase("idle");
-      return;
+      // reset on deactivation via timeout to avoid sync setState in effect
+      const resetTimer = setTimeout(() => setPhase("idle"), 0);
+      return () => clearTimeout(resetTimer);
     }
 
-    setPhase("in");
+    const startTimer = setTimeout(() => setPhase("in"), 0);
 
     const holdTimer = setTimeout(() => {
       setPhase("hold");
@@ -50,6 +51,7 @@ export function SceneTransition({
     }, duration);
 
     return () => {
+      clearTimeout(startTimer);
       clearTimeout(holdTimer);
       clearTimeout(outTimer);
       clearTimeout(doneTimer);
@@ -163,11 +165,12 @@ export function useSceneTransition() {
     active: boolean;
     type: TransitionType;
     callback?: () => void;
+    duration?: number;
   }>({ active: false, type: "none" });
 
   const startTransition = useCallback(
     (type: TransitionType, callback?: () => void, duration?: number) => {
-      setTransition({ active: true, type, callback });
+      setTransition({ active: true, type, callback, duration });
     },
     [],
   );
@@ -181,6 +184,7 @@ export function useSceneTransition() {
   return {
     transitionActive: transition.active,
     transitionType: transition.type,
+    transitionDuration: transition.duration,
     startTransition,
     handleComplete,
   };

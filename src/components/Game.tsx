@@ -136,7 +136,7 @@ export function Game() {
   const [battlePartyMode, setBattlePartyMode] = useState(false);
 
   // --- 画面遷移アニメーション ---
-  const { transitionActive, transitionType, startTransition, handleComplete } =
+  const { transitionActive, transitionType, transitionDuration, startTransition, handleComplete } =
     useSceneTransition();
 
   // --- イベントスクリプトキュー ---
@@ -1052,7 +1052,12 @@ export function Game() {
 
   // 画面遷移アニメーション（最前面）
   const transitionOverlay = (
-    <SceneTransition active={transitionActive} type={transitionType} onComplete={handleComplete} />
+    <SceneTransition
+      active={transitionActive}
+      type={transitionType}
+      duration={transitionDuration}
+      onComplete={handleComplete}
+    />
   );
 
   // オーバーレイ画面（メニュー系）

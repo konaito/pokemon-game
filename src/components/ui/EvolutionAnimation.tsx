@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
+import { MonsterSprite } from "./MonsterSprite";
 
 /**
  * 進化アニメーション (#86)
@@ -21,6 +22,14 @@ export interface EvolutionAnimationProps {
   fromName: string;
   /** 進化後のモンスター名 */
   toName: string;
+  /** 進化前の種族ID */
+  fromSpeciesId?: string;
+  /** 進化後の種族ID */
+  toSpeciesId?: string;
+  /** 進化前のタイプ */
+  fromTypes?: string[];
+  /** 進化後のタイプ */
+  toTypes?: string[];
   /** アニメーション開始フラグ */
   isPlaying: boolean;
   /** 完了時コールバック */
@@ -45,6 +54,10 @@ const PHASE_DURATIONS: Record<EvolutionPhase, number> = {
 export function EvolutionAnimation({
   fromName,
   toName,
+  fromSpeciesId,
+  toSpeciesId,
+  fromTypes = ["normal"],
+  toTypes = ["normal"],
   isPlaying,
   onComplete,
   cancellable = true,
@@ -54,7 +67,7 @@ export function EvolutionAnimation({
   const [glowIntensity, setGlowIntensity] = useState(0);
   const [flashOpacity, setFlashOpacity] = useState(0);
   const [silhouetteScale, setSilhouetteScale] = useState(1);
-  const [cancelPressCount, setCancelPressCount] = useState(0);
+  const [, setCancelPressCount] = useState(0);
 
   // フェーズ遷移
   useEffect(() => {
@@ -179,7 +192,7 @@ export function EvolutionAnimation({
 
   return (
     <div
-      className="fixed inset-0 z-50 flex flex-col items-center justify-center bg-black"
+      className="fixed inset-0 z-50 flex flex-col items-center justify-center bg-[#1a1a2e]"
       onKeyDown={handleKeyDown}
       tabIndex={0}
       role="dialog"
@@ -189,7 +202,7 @@ export function EvolutionAnimation({
       <div
         className="absolute inset-0"
         style={{
-          background: `radial-gradient(circle at center, rgba(100, 149, 237, ${glowIntensity * 0.3}), transparent 70%)`,
+          background: `radial-gradient(circle at center, rgba(83, 52, 131, ${glowIntensity * 0.5}), rgba(233, 69, 96, ${glowIntensity * 0.1}), transparent 70%)`,
           transition: "all 200ms ease-out",
         }}
       />
@@ -206,12 +219,16 @@ export function EvolutionAnimation({
       {/* テキスト: "おや？" */}
       {phase === "start" && (
         <div className="absolute top-8 w-full text-center">
-          <p className="font-mono text-2xl text-white">おや…？</p>
-          <p className="mt-2 font-mono text-xl text-gray-300">{fromName}のようすが…！</p>
+          <p className="game-text-shadow font-[family-name:var(--font-dotgothic)] text-2xl text-white">
+            おや…？
+          </p>
+          <p className="game-text-shadow mt-2 font-[family-name:var(--font-dotgothic)] text-xl text-gray-300">
+            {fromName}のようすが…！
+          </p>
         </div>
       )}
 
-      {/* モンスターシルエット */}
+      {/* モンスタースプライト */}
       <div
         className="relative flex items-center justify-center"
         style={{
@@ -223,37 +240,49 @@ export function EvolutionAnimation({
         <div
           className="absolute h-40 w-40 rounded-full"
           style={{
-            background: `radial-gradient(circle, rgba(255, 255, 255, ${glowIntensity * 0.8}), rgba(200, 200, 255, ${glowIntensity * 0.3}), transparent)`,
+            background: `radial-gradient(circle, rgba(255, 255, 255, ${glowIntensity * 0.8}), rgba(83, 52, 131, ${glowIntensity * 0.3}), transparent)`,
             filter: `blur(${10 + glowIntensity * 20}px)`,
             transition: "all 200ms ease-out",
           }}
         />
 
-        {/* モンスターアイコン（プレースホルダー） */}
+        {/* モンスタースプライト */}
         <div
-          className="relative flex h-24 w-24 items-center justify-center rounded-full text-5xl"
+          className="relative"
           style={{
-            backgroundColor: `rgba(255, 255, 255, ${glowIntensity * 0.3 + 0.1})`,
-            boxShadow: `0 0 ${20 + glowIntensity * 40}px rgba(255, 255, 255, ${glowIntensity * 0.5})`,
-            transition: "all 200ms ease-out",
+            filter:
+              glowIntensity > 0.5 && phase !== "reveal" && phase !== "complete"
+                ? `brightness(${1 + glowIntensity * 2}) saturate(${1 - glowIntensity * 0.5})`
+                : undefined,
+            transition: "filter 300ms ease-out",
           }}
         >
-          {phase === "reveal" || phase === "complete" ? "✨" : "🔮"}
+          {phase === "reveal" || phase === "complete" ? (
+            <MonsterSprite speciesId={toSpeciesId ?? "unknown"} types={toTypes} size={120} />
+          ) : (
+            <MonsterSprite speciesId={fromSpeciesId ?? "unknown"} types={fromTypes} size={120} />
+          )}
         </div>
       </div>
 
       {/* テキスト: 進化完了 */}
       {phase === "reveal" && (
         <div className="absolute bottom-16 w-full text-center">
-          <p className="font-mono text-lg text-gray-300">おめでとう！ {fromName}は</p>
-          <p className="mt-1 font-mono text-2xl font-bold text-white">{toName}に　しんかした！</p>
+          <p className="game-text-shadow font-[family-name:var(--font-dotgothic)] text-lg text-gray-300">
+            おめでとう！ {fromName}は
+          </p>
+          <p className="game-text-shadow mt-1 font-[family-name:var(--font-dotgothic)] text-2xl font-bold text-white">
+            {toName}に　しんかした！
+          </p>
         </div>
       )}
 
       {/* キャンセルヒント */}
       {cancellable && (phase === "start" || phase === "glow") && (
         <div className="absolute bottom-4 w-full text-center">
-          <p className="font-mono text-xs text-gray-600">Bボタン(X)を3回押すと進化をキャンセル</p>
+          <p className="font-[family-name:var(--font-dotgothic)] text-xs text-gray-600">
+            Bボタン(X)を3回押すと進化をキャンセル
+          </p>
         </div>
       )}
     </div>
