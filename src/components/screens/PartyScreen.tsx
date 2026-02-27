@@ -2,10 +2,12 @@
 
 import { useState } from "react";
 import { HpBar } from "../ui/HpBar";
+import { MonsterSprite } from "../ui/MonsterSprite";
+import { STATUS_COLOR, TYPE_BG, TYPE_LABEL } from "@/lib/design-tokens";
 
 /**
  * パーティ画面 (#65)
- * ステータス確認、並び替え
+ * ステータス確認、並び替え - ハイブリッドデザイン
  */
 
 export interface PartyMemberInfo {
@@ -23,16 +25,15 @@ export interface PartyScreenProps {
   onSwap?: (indexA: number, indexB: number) => void;
   onSelect?: (index: number) => void;
   onBack: () => void;
-  /** 交代選択モード（バトル中） */
   selectMode?: boolean;
 }
 
 const STATUS_LABELS: Record<string, { text: string; color: string }> = {
-  poison: { text: "どく", color: "text-purple-400" },
-  burn: { text: "やけど", color: "text-orange-400" },
-  paralysis: { text: "まひ", color: "text-yellow-400" },
-  sleep: { text: "ねむり", color: "text-gray-400" },
-  freeze: { text: "こおり", color: "text-cyan-400" },
+  poison: { text: "どく", color: STATUS_COLOR.poison.text },
+  burn: { text: "やけど", color: STATUS_COLOR.burn.text },
+  paralysis: { text: "まひ", color: STATUS_COLOR.paralysis.text },
+  sleep: { text: "ねむり", color: STATUS_COLOR.sleep.text },
+  freeze: { text: "こおり", color: STATUS_COLOR.freeze.text },
 };
 
 export function PartyScreen({
@@ -82,15 +83,15 @@ export function PartyScreen({
 
   return (
     <div
-      className="flex min-h-screen flex-col bg-gray-950 p-6"
+      className="flex h-full w-full flex-col bg-[#1a1a2e] p-4"
       onKeyDown={handleKeyDown}
       tabIndex={0}
     >
-      <h2 className="mb-4 font-mono text-xl text-white">
+      <h2 className="game-text-shadow mb-3 font-[family-name:var(--font-dotgothic)] text-xl text-white">
         {selectMode ? "モンスターを選んでください" : "てもち"}
       </h2>
 
-      <div className="space-y-2">
+      <div className="space-y-1.5">
         {party.map((member, i) => {
           const isFainted = member.currentHp <= 0;
           const isSwapSource = swapSource === i;
@@ -99,49 +100,67 @@ export function PartyScreen({
           return (
             <button
               key={i}
-              className={`flex w-full items-center gap-4 rounded-lg border-2 px-4 py-3 text-left transition-all ${
+              className={`flex w-full items-center gap-3 rounded-lg border-2 px-4 py-3 text-left transition-all ${
                 isSwapSource
-                  ? "border-yellow-500 bg-yellow-900/20"
+                  ? "border-yellow-500/60 bg-yellow-900/15"
                   : isSelected
-                    ? "border-white/30 bg-white/10"
-                    : "border-gray-700 bg-gray-900"
-              } ${isFainted ? "opacity-50" : ""}`}
+                    ? "border-[#533483] bg-white/8 shadow-[0_0_15px_rgba(83,52,131,0.2)]"
+                    : "border-[#533483]/20 bg-[#16213e]"
+              } ${isFainted ? "opacity-40" : ""}`}
               onClick={() => handleSelect(i)}
               onMouseEnter={() => setSelectedIndex(i)}
             >
-              {/* アイコンプレースホルダー */}
-              <div className="flex h-12 w-12 items-center justify-center rounded-full bg-gray-800 text-xl">
-                {isFainted ? "💀" : "🐾"}
-              </div>
+              {/* アイコン */}
+              <MonsterSprite
+                speciesId={member.speciesId}
+                types={member.types}
+                size={48}
+                fainted={isFainted}
+              />
 
               <div className="flex-1">
                 <div className="flex items-baseline gap-2">
-                  <span className="font-mono font-bold text-white">{member.name}</span>
-                  <span className="font-mono text-sm text-gray-400">Lv.{member.level}</span>
+                  <span className="game-text-shadow font-[family-name:var(--font-dotgothic)] font-bold text-white">
+                    {member.name}
+                  </span>
+                  <span className="font-[family-name:var(--font-dotgothic)] text-sm text-gray-400">
+                    Lv.{member.level}
+                  </span>
                   {member.status && STATUS_LABELS[member.status] && (
-                    <span className={`font-mono text-xs ${STATUS_LABELS[member.status].color}`}>
-                      [{STATUS_LABELS[member.status].text}]
+                    <span
+                      className={`rounded-sm px-1.5 py-0.5 font-[family-name:var(--font-dotgothic)] text-[10px] ${STATUS_LABELS[member.status].color} bg-white/5`}
+                    >
+                      {STATUS_LABELS[member.status].text}
                     </span>
                   )}
                 </div>
                 <HpBar current={member.currentHp} max={member.maxHp} className="mt-1 w-48" />
               </div>
 
-              <div className="font-mono text-xs text-gray-500">{member.types.join(" / ")}</div>
+              <div className="flex gap-1">
+                {member.types.map((type) => (
+                  <span
+                    key={type}
+                    className={`rounded px-1.5 py-0.5 font-[family-name:var(--font-dotgothic)] text-[10px] text-white ${TYPE_BG[type] ?? "bg-gray-600"}`}
+                  >
+                    {TYPE_LABEL[type] ?? type}
+                  </span>
+                ))}
+              </div>
             </button>
           );
         })}
       </div>
 
-      <div className="mt-4 flex gap-4">
+      <div className="mt-3 flex items-center gap-4">
         <button
-          className="rounded bg-gray-700 px-4 py-2 font-mono text-sm text-gray-300 hover:bg-gray-600"
+          className="rounded-md border border-[#533483] bg-[#16213e] px-4 py-1.5 font-[family-name:var(--font-dotgothic)] text-sm text-gray-300 transition-colors hover:border-gray-400 hover:text-white"
           onClick={onBack}
         >
           もどる
         </button>
         {swapSource !== null && (
-          <span className="font-mono text-sm text-yellow-400">
+          <span className="font-[family-name:var(--font-dotgothic)] text-sm text-yellow-400">
             入れ替え先を選んでください（Escでキャンセル）
           </span>
         )}

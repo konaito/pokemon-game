@@ -45,12 +45,12 @@ export function createEndingScript(playerName: string): EventScript {
       },
       { type: "wait", ms: 3000 },
 
-      // エピローグ: コダマ町に戻る
+      // エピローグ: ワスレ町に戻る
       {
         type: "move_player",
-        mapId: "kodama-town",
-        x: 5,
-        y: 5,
+        mapId: "wasuremachi",
+        x: 4,
+        y: 4,
       },
 
       // 母親との再会

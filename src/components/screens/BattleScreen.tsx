@@ -2,10 +2,12 @@
 
 import { useState } from "react";
 import { HpBar } from "../ui/HpBar";
+import { MonsterSprite } from "../ui/MonsterSprite";
+import { TYPE_BG, TYPE_HEX, TYPE_LABEL } from "@/lib/design-tokens";
 
 /**
  * バトルUI (#61)
- * HPバー、技選択、メッセージウィンドウ、アクション選択
+ * HPバー、技選択、メッセージ、アクション選択 - ハイブリッドデザイン
  */
 
 export interface BattleMonsterInfo {
@@ -14,6 +16,8 @@ export interface BattleMonsterInfo {
   currentHp: number;
   maxHp: number;
   isPlayer: boolean;
+  speciesId: string;
+  types: string[];
 }
 
 export interface BattleMoveInfo {
@@ -37,11 +41,17 @@ export interface BattleScreenProps {
   messages: string[];
   isWild: boolean;
   onAction: (action: BattleAction) => void;
-  /** trueの場合、メッセージ表示中でアクション選択不可 */
   isProcessing: boolean;
 }
 
 type BattlePhase = "action" | "move_select";
+
+const ACTION_ITEMS = [
+  { label: "たたかう", value: "fight", icon: "⚔" },
+  { label: "バッグ", value: "bag", icon: "■" },
+  { label: "ポケモン", value: "pokemon", icon: "◆" },
+  { label: "にげる", value: "run", icon: "→" },
+];
 
 export function BattleScreen({
   player,
@@ -56,12 +66,9 @@ export function BattleScreen({
   const [selectedAction, setSelectedAction] = useState(0);
   const [selectedMove, setSelectedMove] = useState(0);
 
-  const actions = [
-    { label: "たたかう", value: "fight" },
-    { label: "バッグ", value: "bag" },
-    { label: "ポケモン", value: "pokemon" },
-    { label: isWild ? "にげる" : "---", value: "run" },
-  ];
+  const actions = ACTION_ITEMS.map((a) =>
+    a.value === "run" && !isWild ? { ...a, label: "---" } : a,
+  );
 
   const handleActionSelect = (index: number) => {
     const action = actions[index];
@@ -128,118 +135,202 @@ export function BattleScreen({
   };
 
   return (
-    <div className="flex min-h-screen flex-col bg-gray-950" onKeyDown={handleKeyDown} tabIndex={0}>
+    <div
+      className="flex h-full w-full flex-col bg-[#1a1a2e]"
+      onKeyDown={handleKeyDown}
+      tabIndex={0}
+    >
       {/* バトルフィールド */}
-      <div className="flex flex-1 flex-col justify-between px-8 py-6">
+      <div className="relative flex flex-1 flex-col justify-between px-6 py-4">
+        {/* 背景グラデーション */}
+        <div
+          className="pointer-events-none absolute inset-0"
+          style={{
+            background:
+              "linear-gradient(180deg, #1a1a2e 0%, #16213e 40%, #0f3460 70%, #1a1a2e 100%)",
+          }}
+        />
+
+        {/* 地面のライン */}
+        <div
+          className="pointer-events-none absolute bottom-[35%] left-0 right-0 h-[1px]"
+          style={{
+            background:
+              "linear-gradient(90deg, transparent 10%, rgba(83,52,131,0.3) 50%, transparent 90%)",
+          }}
+        />
+
         {/* 相手モンスター情報 */}
-        <div className="flex justify-start">
-          <div className="rounded-lg bg-gray-900/80 px-4 py-2">
-            <div className="flex items-baseline gap-2">
-              <span className="font-mono text-lg font-bold text-white">{opponent.name}</span>
-              <span className="font-mono text-sm text-gray-400">Lv.{opponent.level}</span>
+        <div className="relative z-10 flex justify-start">
+          <div className="rpg-window">
+            <div className="flex items-baseline gap-2 px-3 py-2">
+              <span className="game-text-shadow font-[family-name:var(--font-dotgothic)] text-lg font-bold text-white">
+                {opponent.name}
+              </span>
+              <span className="font-[family-name:var(--font-dotgothic)] text-sm text-gray-400">
+                Lv.{opponent.level}
+              </span>
             </div>
-            <HpBar current={opponent.currentHp} max={opponent.maxHp} className="mt-1 w-40" />
+            <div className="px-3 pb-2">
+              <HpBar
+                current={opponent.currentHp}
+                max={opponent.maxHp}
+                className="w-44"
+                showNumbers={false}
+              />
+            </div>
           </div>
         </div>
 
-        {/* バトルアリーナ（プレースホルダー） */}
-        <div className="flex items-center justify-center py-8">
+        {/* バトルアリーナ */}
+        <div className="relative z-10 flex items-center justify-center py-4">
           <div className="flex gap-32">
-            <div className="flex h-24 w-24 items-center justify-center rounded-full bg-gray-800 text-4xl">
-              👾
+            {/* 相手モンスター */}
+            <div className="animate-float flex flex-col items-center">
+              <MonsterSprite speciesId={opponent.speciesId} types={opponent.types} size={96} flip />
+              <div
+                className="mt-1 h-2 w-16 rounded-full opacity-30"
+                style={{
+                  background: `radial-gradient(ellipse, ${TYPE_HEX[opponent.types[0]] ?? "#533483"}80, transparent)`,
+                }}
+              />
             </div>
-            <div className="flex h-24 w-24 items-center justify-center rounded-full bg-gray-800 text-4xl">
-              🐾
+            {/* 自分モンスター */}
+            <div className="flex flex-col items-center">
+              <MonsterSprite speciesId={player.speciesId} types={player.types} size={96} />
+              <div
+                className="mt-1 h-2 w-16 rounded-full opacity-30"
+                style={{
+                  background: `radial-gradient(ellipse, ${TYPE_HEX[player.types[0]] ?? "#e94560"}60, transparent)`,
+                }}
+              />
             </div>
           </div>
         </div>
 
         {/* 自分モンスター情報 */}
-        <div className="flex justify-end">
-          <div className="rounded-lg bg-gray-900/80 px-4 py-2">
-            <div className="flex items-baseline gap-2">
-              <span className="font-mono text-lg font-bold text-white">{player.name}</span>
-              <span className="font-mono text-sm text-gray-400">Lv.{player.level}</span>
+        <div className="relative z-10 flex justify-end">
+          <div className="rpg-window">
+            <div className="flex items-baseline gap-2 px-3 py-2">
+              <span className="game-text-shadow font-[family-name:var(--font-dotgothic)] text-lg font-bold text-white">
+                {player.name}
+              </span>
+              <span className="font-[family-name:var(--font-dotgothic)] text-sm text-gray-400">
+                Lv.{player.level}
+              </span>
             </div>
-            <HpBar current={player.currentHp} max={player.maxHp} className="mt-1 w-40" />
+            <div className="px-3 pb-2">
+              <HpBar current={player.currentHp} max={player.maxHp} className="w-44" />
+            </div>
           </div>
         </div>
       </div>
 
-      {/* メッセージ + コマンドウィンドウ */}
-      <div className="border-t-2 border-gray-700 bg-gray-900">
-        {isProcessing ? (
-          /* メッセージ表示 */
-          <div className="min-h-[6rem] px-6 py-4">
-            <p className="font-mono text-lg text-white">{messages[messages.length - 1] ?? ""}</p>
-          </div>
-        ) : phase === "action" ? (
-          /* アクション選択 */
-          <div className="flex">
-            <div className="flex-1 px-6 py-4">
-              <p className="font-mono text-lg text-white">{player.name}はどうする？</p>
+      {/* コマンドウィンドウ */}
+      <div className="rpg-window mx-2 mb-2 rounded-t-none border-t-2 border-[#533483]">
+        <div className="rpg-window-inner">
+          {isProcessing ? (
+            <div className="min-h-[4rem]">
+              <p className="game-text-shadow font-[family-name:var(--font-dotgothic)] text-lg text-white">
+                {messages[messages.length - 1] ?? ""}
+              </p>
             </div>
-            <div className="grid w-56 grid-cols-2 gap-1 px-4 py-3">
-              {actions.map((action, i) => (
-                <button
-                  key={action.value}
-                  className={`rounded px-3 py-1.5 text-left font-mono text-sm transition-colors ${
-                    i === selectedAction
-                      ? "bg-white/20 text-white"
-                      : "text-gray-400 hover:text-white"
-                  }`}
-                  onClick={() => handleActionSelect(i)}
-                  onMouseEnter={() => setSelectedAction(i)}
-                >
-                  {i === selectedAction ? "▶" : " "} {action.label}
-                </button>
-              ))}
-            </div>
-          </div>
-        ) : (
-          /* 技選択 */
-          <div className="flex">
-            <div className="flex-1 px-4 py-3">
-              <div className="grid grid-cols-2 gap-1">
-                {moves.map((move, i) => (
+          ) : phase === "action" ? (
+            <div className="flex items-center">
+              <div className="flex-1">
+                <p className="game-text-shadow font-[family-name:var(--font-dotgothic)] text-lg text-white">
+                  {player.name}はどうする？
+                </p>
+              </div>
+              <div className="grid w-52 grid-cols-2 gap-1">
+                {actions.map((action, i) => (
                   <button
-                    key={move.moveId}
-                    className={`rounded px-3 py-1.5 text-left font-mono text-sm transition-colors ${
-                      i === selectedMove
-                        ? "bg-white/20 text-white"
-                        : move.currentPp > 0
-                          ? "text-gray-400 hover:text-white"
-                          : "text-gray-600"
+                    key={action.value}
+                    className={`flex items-center gap-1 rounded-md px-3 py-2 text-left font-[family-name:var(--font-dotgothic)] text-sm transition-all ${
+                      i === selectedAction
+                        ? "bg-white/15 text-white shadow-[0_0_10px_rgba(233,69,96,0.1)]"
+                        : "text-gray-400 hover:text-gray-300"
                     }`}
-                    onClick={() => handleMoveSelect(i)}
-                    onMouseEnter={() => setSelectedMove(i)}
-                    disabled={move.currentPp <= 0}
+                    onClick={() => handleActionSelect(i)}
+                    onMouseEnter={() => setSelectedAction(i)}
                   >
-                    {i === selectedMove ? "▶" : " "} {move.name}
+                    <span
+                      className="text-xs"
+                      style={{ color: i === selectedAction ? "#e94560" : "transparent" }}
+                    >
+                      ▶
+                    </span>
+                    {action.label}
                   </button>
                 ))}
               </div>
             </div>
-            <div className="w-40 border-l border-gray-700 px-4 py-3">
-              {moves[selectedMove] && (
-                <>
-                  <p className="font-mono text-xs text-gray-400">
-                    タイプ/{moves[selectedMove].type}
-                  </p>
-                  <p className="font-mono text-xs text-gray-400">
-                    PP {moves[selectedMove].currentPp}/{moves[selectedMove].maxPp}
-                  </p>
-                </>
-              )}
-              <button
-                className="mt-2 font-mono text-xs text-gray-500 hover:text-white"
-                onClick={() => setPhase("action")}
-              >
-                ← もどる
-              </button>
+          ) : (
+            <div className="flex">
+              <div className="flex-1">
+                <div className="grid grid-cols-2 gap-1">
+                  {moves.map((move, i) => {
+                    const isSelected = i === selectedMove;
+                    const isDisabled = move.currentPp <= 0;
+                    const hex = TYPE_HEX[move.type] ?? "#A8A878";
+
+                    return (
+                      <button
+                        key={move.moveId}
+                        className={`flex items-center gap-1 rounded-md px-3 py-2 text-left font-[family-name:var(--font-dotgothic)] text-sm transition-all ${
+                          isSelected
+                            ? "bg-white/15 text-white"
+                            : isDisabled
+                              ? "text-gray-600"
+                              : "text-gray-400 hover:text-gray-300"
+                        }`}
+                        onClick={() => handleMoveSelect(i)}
+                        onMouseEnter={() => setSelectedMove(i)}
+                        disabled={isDisabled}
+                      >
+                        <span
+                          className="text-xs"
+                          style={{ color: isSelected ? hex : "transparent" }}
+                        >
+                          ▶
+                        </span>
+                        {move.name}
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+              <div className="w-36 border-l border-[#533483]/30 pl-3">
+                {moves[selectedMove] && (
+                  <>
+                    <span
+                      className={`game-text-shadow inline-block rounded-md px-2 py-0.5 font-[family-name:var(--font-dotgothic)] text-xs text-white ${TYPE_BG[moves[selectedMove].type] ?? "bg-gray-600"}`}
+                    >
+                      {TYPE_LABEL[moves[selectedMove].type] ?? moves[selectedMove].type}
+                    </span>
+                    <p className="mt-1.5 font-[family-name:var(--font-dotgothic)] text-xs text-gray-400">
+                      PP{" "}
+                      <span
+                        className={
+                          moves[selectedMove].currentPp <= 0 ? "text-red-400" : "text-white"
+                        }
+                      >
+                        {moves[selectedMove].currentPp}
+                      </span>
+                      /{moves[selectedMove].maxPp}
+                    </p>
+                  </>
+                )}
+                <button
+                  className="mt-2 font-[family-name:var(--font-dotgothic)] text-xs text-gray-500 transition-colors hover:text-white"
+                  onClick={() => setPhase("action")}
+                >
+                  ← もどる
+                </button>
+              </div>
             </div>
-          </div>
-        )}
+          )}
+        </div>
       </div>
     </div>
   );

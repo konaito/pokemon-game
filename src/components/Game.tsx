@@ -11,6 +11,7 @@ import { PartyScreen, type PartyMemberInfo } from "./screens/PartyScreen";
 import { BagScreen, type BagItemInfo } from "./screens/BagScreen";
 import { PokedexScreen, type PokedexEntry } from "./screens/PokedexScreen";
 import { MessageWindow } from "./ui/MessageWindow";
+import { SceneTransition, useSceneTransition } from "./ui/SceneTransition";
 import type { MonsterInstance } from "@/types";
 import { BattleEngine } from "@/engine/battle/engine";
 import type { BattleAction } from "@/engine/battle/state-machine";
@@ -133,6 +134,10 @@ export function Game() {
   // バトル中のバッグ選択用
   const [battleBagMode, setBattleBagMode] = useState(false);
   const [battlePartyMode, setBattlePartyMode] = useState(false);
+
+  // --- 画面遷移アニメーション ---
+  const { transitionActive, transitionType, startTransition, handleComplete } =
+    useSceneTransition();
 
   // --- イベントスクリプトキュー ---
   const eventQueueRef = useRef<EventOutput[]>([]);
@@ -320,15 +325,21 @@ export function Game() {
     (targetMapId: string, targetX: number, targetY: number) => {
       if (isEventRunningRef.current) return;
 
-      dispatch({
-        type: "SET_OVERWORLD",
-        overworld: {
-          currentMapId: targetMapId,
-          playerX: targetX,
-          playerY: targetY,
-          direction: "down",
+      startTransition(
+        "fade",
+        () => {
+          dispatch({
+            type: "SET_OVERWORLD",
+            overworld: {
+              currentMapId: targetMapId,
+              playerX: targetX,
+              playerY: targetY,
+              direction: "down",
+            },
+          });
         },
-      });
+        400,
+      );
 
       // マップ遷移時にストーリーイベントをチェック
       if (state.player) {
@@ -371,7 +382,7 @@ export function Game() {
         }
       }
     },
-    [dispatch, state, runEventScript],
+    [dispatch, state, runEventScript, startTransition],
   );
 
   /** NPC会話処理 */
@@ -499,31 +510,49 @@ export function Game() {
 
     const wildSpecies = speciesResolver(wildMon.speciesId);
 
-    setWildMonster(wildMon);
-    setBattleMessages([`野生の${wildSpecies.name}が飛び出してきた！`]);
-    setIsBattleProcessing(true);
+    // バトルトランジション演出を開始
+    startTransition("battle", () => {
+      setWildMonster(wildMon);
+      setBattleMessages([`野生の${wildSpecies.name}が飛び出してきた！`]);
+      setIsBattleProcessing(true);
 
-    // BattleEngine生成（パーティのコピーではなく参照を渡す — エンジンが直接変更）
-    const engine = new BattleEngine(
-      state.player.partyState.party,
-      [wildMon],
-      "wild",
-      speciesResolver,
-      moveResolver,
-    );
-    setBattleEngine(engine);
+      const engine = new BattleEngine(
+        state.player!.partyState.party,
+        [wildMon],
+        "wild",
+        speciesResolver,
+        moveResolver,
+      );
+      setBattleEngine(engine);
 
-    dispatch({ type: "CHANGE_SCREEN", screen: "battle" });
+      dispatch({ type: "CHANGE_SCREEN", screen: "battle" });
 
-    // 開始メッセージの後にアクション選択へ
-    setTimeout(() => setIsBattleProcessing(false), 1500);
-  }, [currentMap, state.player, dispatch]);
+      setTimeout(() => setIsBattleProcessing(false), 1500);
+    });
+  }, [currentMap, state.player, dispatch, startTransition]);
 
   /** メニューを開く */
   const handleMenuOpen = useCallback(() => {
     setOverlayScreen("menu");
     setReturnScreen("overworld");
   }, []);
+
+  /** プレイヤー位置同期（バトル復帰時に正しい座標を復元するため） */
+  const handlePositionChange = useCallback(
+    (x: number, y: number, direction: "up" | "down" | "left" | "right") => {
+      if (!state.overworld) return;
+      dispatch({
+        type: "SET_OVERWORLD",
+        overworld: {
+          currentMapId: state.overworld.currentMapId,
+          playerX: x,
+          playerY: y,
+          direction,
+        },
+      });
+    },
+    [state.overworld?.currentMapId, dispatch],
+  );
 
   // ==========================
   // バトル関連
@@ -981,30 +1010,36 @@ export function Game() {
     const { monster, moveName } = learnMoveState;
     const species = speciesResolver(monster.speciesId);
     return (
-      <div className="flex min-h-screen flex-col items-center justify-center bg-gray-950 p-8">
-        <h2 className="mb-4 font-mono text-xl text-white">
-          {species.name}は{moveName}を覚えたい！
-        </h2>
-        <p className="mb-6 font-mono text-gray-400">でも技は4つまでしか覚えられない…</p>
-        <div className="space-y-2">
-          {monster.moves.map((m, i) => {
-            const md = moveResolver(m.moveId);
-            return (
+      <div className="flex h-full w-full flex-col items-center justify-center bg-[#1a1a2e] p-8">
+        <div className="rpg-window max-w-md">
+          <div className="rpg-window-inner">
+            <h2 className="game-text-shadow mb-4 font-[family-name:var(--font-dotgothic)] text-xl text-white">
+              {species.name}は{moveName}を覚えたい！
+            </h2>
+            <p className="mb-6 font-[family-name:var(--font-dotgothic)] text-gray-400">
+              でも技は4つまでしか覚えられない…
+            </p>
+            <div className="space-y-2">
+              {monster.moves.map((m, i) => {
+                const md = moveResolver(m.moveId);
+                return (
+                  <button
+                    key={m.moveId}
+                    className="block w-full rounded-md border border-[#533483]/30 bg-[#16213e] px-4 py-2 text-left font-[family-name:var(--font-dotgothic)] text-white transition-colors hover:border-[#533483] hover:bg-white/10"
+                    onClick={() => handleLearnMoveChoice(i)}
+                  >
+                    {md.name}（{md.type}）
+                  </button>
+                );
+              })}
               <button
-                key={m.moveId}
-                className="block w-64 rounded bg-gray-800 px-4 py-2 text-left font-mono text-white hover:bg-gray-700"
-                onClick={() => handleLearnMoveChoice(i)}
+                className="block w-full rounded-md border border-[#e94560]/30 bg-[#16213e] px-4 py-2 text-left font-[family-name:var(--font-dotgothic)] text-gray-300 transition-colors hover:border-[#e94560] hover:text-white"
+                onClick={() => handleLearnMoveChoice(-1)}
               >
-                {md.name} ({md.type})
+                {moveName}を覚えない
               </button>
-            );
-          })}
-          <button
-            className="block w-64 rounded bg-red-900 px-4 py-2 text-left font-mono text-gray-300 hover:bg-red-800"
-            onClick={() => handleLearnMoveChoice(-1)}
-          >
-            {moveName}を覚えない
-          </button>
+            </div>
+          </div>
         </div>
       </div>
     );
@@ -1013,6 +1048,11 @@ export function Game() {
   // メッセージウィンドウ（オーバーレイ）
   const messageOverlay = pendingMessages && (
     <MessageWindow messages={pendingMessages} onComplete={handleMessageComplete} />
+  );
+
+  // 画面遷移アニメーション（最前面）
+  const transitionOverlay = (
+    <SceneTransition active={transitionActive} type={transitionType} onComplete={handleComplete} />
   );
 
   // オーバーレイ画面（メニュー系）
@@ -1079,8 +1119,10 @@ export function Game() {
     case "overworld": {
       if (!currentMap || !state.overworld) {
         return (
-          <div className="flex min-h-screen items-center justify-center bg-black">
-            <p className="font-mono text-white">マップを読み込み中...</p>
+          <div className="flex h-full w-full items-center justify-center bg-[#1a1a2e]">
+            <p className="game-text-shadow font-[family-name:var(--font-dotgothic)] text-white">
+              マップを読み込み中...
+            </p>
           </div>
         );
       }
@@ -1104,9 +1146,11 @@ export function Game() {
             onEncounter={handleEncounter}
             onNpcInteract={handleNpcInteract}
             onMenuOpen={handleMenuOpen}
+            onPositionChange={handlePositionChange}
           />
           {renderOverlay()}
           {messageOverlay}
+          {transitionOverlay}
         </>
       );
     }
@@ -1114,8 +1158,10 @@ export function Game() {
     case "battle": {
       if (!battleEngine || !state.player) {
         return (
-          <div className="flex min-h-screen items-center justify-center bg-black">
-            <p className="font-mono text-white">バトル準備中...</p>
+          <div className="flex h-full w-full items-center justify-center bg-[#1a1a2e]">
+            <p className="game-text-shadow font-[family-name:var(--font-dotgothic)] text-white">
+              バトル準備中...
+            </p>
           </div>
         );
       }
@@ -1134,6 +1180,8 @@ export function Game() {
               currentHp: playerActive.currentHp,
               maxHp: getMaxHp(playerActive),
               isPlayer: true,
+              speciesId: playerActive.speciesId,
+              types: playerSpecies.types as string[],
             }}
             opponent={{
               name: opponentSpecies.name,
@@ -1141,6 +1189,8 @@ export function Game() {
               currentHp: opponentActive.currentHp,
               maxHp: getMaxHp(opponentActive),
               isPlayer: false,
+              speciesId: opponentActive.speciesId,
+              types: opponentSpecies.types as string[],
             }}
             moves={playerActive.moves.map((m) => {
               const md = moveResolver(m.moveId);
@@ -1159,6 +1209,7 @@ export function Game() {
           />
           {renderOverlay()}
           {messageOverlay}
+          {transitionOverlay}
         </>
       );
     }
@@ -1166,8 +1217,10 @@ export function Game() {
     default:
       return (
         <>
-          <div className="flex min-h-screen items-center justify-center bg-black">
-            <p className="font-mono text-white">画面: {state.screen}（開発中）</p>
+          <div className="flex h-full w-full items-center justify-center bg-[#1a1a2e]">
+            <p className="game-text-shadow font-[family-name:var(--font-dotgothic)] text-white">
+              画面: {state.screen}（開発中）
+            </p>
           </div>
           {renderOverlay()}
           {messageOverlay}

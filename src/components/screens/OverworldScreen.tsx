@@ -6,10 +6,11 @@ import type { PlayerPosition, Direction } from "@/engine/map/player-movement";
 import { movePlayer, getFacingNpc } from "@/engine/map/player-movement";
 import type { StoryFlags } from "@/engine/state/story-flags";
 import { MessageWindow } from "../ui/MessageWindow";
+import { TILE_COLORS } from "@/lib/design-tokens";
 
 /**
  * オーバーワールド画面 (#28)
- * DOMベースのグリッドマップ表示
+ * DOMベースのグリッドマップ表示 - ハイブリッドデザイン
  */
 
 const TILE_SIZE = 32;
@@ -25,17 +26,8 @@ export interface OverworldScreenProps {
   onEncounter?: () => void;
   onNpcInteract?: (npcId: string) => void;
   onMenuOpen?: () => void;
+  onPositionChange?: (x: number, y: number, direction: Direction) => void;
 }
-
-const TILE_COLORS: Record<string, string> = {
-  ground: "bg-amber-100",
-  wall: "bg-gray-600",
-  grass: "bg-green-400",
-  water: "bg-blue-400",
-  ledge: "bg-amber-300",
-  door: "bg-amber-800",
-  sign: "bg-amber-600",
-};
 
 const DIRECTION_KEYS: Record<string, Direction> = {
   ArrowUp: "up",
@@ -48,6 +40,14 @@ const DIRECTION_KEYS: Record<string, Direction> = {
   d: "right",
 };
 
+/** プレイヤーの方向別スプライト */
+const PLAYER_SPRITE: Record<Direction, string> = {
+  up: "▲",
+  down: "▼",
+  left: "◀",
+  right: "▶",
+};
+
 export function OverworldScreen({
   map,
   initialPosition,
@@ -57,18 +57,31 @@ export function OverworldScreen({
   onEncounter,
   onNpcInteract,
   onMenuOpen,
+  onPositionChange,
 }: OverworldScreenProps) {
   const [position, setPosition] = useState<PlayerPosition>(initialPosition);
   const [blockedMsg, setBlockedMsg] = useState<string[] | null>(null);
+  const [showMapName, setShowMapName] = useState(true);
+
+  // マップ名をフェードアウト
+  useEffect(() => {
+    setShowMapName(true);
+    const timer = setTimeout(() => setShowMapName(false), 3000);
+    return () => clearTimeout(timer);
+  }, [map.id]);
 
   const handleMove = useCallback(
     (direction: Direction) => {
-      if (blockedMsg) return; // メッセージ表示中は移動不可
+      if (blockedMsg) return;
 
       const result = movePlayer(position, direction, map, storyFlags);
       setPosition(result.position);
 
-      // 進行ゲートでブロックされた場合
+      // 親に位置を通知（バトル復帰時に正しい位置を復元するため）
+      if (result.moved) {
+        onPositionChange?.(result.position.x, result.position.y, result.position.direction);
+      }
+
       if (result.blockedMessage) {
         setBlockedMsg([result.blockedMessage]);
         return;
@@ -83,7 +96,6 @@ export function OverworldScreen({
         return;
       }
 
-      // NPC衝突 — 移動時はインタラクションを起こさない（Aボタンで明示的に話しかける）
       if (result.facingNpcId) {
         return;
       }
@@ -92,7 +104,7 @@ export function OverworldScreen({
         onEncounter?.();
       }
     },
-    [position, map, storyFlags, blockedMsg, onMapTransition, onEncounter],
+    [position, map, storyFlags, blockedMsg, onMapTransition, onEncounter, onPositionChange],
   );
 
   const handleInteract = useCallback(() => {
@@ -130,7 +142,6 @@ export function OverworldScreen({
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [handleMove, handleInteract, onMenuOpen, inputBlocked]);
 
-  // ビューポートのオフセット計算（プレイヤーを中心に）
   const offsetX = Math.max(
     0,
     Math.min(position.x - Math.floor(VIEWPORT_TILES_X / 2), map.width - VIEWPORT_TILES_X),
@@ -144,10 +155,14 @@ export function OverworldScreen({
   const visibleTilesY = Math.min(VIEWPORT_TILES_Y, map.height);
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-black">
+    <div className="flex h-full w-full items-center justify-center bg-[#1a1a2e]">
       <div
-        className="relative"
-        style={{ width: visibleTilesX * TILE_SIZE, height: visibleTilesY * TILE_SIZE }}
+        className="relative overflow-hidden"
+        style={{
+          width: visibleTilesX * TILE_SIZE,
+          height: visibleTilesY * TILE_SIZE,
+          boxShadow: "0 0 40px rgba(0,0,0,0.5)",
+        }}
       >
         {/* マップタイル */}
         {Array.from({ length: visibleTilesY }, (_, vy) =>
@@ -168,7 +183,28 @@ export function OverworldScreen({
                   width: TILE_SIZE,
                   height: TILE_SIZE,
                 }}
-              />
+              >
+                {/* 草むらパターン */}
+                {tileType === "grass" && (
+                  <div
+                    className="absolute inset-0 opacity-40"
+                    style={{
+                      background:
+                        "repeating-linear-gradient(45deg, transparent, transparent 3px, rgba(0,80,0,0.3) 3px, rgba(0,80,0,0.3) 4px)",
+                    }}
+                  />
+                )}
+                {/* 水面パターン */}
+                {tileType === "water" && (
+                  <div
+                    className="absolute inset-0 opacity-30"
+                    style={{
+                      background:
+                        "repeating-linear-gradient(0deg, transparent, transparent 4px, rgba(255,255,255,0.15) 4px, rgba(255,255,255,0.15) 5px)",
+                    }}
+                  />
+                )}
+              </div>
             );
           }),
         )}
@@ -185,7 +221,7 @@ export function OverworldScreen({
           .map((npc) => (
             <div
               key={npc.id}
-              className="absolute flex items-center justify-center text-lg"
+              className="absolute flex items-center justify-center"
               style={{
                 left: (npc.x - offsetX) * TILE_SIZE,
                 top: (npc.y - offsetY) * TILE_SIZE,
@@ -193,13 +229,24 @@ export function OverworldScreen({
                 height: TILE_SIZE,
               }}
             >
-              {npc.isTrainer ? "⚔️" : "👤"}
+              <div
+                className="flex h-6 w-6 items-center justify-center rounded-full text-[10px]"
+                style={{
+                  backgroundColor: npc.isTrainer ? "#e94560" : "#533483",
+                  color: "white",
+                  boxShadow: npc.isTrainer
+                    ? "0 0 8px rgba(233,69,96,0.4)"
+                    : "0 0 6px rgba(83,52,131,0.4)",
+                }}
+              >
+                {npc.isTrainer ? "!" : "●"}
+              </div>
             </div>
           ))}
 
         {/* プレイヤー表示 */}
         <div
-          className="absolute flex items-center justify-center text-lg transition-all duration-100"
+          className="absolute flex items-center justify-center transition-all duration-100"
           style={{
             left: (position.x - offsetX) * TILE_SIZE,
             top: (position.y - offsetY) * TILE_SIZE,
@@ -207,18 +254,31 @@ export function OverworldScreen({
             height: TILE_SIZE,
           }}
         >
-          {position.direction === "up"
-            ? "⬆️"
-            : position.direction === "down"
-              ? "⬇️"
-              : position.direction === "left"
-                ? "⬅️"
-                : "➡️"}
+          <div
+            className="flex h-7 w-7 items-center justify-center rounded-sm font-[family-name:var(--font-pressstart)] text-[8px] text-white"
+            style={{
+              backgroundColor: "#e94560",
+              boxShadow: "0 0 10px rgba(233,69,96,0.5)",
+            }}
+          >
+            {PLAYER_SPRITE[position.direction]}
+          </div>
         </div>
 
-        {/* マップ名 */}
-        <div className="absolute left-2 top-2 rounded bg-black/60 px-2 py-0.5">
-          <span className="font-mono text-xs text-white">{map.name}</span>
+        {/* マップ名ポップアップ */}
+        <div
+          className="absolute left-1/2 top-3 -translate-x-1/2 rounded-md px-4 py-1.5 transition-all duration-500"
+          style={{
+            background:
+              "linear-gradient(90deg, transparent, rgba(22,33,62,0.95), rgba(22,33,62,0.95), transparent)",
+            border: "1px solid rgba(83,52,131,0.4)",
+            opacity: showMapName ? 1 : 0,
+            transform: `translateX(-50%) translateY(${showMapName ? "0" : "-10px"})`,
+          }}
+        >
+          <span className="game-text-shadow font-[family-name:var(--font-dotgothic)] text-sm text-white">
+            {map.name}
+          </span>
         </div>
       </div>
 

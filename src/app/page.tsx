@@ -3,8 +3,12 @@ import { Game } from "@/components/Game";
 
 export default function Home() {
   return (
-    <GameProvider>
-      <Game />
-    </GameProvider>
+    <div className="game-outer">
+      <div className="game-container">
+        <GameProvider>
+          <Game />
+        </GameProvider>
+      </div>
+    </div>
   );
 }

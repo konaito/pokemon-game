@@ -1,0 +1,88 @@
+/**
+ * 回復アイテム・状態回復アイテム定義
+ */
+import type { ItemDefinition } from "@/types";
+
+export const MEDICINE_ITEMS: Record<string, ItemDefinition> = {
+  potion: {
+    id: "potion",
+    name: "キズぐすり",
+    description: "HPを20回復する。",
+    category: "medicine",
+    price: 300,
+    usableInBattle: true,
+    effect: { type: "heal_hp", amount: 20 },
+  },
+  "super-potion": {
+    id: "super-potion",
+    name: "いいキズぐすり",
+    description: "HPを50回復する。",
+    category: "medicine",
+    price: 700,
+    usableInBattle: true,
+    effect: { type: "heal_hp", amount: 50 },
+  },
+  "hyper-potion": {
+    id: "hyper-potion",
+    name: "すごいキズぐすり",
+    description: "HPを200回復する。",
+    category: "medicine",
+    price: 1200,
+    usableInBattle: true,
+    effect: { type: "heal_hp", amount: 200 },
+  },
+  "full-restore": {
+    id: "full-restore",
+    name: "かいふくのくすり",
+    description: "HPと状態異常をすべて回復する。",
+    category: "medicine",
+    price: 3000,
+    usableInBattle: true,
+    effect: { type: "heal_hp", amount: 9999 },
+  },
+  antidote: {
+    id: "antidote",
+    name: "どくけし",
+    description: "どく状態を治す。",
+    category: "medicine",
+    price: 100,
+    usableInBattle: true,
+    effect: { type: "heal_status", status: "poison" },
+  },
+  "parlyz-heal": {
+    id: "parlyz-heal",
+    name: "まひなおし",
+    description: "まひ状態を治す。",
+    category: "medicine",
+    price: 200,
+    usableInBattle: true,
+    effect: { type: "heal_status", status: "paralysis" },
+  },
+  "burn-heal": {
+    id: "burn-heal",
+    name: "やけどなおし",
+    description: "やけど状態を治す。",
+    category: "medicine",
+    price: 250,
+    usableInBattle: true,
+    effect: { type: "heal_status", status: "burn" },
+  },
+  awakening: {
+    id: "awakening",
+    name: "ねむけざまし",
+    description: "ねむり状態を治す。",
+    category: "medicine",
+    price: 250,
+    usableInBattle: true,
+    effect: { type: "heal_status", status: "sleep" },
+  },
+  "full-heal": {
+    id: "full-heal",
+    name: "なんでもなおし",
+    description: "すべての状態異常を治す。",
+    category: "medicine",
+    price: 600,
+    usableInBattle: true,
+    effect: { type: "heal_status", status: "all" },
+  },
+};
