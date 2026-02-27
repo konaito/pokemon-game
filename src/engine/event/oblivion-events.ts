@@ -16,13 +16,7 @@ export const oblivionFirstEncounter: EventScript = {
     {
       type: "branch",
       condition: "oblivion_encountered",
-      then: [
-        {
-          type: "dialogue",
-          speaker: "マボロシ",
-          lines: ["また会ったな。まだ分からないのか...記憶など、重荷でしかない。"],
-        },
-      ],
+      then: [],
       else: [
         {
           type: "dialogue",
@@ -83,13 +77,7 @@ export const oblivionRuinsEvent: EventScript = {
     {
       type: "branch",
       condition: "ruins_investigated",
-      then: [
-        {
-          type: "dialogue",
-          speaker: "コダチ博士",
-          lines: ["遺跡の調査は完了している。次はキリフリ村に向かおう。"],
-        },
-      ],
+      then: [],
       else: [
         {
           type: "dialogue",
@@ -163,13 +151,7 @@ export const oblivionKirifuriEvent: EventScript = {
     {
       type: "branch",
       condition: "kirifuri_defended",
-      then: [
-        {
-          type: "dialogue",
-          speaker: "長老",
-          lines: ["お前のおかげでわしらの記憶は守られた。感謝しているよ。"],
-        },
-      ],
+      then: [],
       else: [
         {
           type: "dialogue",
@@ -237,12 +219,7 @@ export const oblivionFinalBattle: EventScript = {
     {
       type: "branch",
       condition: "oblivion_defeated",
-      then: [
-        {
-          type: "dialogue",
-          lines: ["セイレイ山は静かだ。嵐は過ぎ去った。"],
-        },
-      ],
+      then: [],
       else: [
         {
           type: "dialogue",
