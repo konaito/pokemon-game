@@ -255,23 +255,44 @@ export function BattleAnimation({ event, onComplete }: BattleAnimationProps) {
           transition: "all 150ms ease-out",
         }}
       >
+        {/* 中心の光球 */}
         <div
           className="h-16 w-16 rounded-full"
           style={{
-            background: `radial-gradient(circle, ${color}80, ${color}20, transparent)`,
-            boxShadow: `0 0 20px ${color}60`,
+            background: `radial-gradient(circle, ${color}cc, ${color}40, transparent)`,
+            boxShadow: `0 0 30px ${color}80, 0 0 60px ${color}30`,
           }}
         />
+        {/* 飛散パーティクル */}
+        {(event.type === "attack_physical" || event.type === "attack_special") &&
+          opacity > 0 &&
+          Array.from({ length: 6 }, (_, i) => {
+            const angle = (i * 60 * Math.PI) / 180;
+            const dist = 20 + i * 5;
+            return (
+              <div
+                key={i}
+                className="absolute left-1/2 top-1/2 h-2 w-2 rounded-full"
+                style={{
+                  backgroundColor: color,
+                  transform: `translate(-50%, -50%) translate(${Math.cos(angle) * dist * scale}px, ${Math.sin(angle) * dist * scale}px)`,
+                  opacity: opacity * (1 - i * 0.12),
+                  boxShadow: `0 0 6px ${color}`,
+                  transition: "all 120ms ease-out",
+                }}
+              />
+            );
+          })}
       </div>
 
-      {/* 追加のパーティクル（ダメージ時のフラッシュ） */}
+      {/* ダメージ時のフラッシュ＋シェイク */}
       {event.type === "damage" && (
         <div
           className="absolute inset-0"
           style={{
             backgroundColor: "#ffffff",
-            opacity: opacity * 0.3,
-            transition: "opacity 80ms ease-out",
+            opacity: opacity * 0.35,
+            transition: "opacity 60ms ease-out",
           }}
         />
       )}
@@ -282,16 +303,41 @@ export function BattleAnimation({ event, onComplete }: BattleAnimationProps) {
           className="absolute inset-0"
           style={{
             backgroundColor: "#000000",
-            opacity: opacity * 0.4,
+            opacity: opacity * 0.5,
             transition: "opacity 300ms ease-out",
           }}
         />
       )}
 
-      {/* ステータスアップ/ダウンの矢印テキスト */}
+      {/* 回復のきらめきパーティクル */}
+      {event.type === "heal" &&
+        opacity > 0 &&
+        Array.from({ length: 5 }, (_, i) => (
+          <div
+            key={i}
+            className="absolute"
+            style={{
+              left: isTargetLeft ? `${20 + i * 3}%` : `${60 + i * 3}%`,
+              top: `${30 + i * 6}%`,
+              transform: `translateY(${translateY - i * 8}px)`,
+              opacity: opacity * (1 - i * 0.15),
+              transition: "all 200ms ease-out",
+            }}
+          >
+            <div
+              className="h-1.5 w-1.5 rounded-full"
+              style={{
+                backgroundColor: "#78C850",
+                boxShadow: "0 0 4px #78C850",
+              }}
+            />
+          </div>
+        ))}
+
+      {/* ステータスアップ/ダウンの矢印 */}
       {(event.type === "stat_up" || event.type === "stat_down") && (
         <div
-          className="absolute font-mono text-2xl font-bold"
+          className="absolute font-[family-name:var(--font-dotgothic)] text-2xl font-bold"
           style={{
             left: isTargetLeft ? "25%" : "65%",
             top: "35%",
@@ -299,7 +345,7 @@ export function BattleAnimation({ event, onComplete }: BattleAnimationProps) {
             opacity,
             color,
             transition: "all 150ms ease-out",
-            textShadow: `0 0 8px ${color}`,
+            textShadow: `0 0 10px ${color}, 0 0 20px ${color}60`,
           }}
         >
           {event.type === "stat_up" ? "▲" : "▼"}

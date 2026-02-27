@@ -6,7 +6,12 @@ import type { PlayerPosition, Direction } from "@/engine/map/player-movement";
 import { movePlayer, getFacingNpc } from "@/engine/map/player-movement";
 import type { StoryFlags } from "@/engine/state/story-flags";
 import { MessageWindow } from "../ui/MessageWindow";
-import { TILE_COLORS } from "@/lib/design-tokens";
+import {
+  getTileBackground,
+  PlayerSprite,
+  NpcSprite,
+  getNpcAppearance,
+} from "../ui/OverworldSprites";
 
 /**
  * オーバーワールド画面 (#28)
@@ -38,14 +43,6 @@ const DIRECTION_KEYS: Record<string, Direction> = {
   s: "down",
   a: "left",
   d: "right",
-};
-
-/** プレイヤーの方向別スプライト */
-const PLAYER_SPRITE: Record<Direction, string> = {
-  up: "▲",
-  down: "▼",
-  left: "◀",
-  right: "▶",
 };
 
 export function OverworldScreen({
@@ -171,40 +168,20 @@ export function OverworldScreen({
             const mapY = vy + offsetY;
             if (mapX >= map.width || mapY >= map.height) return null;
             const tileType = map.tiles[mapY]?.[mapX] ?? "ground";
-            const bgColor = TILE_COLORS[tileType] ?? "bg-gray-500";
 
             return (
               <div
                 key={`${mapX}-${mapY}`}
-                className={`absolute ${bgColor}`}
+                className="absolute pixel-perfect"
                 style={{
                   left: vx * TILE_SIZE,
                   top: vy * TILE_SIZE,
                   width: TILE_SIZE,
                   height: TILE_SIZE,
+                  background: getTileBackground(tileType),
+                  backgroundSize: "100% 100%",
                 }}
-              >
-                {/* 草むらパターン */}
-                {tileType === "grass" && (
-                  <div
-                    className="absolute inset-0 opacity-40"
-                    style={{
-                      background:
-                        "repeating-linear-gradient(45deg, transparent, transparent 3px, rgba(0,80,0,0.3) 3px, rgba(0,80,0,0.3) 4px)",
-                    }}
-                  />
-                )}
-                {/* 水面パターン */}
-                {tileType === "water" && (
-                  <div
-                    className="absolute inset-0 opacity-30"
-                    style={{
-                      background:
-                        "repeating-linear-gradient(0deg, transparent, transparent 4px, rgba(255,255,255,0.15) 4px, rgba(255,255,255,0.15) 5px)",
-                    }}
-                  />
-                )}
-              </div>
+              />
             );
           }),
         )}
@@ -229,18 +206,7 @@ export function OverworldScreen({
                 height: TILE_SIZE,
               }}
             >
-              <div
-                className="flex h-6 w-6 items-center justify-center rounded-full text-[10px]"
-                style={{
-                  backgroundColor: npc.isTrainer ? "#e94560" : "#533483",
-                  color: "white",
-                  boxShadow: npc.isTrainer
-                    ? "0 0 8px rgba(233,69,96,0.4)"
-                    : "0 0 6px rgba(83,52,131,0.4)",
-                }}
-              >
-                {npc.isTrainer ? "!" : "●"}
-              </div>
+              <NpcSprite appearance={getNpcAppearance(npc.id, npc.isTrainer)} size={26} />
             </div>
           ))}
 
@@ -254,15 +220,7 @@ export function OverworldScreen({
             height: TILE_SIZE,
           }}
         >
-          <div
-            className="flex h-7 w-7 items-center justify-center rounded-sm font-[family-name:var(--font-pressstart)] text-[8px] text-white"
-            style={{
-              backgroundColor: "#e94560",
-              boxShadow: "0 0 10px rgba(233,69,96,0.5)",
-            }}
-          >
-            {PLAYER_SPRITE[position.direction]}
-          </div>
+          <PlayerSprite direction={position.direction} size={28} />
         </div>
 
         {/* マップ名ポップアップ */}
