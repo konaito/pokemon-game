@@ -1,5 +1,7 @@
 import { test, expect } from "../fixtures/game-fixture";
+import type { Page } from "@playwright/test";
 import type { SaveData, SaveMonsterInstance } from "../fixtures/save-data";
+import type { GamePage } from "../fixtures/game-fixture";
 import path from "path";
 
 /**
@@ -103,8 +105,8 @@ function createLeagueSave(): SaveData {
   };
 }
 
-type TestPage = InstanceType<typeof import("@playwright/test").Page>;
-type TestGamePage = InstanceType<typeof import("../fixtures/game-fixture").GamePage>;
+type TestPage = Page;
+type TestGamePage = GamePage;
 
 let screenshotIndex = 0;
 
