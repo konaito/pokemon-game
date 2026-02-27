@@ -76,7 +76,7 @@ export function MessageWindow({
   }, [isTyping, isLastPage, showChoices, currentMessage, choices, onComplete]);
 
   const handleKeyDown = useCallback(
-    (e: React.KeyboardEvent) => {
+    (e: KeyboardEvent) => {
       if (e.key === " " || e.key === "Enter" || e.key === "z") {
         if (showChoices && choices) {
           onChoice?.(choices[selectedChoice].value);
@@ -96,12 +96,15 @@ export function MessageWindow({
     [showChoices, choices, selectedChoice, onChoice, handleAdvance],
   );
 
+  useEffect(() => {
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [handleKeyDown]);
+
   return (
     <div
       className="fixed bottom-0 left-0 right-0 z-50 mx-auto max-w-2xl p-3"
-      onKeyDown={handleKeyDown}
       onClick={handleAdvance}
-      tabIndex={0}
       role="dialog"
       aria-label="メッセージウィンドウ"
     >

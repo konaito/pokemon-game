@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { ItemIcon, type ItemCategory } from "../ui/OverworldSprites";
 
 /**
@@ -39,38 +39,42 @@ export function BagScreen({ items, onUse, onBack }: BagScreenProps) {
   const currentCategory = CATEGORY_ORDER[selectedCategory];
   const filteredItems = items.filter((item) => item.category === currentCategory);
 
-  const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === "ArrowLeft" || e.key === "a") {
-      setSelectedCategory((prev) => (prev - 1 + CATEGORY_ORDER.length) % CATEGORY_ORDER.length);
-      setSelectedItem(0);
-    }
-    if (e.key === "ArrowRight" || e.key === "d") {
-      setSelectedCategory((prev) => (prev + 1) % CATEGORY_ORDER.length);
-      setSelectedItem(0);
-    }
-    if (e.key === "ArrowUp" || e.key === "w") {
-      setSelectedItem((prev) => Math.max(0, prev - 1));
-    }
-    if (e.key === "ArrowDown" || e.key === "s") {
-      setSelectedItem((prev) => Math.min(filteredItems.length - 1, prev + 1));
-    }
-    if (e.key === "Enter" || e.key === "z") {
-      const item = filteredItems[selectedItem];
-      if (item?.usable) {
-        onUse?.(item.itemId);
+  const handleKeyDown = useCallback(
+    (e: KeyboardEvent) => {
+      if (e.key === "ArrowLeft" || e.key === "a") {
+        setSelectedCategory((prev) => (prev - 1 + CATEGORY_ORDER.length) % CATEGORY_ORDER.length);
+        setSelectedItem(0);
       }
-    }
-    if (e.key === "Escape" || e.key === "x") {
-      onBack();
-    }
-  };
+      if (e.key === "ArrowRight" || e.key === "d") {
+        setSelectedCategory((prev) => (prev + 1) % CATEGORY_ORDER.length);
+        setSelectedItem(0);
+      }
+      if (e.key === "ArrowUp" || e.key === "w") {
+        setSelectedItem((prev) => Math.max(0, prev - 1));
+      }
+      if (e.key === "ArrowDown" || e.key === "s") {
+        setSelectedItem((prev) => Math.min(filteredItems.length - 1, prev + 1));
+      }
+      if (e.key === "Enter" || e.key === "z") {
+        const item = filteredItems[selectedItem];
+        if (item?.usable) {
+          onUse?.(item.itemId);
+        }
+      }
+      if (e.key === "Escape" || e.key === "x") {
+        onBack();
+      }
+    },
+    [filteredItems, selectedItem, onUse, onBack],
+  );
+
+  useEffect(() => {
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [handleKeyDown]);
 
   return (
-    <div
-      className="flex h-full w-full flex-col bg-[#1a1a2e] p-4"
-      onKeyDown={handleKeyDown}
-      tabIndex={0}
-    >
+    <div className="flex h-full w-full flex-col bg-[#1a1a2e] p-4">
       {/* カテゴリタブ */}
       <div className="mb-3 flex gap-1">
         {CATEGORY_ORDER.map((cat, i) => {

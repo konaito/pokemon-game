@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect, useCallback } from "react";
 
 /**
  * メニュー画面 (#77)
@@ -41,38 +41,47 @@ export function MenuScreen({
 }: MenuScreenProps) {
   const [selectedIndex, setSelectedIndex] = useState(0);
 
-  const handleSelect = (index: number) => {
-    const item = MENU_ITEMS[index];
-    if (item.value === "close") {
-      onBack();
-    } else if (item.value === "save") {
-      onSave?.();
-    } else {
-      onNavigate(item.value);
-    }
-  };
+  const handleSelect = useCallback(
+    (index: number) => {
+      const item = MENU_ITEMS[index];
+      if (item.value === "close") {
+        onBack();
+      } else if (item.value === "save") {
+        onSave?.();
+      } else {
+        onNavigate(item.value);
+      }
+    },
+    [onBack, onSave, onNavigate],
+  );
 
-  const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === "ArrowUp" || e.key === "w") {
-      setSelectedIndex((prev) => (prev - 1 + MENU_ITEMS.length) % MENU_ITEMS.length);
-    }
-    if (e.key === "ArrowDown" || e.key === "s") {
-      setSelectedIndex((prev) => (prev + 1) % MENU_ITEMS.length);
-    }
-    if (e.key === "Enter" || e.key === "z") {
-      handleSelect(selectedIndex);
-    }
-    if (e.key === "Escape" || e.key === "x") {
-      onBack();
-    }
-  };
+  const handleKeyDown = useCallback(
+    (e: KeyboardEvent) => {
+      if (e.key === "ArrowUp" || e.key === "w") {
+        setSelectedIndex((prev) => (prev - 1 + MENU_ITEMS.length) % MENU_ITEMS.length);
+      }
+      if (e.key === "ArrowDown" || e.key === "s") {
+        setSelectedIndex((prev) => (prev + 1) % MENU_ITEMS.length);
+      }
+      if (e.key === "Enter" || e.key === "z") {
+        handleSelect(selectedIndex);
+      }
+      if (e.key === "Escape" || e.key === "x") {
+        onBack();
+      }
+    },
+    [selectedIndex, onBack, handleSelect],
+  );
+
+  useEffect(() => {
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [handleKeyDown]);
 
   return (
     <div
       className="fixed inset-0 z-40 flex items-start justify-end p-4"
       style={{ backgroundColor: "rgba(10, 10, 26, 0.6)" }}
-      onKeyDown={handleKeyDown}
-      tabIndex={0}
       role="dialog"
       aria-label="メインメニュー"
     >
