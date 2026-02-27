@@ -102,6 +102,48 @@ export function TitleScreen({ onNewGame, onContinue, hasSaveData = false }: Titl
 
       {/* タイトルロゴ */}
       <div className="relative mb-12">
+        {/* ロゴ上のモンスターシルエット */}
+        <div
+          className="mx-auto mb-4 transition-all duration-1000"
+          style={{
+            opacity: titlePhase >= 1 ? 1 : 0,
+            transform: titlePhase >= 1 ? "scale(1)" : "scale(0.8)",
+          }}
+        >
+          <svg
+            viewBox="0 0 64 48"
+            width="128"
+            height="96"
+            className="mx-auto"
+            style={{
+              imageRendering: "pixelated",
+              filter: "drop-shadow(0 0 12px rgba(233,69,96,0.4))",
+            }}
+          >
+            {/* 伝説のモンスター「ワスレヌ」のシルエット */}
+            {/* 翼 */}
+            <polygon points="8,28 2,18 6,14 14,12 18,20" fill="#533483" opacity="0.8" />
+            <polygon points="56,28 62,18 58,14 50,12 46,20" fill="#533483" opacity="0.8" />
+            {/* 体 */}
+            <ellipse cx="32" cy="28" rx="14" ry="10" fill="#e94560" opacity="0.6" />
+            <ellipse cx="32" cy="26" rx="12" ry="8" fill="#e94560" opacity="0.8" />
+            {/* 頭 */}
+            <circle cx="32" cy="16" r="8" fill="#e94560" />
+            <circle cx="32" cy="16" r="7" fill="#ff6b81" opacity="0.5" />
+            {/* 目 */}
+            <ellipse cx="29" cy="15" rx="2" ry="2.5" fill="white" />
+            <ellipse cx="35" cy="15" rx="2" ry="2.5" fill="white" />
+            <circle cx="29" cy="15" r="1" fill="#1a1a2e" />
+            <circle cx="35" cy="15" r="1" fill="#1a1a2e" />
+            {/* 角 */}
+            <polygon points="28,9 30,4 32,9" fill="#533483" />
+            <polygon points="32,9 34,4 36,9" fill="#533483" />
+            {/* 尻尾 */}
+            <path d="M 32 38 Q 38 42 44 40 Q 46 38 44 36" fill="#e94560" opacity="0.7" />
+            {/* 光のハイライト */}
+            <circle cx="30" cy="13" r="1" fill="white" opacity="0.6" />
+          </svg>
+        </div>
         {/* MONSTER */}
         <h1
           className="game-text-shadow text-center transition-all duration-700"
