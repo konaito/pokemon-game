@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { HpBar } from "../ui/HpBar";
 import { MonsterSprite } from "../ui/MonsterSprite";
+import { BattleBackground, type BattleEnvironment } from "../ui/BattleBackgrounds";
 import { TYPE_BG, TYPE_HEX, TYPE_LABEL } from "@/lib/design-tokens";
 
 /**
@@ -42,6 +43,8 @@ export interface BattleScreenProps {
   isWild: boolean;
   onAction: (action: BattleAction) => void;
   isProcessing: boolean;
+  /** バトル環境（背景決定用） */
+  environment?: BattleEnvironment;
 }
 
 type BattlePhase = "action" | "move_select";
@@ -61,6 +64,7 @@ export function BattleScreen({
   isWild,
   onAction,
   isProcessing,
+  environment = "grassland",
 }: BattleScreenProps) {
   const [phase, setPhase] = useState<BattlePhase>("action");
   const [selectedAction, setSelectedAction] = useState(0);
@@ -142,23 +146,8 @@ export function BattleScreen({
     >
       {/* バトルフィールド */}
       <div className="relative flex flex-1 flex-col justify-between px-6 py-4">
-        {/* 背景グラデーション */}
-        <div
-          className="pointer-events-none absolute inset-0"
-          style={{
-            background:
-              "linear-gradient(180deg, #1a1a2e 0%, #16213e 40%, #0f3460 70%, #1a1a2e 100%)",
-          }}
-        />
-
-        {/* 地面のライン */}
-        <div
-          className="pointer-events-none absolute bottom-[35%] left-0 right-0 h-[1px]"
-          style={{
-            background:
-              "linear-gradient(90deg, transparent 10%, rgba(83,52,131,0.3) 50%, transparent 90%)",
-          }}
-        />
+        {/* バトル背景 */}
+        <BattleBackground environment={environment} />
 
         {/* 相手モンスター情報 */}
         <div className="relative z-10 flex justify-start">

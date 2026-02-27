@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback, useMemo, useRef } from "react";
+import { useState, useCallback, useMemo, useRef, useEffect } from "react";
 import { useGameState, useGameDispatch } from "./GameProvider";
 import { TitleScreen } from "./screens/TitleScreen";
 import { StarterSelect, type StarterOption } from "./screens/StarterSelect";
@@ -12,6 +12,8 @@ import { BagScreen, type BagItemInfo } from "./screens/BagScreen";
 import { PokedexScreen, type PokedexEntry } from "./screens/PokedexScreen";
 import { MessageWindow } from "./ui/MessageWindow";
 import { SceneTransition, useSceneTransition } from "./ui/SceneTransition";
+import { useAudio } from "./AudioProvider";
+import { resolveEnvironment } from "./ui/BattleBackgrounds";
 import type { MonsterInstance } from "@/types";
 import { BattleEngine } from "@/engine/battle/engine";
 import type { BattleAction } from "@/engine/battle/state-machine";
@@ -139,11 +141,35 @@ export function Game() {
   const { transitionActive, transitionType, transitionDuration, startTransition, handleComplete } =
     useSceneTransition();
 
+  // --- オーディオ ---
+  const { playBgm, stopBgm, fadeOutBgm, playSe } = useAudio();
+
   // --- イベントスクリプトキュー ---
   const eventQueueRef = useRef<EventOutput[]>([]);
   const isEventRunningRef = useRef(false);
   const [isTrainerBattle, setIsTrainerBattle] = useState(false);
   const [trainerBattleName, setTrainerBattleName] = useState<string | null>(null);
+
+  // 画面ごとのBGM切り替え
+  useEffect(() => {
+    switch (state.screen) {
+      case "title":
+        playBgm("title");
+        break;
+      case "overworld":
+        playBgm("overworld-default");
+        break;
+      case "battle":
+        if (isTrainerBattle) {
+          playBgm("battle-trainer");
+        } else {
+          playBgm("battle-wild");
+        }
+        break;
+      default:
+        break;
+    }
+  }, [state.screen, isTrainerBattle, playBgm]);
 
   // ジムリーダーNPC ID → GymDefinition マッピング
   const gymLeaderNpcMap = useMemo(() => {
@@ -1211,6 +1237,7 @@ export function Game() {
             isWild={battleEngine.state.battleType === "wild"}
             onAction={handleBattleAction}
             isProcessing={isBattleProcessing}
+            environment={resolveEnvironment(state.overworld?.currentMapId ?? "")}
           />
           {renderOverlay()}
           {messageOverlay}
