@@ -1,5 +1,6 @@
 "use client";
 
+import { memo, useMemo } from "react";
 import { TYPE_HEX } from "@/lib/design-tokens";
 
 /**
@@ -650,7 +651,7 @@ function generateFallbackSprite(
   };
 }
 
-export function MonsterSprite({
+export const MonsterSprite = memo(function MonsterSprite({
   speciesId,
   types,
   size = 64,
@@ -660,7 +661,10 @@ export function MonsterSprite({
 }: MonsterSpriteProps) {
   const primary = getTypeColor(types);
   const secondary = getSecondaryColor(types);
-  const shape = getSpriteShape(speciesId, primary, secondary);
+  const shape = useMemo(
+    () => getSpriteShape(speciesId, primary, secondary),
+    [speciesId, primary, secondary],
+  );
 
   return (
     <div
@@ -700,7 +704,7 @@ export function MonsterSprite({
       </svg>
     </div>
   );
-}
+});
 
 /**
  * オーバーワールド用のミニスプライト
