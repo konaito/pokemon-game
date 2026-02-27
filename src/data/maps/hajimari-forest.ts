@@ -56,14 +56,12 @@ export const HAJIMARI_FOREST: MapDefinition = {
       sourceY: 0,
     },
     {
-      // 南出口 → ツチグモ村（将来追加）
+      // 南出口 → ツチグモ村
       targetMapId: "tsuchigumo-village",
       targetX: 5,
       targetY: 0,
       sourceX: 5,
       sourceY: 11,
-      requirement: "gym1_cleared",
-      blockedMessage: "この先の道はまだ整備されていないようだ…",
     },
     {
       targetMapId: "tsuchigumo-village",
@@ -71,8 +69,6 @@ export const HAJIMARI_FOREST: MapDefinition = {
       targetY: 0,
       sourceX: 6,
       sourceY: 11,
-      requirement: "gym1_cleared",
-      blockedMessage: "この先の道はまだ整備されていないようだ…",
     },
   ],
   encounters: [

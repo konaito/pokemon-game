@@ -57,13 +57,12 @@ describe("オブリヴィオン団イベント", () => {
       });
     });
 
-    it("2回目は短い会話のみ", () => {
+    it("2回目は空配列（スキップ）を返す", () => {
       const outputs = executeScript(oblivionFirstEncounter, {
         gym3_cleared: true,
         oblivion_encountered: true,
       })!;
-      expect(outputs).toHaveLength(1);
-      expect(outputs[0].type).toBe("dialogue");
+      expect(outputs).toHaveLength(0);
     });
   });
 
@@ -167,14 +166,13 @@ describe("オブリヴィオン団イベント", () => {
       });
     });
 
-    it("2回目は短いメッセージのみ", () => {
+    it("2回目は空配列（スキップ）を返す", () => {
       const outputs = executeScript(oblivionFinalBattle, {
         gym8_cleared: true,
         kirifuri_defended: true,
         oblivion_defeated: true,
       })!;
-      expect(outputs).toHaveLength(1);
-      expect(outputs[0].type).toBe("dialogue");
+      expect(outputs).toHaveLength(0);
     });
   });
 
