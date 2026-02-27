@@ -1094,11 +1094,13 @@ export function Game() {
 
   // オーバーレイ画面（メニュー系）
   const renderOverlay = () => {
-    if (!state.player) return null;
+    if (!state.player || !overlayScreen) return null;
+
+    let content: React.ReactNode = null;
 
     switch (overlayScreen) {
       case "menu":
-        return (
+        content = (
           <MenuScreen
             playerName={state.player.name}
             badgeCount={state.player.badges.length}
@@ -1107,8 +1109,9 @@ export function Game() {
             onBack={closeOverlay}
           />
         );
+        break;
       case "party":
-        return (
+        content = (
           <PartyScreen
             party={getPartyMemberInfos()}
             onSwap={battlePartyMode ? undefined : handlePartySwap}
@@ -1121,13 +1124,20 @@ export function Game() {
             selectMode={battlePartyMode || battleEngine?.state.phase === "force_switch"}
           />
         );
+        break;
       case "bag":
-        return <BagScreen items={getBagItemInfos()} onUse={handleBagUse} onBack={closeOverlay} />;
+        content = (
+          <BagScreen items={getBagItemInfos()} onUse={handleBagUse} onBack={closeOverlay} />
+        );
+        break;
       case "pokedex":
-        return <PokedexScreen entries={getPokedexEntries()} onBack={closeOverlay} />;
+        content = <PokedexScreen entries={getPokedexEntries()} onBack={closeOverlay} />;
+        break;
       default:
         return null;
     }
+
+    return <div className="absolute inset-0 z-50">{content}</div>;
   };
 
   // メイン画面の描画
@@ -1166,7 +1176,7 @@ export function Game() {
         overlayScreen !== null || eventQueueRef.current.length > 0 || pendingMessages !== null;
 
       return (
-        <>
+        <div className="relative h-full w-full">
           <OverworldScreen
             key={state.overworld.currentMapId}
             map={currentMap}
@@ -1201,7 +1211,7 @@ export function Game() {
           {renderOverlay()}
           {messageOverlay}
           {transitionOverlay}
-        </>
+        </div>
       );
     }
 
@@ -1222,7 +1232,7 @@ export function Game() {
       const opponentSpecies = speciesResolver(opponentActive.speciesId);
 
       return (
-        <>
+        <div className="relative h-full w-full">
           <BattleScreen
             inputBlocked={overlayScreen !== null || pendingMessages !== null}
             player={{
@@ -1262,13 +1272,13 @@ export function Game() {
           {renderOverlay()}
           {messageOverlay}
           {transitionOverlay}
-        </>
+        </div>
       );
     }
 
     default:
       return (
-        <>
+        <div className="relative h-full w-full">
           <div className="flex h-full w-full items-center justify-center bg-[#1a1a2e]">
             <p className="game-text-shadow font-[family-name:var(--font-dotgothic)] text-white">
               画面: {state.screen}（開発中）
@@ -1276,7 +1286,7 @@ export function Game() {
           </div>
           {renderOverlay()}
           {messageOverlay}
-        </>
+        </div>
       );
   }
 }
