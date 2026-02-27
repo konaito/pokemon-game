@@ -102,11 +102,21 @@ export function getTileBackground(tileType: TileType): string {
 
 // ─── プレイヤースプライト ─────────────────────────────
 
-/** 16x16ピクセルアートのプレイヤーキャラ（方向別） */
-export function PlayerSprite({ direction, size = 28 }: { direction: Direction; size?: number }) {
+/** 16x16ピクセルアートのプレイヤーキャラ（方向別・歩行フレーム対応） */
+export function PlayerSprite({
+  direction,
+  size = 28,
+  walkFrame = 0,
+}: {
+  direction: Direction;
+  size?: number;
+  /** 歩行フレーム 0=静止, 1=右足, 2=左足 */
+  walkFrame?: number;
+}) {
+  const frame = walkFrame > 0 ? PLAYER_WALK_FRAMES[direction]?.[walkFrame - 1] : null;
   return (
     <svg viewBox="0 0 16 16" width={size} height={size} style={{ imageRendering: "pixelated" }}>
-      {PLAYER_SVG_PATHS[direction]}
+      {frame ?? PLAYER_SVG_PATHS[direction]}
     </svg>
   );
 }
@@ -203,6 +213,142 @@ const PLAYER_SVG_PATHS: Record<Direction, React.ReactNode> = {
       <rect x="12" y="9" width="1" height="3" fill="#fdd" />
     </>
   ),
+};
+
+/** 歩行アニメーション（2フレーム: 右足前 / 左足前） */
+const PLAYER_WALK_FRAMES: Record<Direction, [React.ReactNode, React.ReactNode]> = {
+  down: [
+    // フレーム1: 右足前
+    <>
+      <rect x="5" y="1" width="6" height="3" fill="#e94560" />
+      <rect x="4" y="2" width="1" height="2" fill="#e94560" />
+      <rect x="11" y="2" width="1" height="2" fill="#e94560" />
+      <rect x="5" y="0" width="6" height="1" fill="#c83050" />
+      <rect x="5" y="4" width="6" height="4" fill="#fdd" />
+      <rect x="6" y="5" width="1" height="1" fill="#333" />
+      <rect x="9" y="5" width="1" height="1" fill="#333" />
+      <rect x="7" y="7" width="2" height="1" fill="#d9a" />
+      <rect x="4" y="8" width="8" height="4" fill="#4477cc" />
+      <rect x="6" y="8" width="4" height="1" fill="#5588dd" />
+      <rect x="7" y="9" width="2" height="2" fill="#fdd" />
+      <rect x="4" y="12" width="2" height="2" fill="#445" />
+      <rect x="10" y="12" width="2" height="2" fill="#445" />
+      <rect x="3" y="9" width="1" height="3" fill="#fdd" />
+      <rect x="12" y="9" width="1" height="3" fill="#fdd" />
+    </>,
+    // フレーム2: 左足前
+    <>
+      <rect x="5" y="1" width="6" height="3" fill="#e94560" />
+      <rect x="4" y="2" width="1" height="2" fill="#e94560" />
+      <rect x="11" y="2" width="1" height="2" fill="#e94560" />
+      <rect x="5" y="0" width="6" height="1" fill="#c83050" />
+      <rect x="5" y="4" width="6" height="4" fill="#fdd" />
+      <rect x="6" y="5" width="1" height="1" fill="#333" />
+      <rect x="9" y="5" width="1" height="1" fill="#333" />
+      <rect x="7" y="7" width="2" height="1" fill="#d9a" />
+      <rect x="4" y="8" width="8" height="4" fill="#4477cc" />
+      <rect x="6" y="8" width="4" height="1" fill="#5588dd" />
+      <rect x="7" y="9" width="2" height="2" fill="#fdd" />
+      <rect x="6" y="12" width="2" height="2" fill="#445" />
+      <rect x="8" y="12" width="2" height="2" fill="#445" />
+      <rect x="3" y="9" width="1" height="3" fill="#fdd" />
+      <rect x="12" y="9" width="1" height="3" fill="#fdd" />
+    </>,
+  ],
+  up: [
+    <>
+      <rect x="5" y="1" width="6" height="3" fill="#e94560" />
+      <rect x="4" y="2" width="1" height="2" fill="#e94560" />
+      <rect x="11" y="2" width="1" height="2" fill="#e94560" />
+      <rect x="5" y="0" width="6" height="1" fill="#c83050" />
+      <rect x="5" y="4" width="6" height="4" fill="#654" />
+      <rect x="5" y="4" width="6" height="1" fill="#543" />
+      <rect x="4" y="8" width="8" height="4" fill="#4477cc" />
+      <rect x="6" y="8" width="4" height="1" fill="#3366bb" />
+      <rect x="4" y="12" width="2" height="2" fill="#445" />
+      <rect x="10" y="12" width="2" height="2" fill="#445" />
+      <rect x="3" y="9" width="1" height="3" fill="#fdd" />
+      <rect x="12" y="9" width="1" height="3" fill="#fdd" />
+    </>,
+    <>
+      <rect x="5" y="1" width="6" height="3" fill="#e94560" />
+      <rect x="4" y="2" width="1" height="2" fill="#e94560" />
+      <rect x="11" y="2" width="1" height="2" fill="#e94560" />
+      <rect x="5" y="0" width="6" height="1" fill="#c83050" />
+      <rect x="5" y="4" width="6" height="4" fill="#654" />
+      <rect x="5" y="4" width="6" height="1" fill="#543" />
+      <rect x="4" y="8" width="8" height="4" fill="#4477cc" />
+      <rect x="6" y="8" width="4" height="1" fill="#3366bb" />
+      <rect x="6" y="12" width="2" height="2" fill="#445" />
+      <rect x="8" y="12" width="2" height="2" fill="#445" />
+      <rect x="3" y="9" width="1" height="3" fill="#fdd" />
+      <rect x="12" y="9" width="1" height="3" fill="#fdd" />
+    </>,
+  ],
+  left: [
+    <>
+      <rect x="4" y="1" width="6" height="3" fill="#e94560" />
+      <rect x="3" y="2" width="1" height="2" fill="#e94560" />
+      <rect x="2" y="2" width="1" height="1" fill="#c83050" />
+      <rect x="4" y="0" width="6" height="1" fill="#c83050" />
+      <rect x="4" y="4" width="6" height="4" fill="#fdd" />
+      <rect x="5" y="5" width="1" height="1" fill="#333" />
+      <rect x="4" y="7" width="2" height="1" fill="#d9a" />
+      <rect x="9" y="4" width="1" height="3" fill="#654" />
+      <rect x="4" y="8" width="7" height="4" fill="#4477cc" />
+      <rect x="5" y="8" width="3" height="1" fill="#5588dd" />
+      <rect x="4" y="12" width="2" height="2" fill="#445" />
+      <rect x="8" y="12" width="2" height="3" fill="#445" />
+      <rect x="3" y="9" width="1" height="3" fill="#fdd" />
+    </>,
+    <>
+      <rect x="4" y="1" width="6" height="3" fill="#e94560" />
+      <rect x="3" y="2" width="1" height="2" fill="#e94560" />
+      <rect x="2" y="2" width="1" height="1" fill="#c83050" />
+      <rect x="4" y="0" width="6" height="1" fill="#c83050" />
+      <rect x="4" y="4" width="6" height="4" fill="#fdd" />
+      <rect x="5" y="5" width="1" height="1" fill="#333" />
+      <rect x="4" y="7" width="2" height="1" fill="#d9a" />
+      <rect x="9" y="4" width="1" height="3" fill="#654" />
+      <rect x="4" y="8" width="7" height="4" fill="#4477cc" />
+      <rect x="5" y="8" width="3" height="1" fill="#5588dd" />
+      <rect x="6" y="12" width="2" height="3" fill="#445" />
+      <rect x="8" y="12" width="2" height="2" fill="#445" />
+      <rect x="3" y="9" width="1" height="3" fill="#fdd" />
+    </>,
+  ],
+  right: [
+    <>
+      <rect x="6" y="1" width="6" height="3" fill="#e94560" />
+      <rect x="12" y="2" width="1" height="2" fill="#e94560" />
+      <rect x="13" y="2" width="1" height="1" fill="#c83050" />
+      <rect x="6" y="0" width="6" height="1" fill="#c83050" />
+      <rect x="6" y="4" width="6" height="4" fill="#fdd" />
+      <rect x="10" y="5" width="1" height="1" fill="#333" />
+      <rect x="10" y="7" width="2" height="1" fill="#d9a" />
+      <rect x="6" y="4" width="1" height="3" fill="#654" />
+      <rect x="5" y="8" width="7" height="4" fill="#4477cc" />
+      <rect x="8" y="8" width="3" height="1" fill="#5588dd" />
+      <rect x="6" y="12" width="2" height="3" fill="#445" />
+      <rect x="10" y="12" width="2" height="2" fill="#445" />
+      <rect x="12" y="9" width="1" height="3" fill="#fdd" />
+    </>,
+    <>
+      <rect x="6" y="1" width="6" height="3" fill="#e94560" />
+      <rect x="12" y="2" width="1" height="2" fill="#e94560" />
+      <rect x="13" y="2" width="1" height="1" fill="#c83050" />
+      <rect x="6" y="0" width="6" height="1" fill="#c83050" />
+      <rect x="6" y="4" width="6" height="4" fill="#fdd" />
+      <rect x="10" y="5" width="1" height="1" fill="#333" />
+      <rect x="10" y="7" width="2" height="1" fill="#d9a" />
+      <rect x="6" y="4" width="1" height="3" fill="#654" />
+      <rect x="5" y="8" width="7" height="4" fill="#4477cc" />
+      <rect x="8" y="8" width="3" height="1" fill="#5588dd" />
+      <rect x="6" y="12" width="2" height="2" fill="#445" />
+      <rect x="10" y="12" width="2" height="3" fill="#445" />
+      <rect x="12" y="9" width="1" height="3" fill="#fdd" />
+    </>,
+  ],
 };
 
 // ─── NPCスプライト ─────────────────────────────────

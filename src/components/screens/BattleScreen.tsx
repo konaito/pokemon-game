@@ -143,6 +143,8 @@ export function BattleScreen({
       className="flex h-full w-full flex-col bg-[#1a1a2e]"
       onKeyDown={handleKeyDown}
       tabIndex={0}
+      role="main"
+      aria-label={`バトル: ${player.name} 対 ${opponent.name}`}
     >
       {/* バトルフィールド */}
       <div className="relative flex flex-1 flex-col justify-between px-6 py-4">

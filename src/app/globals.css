@@ -75,6 +75,38 @@ body {
   }
 }
 
+/* モバイル: オーバーワールドビューポートスケーリング */
+@media (max-width: 520px) {
+  .overworld-viewport {
+    transform: scale(0.85);
+    transform-origin: center center;
+  }
+}
+
+@media (max-width: 400px) {
+  .overworld-viewport {
+    transform: scale(0.72);
+    transform-origin: center center;
+  }
+}
+
+/* モバイル: バトル画面レイアウト調整 */
+@media (max-width: 520px) {
+  .game-container {
+    font-size: 14px;
+  }
+}
+
+/* タッチデバイスでのテキスト選択防止 */
+@media (pointer: coarse) {
+  .game-container {
+    -webkit-user-select: none;
+    user-select: none;
+    -webkit-touch-callout: none;
+    touch-action: manipulation;
+  }
+}
+
 /* ─── RPGウィンドウフレーム ─── */
 
 .rpg-window {
@@ -213,6 +245,37 @@ body {
 }
 .animate-damage-shake {
   animation: damage-shake 0.3s ease-out;
+}
+.animate-grass-sway {
+  animation: grass-sway 0.4s ease-out;
+}
+.animate-water-shimmer {
+  animation: water-shimmer 3s ease-in-out infinite;
+}
+
+@keyframes grass-sway {
+  0% {
+    transform: scaleX(1);
+  }
+  25% {
+    transform: scaleX(0.92) skewX(3deg);
+  }
+  50% {
+    transform: scaleX(1.05) skewX(-2deg);
+  }
+  100% {
+    transform: scaleX(1) skewX(0);
+  }
+}
+
+@keyframes water-shimmer {
+  0%,
+  100% {
+    background-position: -200% -200%;
+  }
+  50% {
+    background-position: 200% 200%;
+  }
 }
 
 /* ─── HP バー グラデーション ─── */
