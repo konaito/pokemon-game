@@ -67,11 +67,22 @@ export function initBattle(
   opponentParty: MonsterInstance[],
   battleType: BattleType,
 ): BattleState {
+  const playerStartIndex = playerParty.findIndex((m) => m.currentHp > 0);
+  const opponentStartIndex = opponentParty.findIndex((m) => m.currentHp > 0);
+
   return {
     phase: "action_select",
     battleType,
-    player: { party: playerParty, activeIndex: 0, statStages: createStatStages() },
-    opponent: { party: opponentParty, activeIndex: 0, statStages: createStatStages() },
+    player: {
+      party: playerParty,
+      activeIndex: playerStartIndex !== -1 ? playerStartIndex : 0,
+      statStages: createStatStages(),
+    },
+    opponent: {
+      party: opponentParty,
+      activeIndex: opponentStartIndex !== -1 ? opponentStartIndex : 0,
+      statStages: createStatStages(),
+    },
     turnNumber: 1,
     escapeAttempts: 0,
     messages: [],

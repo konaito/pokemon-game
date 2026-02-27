@@ -634,3 +634,101 @@ describe("T6: わるあがきテスト", () => {
     expect(messages.some((m) => m.includes("わるあがき"))).toBe(true);
   });
 });
+
+describe("T7: HP0モンスターの初手選出バグ修正", () => {
+  it("先頭モンスターがHP0の場合、2番目のモンスターが選出される", () => {
+    const fainted = createInstance("fire-starter");
+    fainted.currentHp = 0; // 瀕死
+    const alive = createInstance("water-starter");
+
+    const engine = new BattleEngine(
+      [fainted, alive],
+      [createInstance("grass-starter")],
+      "wild",
+      speciesResolver,
+      moveResolver,
+      () => 0.5,
+    );
+
+    expect(engine.state.player.activeIndex).toBe(1);
+    expect(engine.playerActive.speciesId).toBe("water-starter");
+  });
+
+  it("先頭2体がHP0の場合、3番目のモンスターが選出される", () => {
+    const fainted1 = createInstance("fire-starter");
+    fainted1.currentHp = 0;
+    const fainted2 = createInstance("water-starter");
+    fainted2.currentHp = 0;
+    const alive = createInstance("grass-starter");
+
+    const engine = new BattleEngine(
+      [fainted1, fainted2, alive],
+      [createInstance("grass-starter")],
+      "wild",
+      speciesResolver,
+      moveResolver,
+      () => 0.5,
+    );
+
+    expect(engine.state.player.activeIndex).toBe(2);
+    expect(engine.playerActive.speciesId).toBe("grass-starter");
+  });
+
+  it("相手側もHP0の先頭モンスターをスキップする", () => {
+    const faintedOpponent = createInstance("fire-starter");
+    faintedOpponent.currentHp = 0;
+    const aliveOpponent = createInstance("water-starter");
+
+    const engine = new BattleEngine(
+      [createInstance("grass-starter")],
+      [faintedOpponent, aliveOpponent],
+      "wild",
+      speciesResolver,
+      moveResolver,
+      () => 0.5,
+    );
+
+    expect(engine.state.opponent.activeIndex).toBe(1);
+    expect(engine.opponentActive.speciesId).toBe("water-starter");
+  });
+
+  it("全員HP0のパーティでバトル開始するとエラーが投げられる", () => {
+    const fainted1 = createInstance("fire-starter");
+    fainted1.currentHp = 0;
+    const fainted2 = createInstance("water-starter");
+    fainted2.currentHp = 0;
+
+    expect(
+      () =>
+        new BattleEngine(
+          [fainted1, fainted2],
+          [createInstance("grass-starter")],
+          "wild",
+          speciesResolver,
+          moveResolver,
+        ),
+    ).toThrow("全滅状態でバトルを開始できません");
+  });
+
+  it("先頭がHP0でも、選出された生存モンスターで正常にバトルが進行する", () => {
+    const fainted = createInstance("fire-starter");
+    fainted.currentHp = 0;
+    const alive = createInstance("water-starter");
+    alive.currentHp = 999;
+
+    const opponent = [createInstance("grass-starter")];
+    opponent[0].currentHp = 1; // すぐ倒れる
+
+    const engine = new BattleEngine(
+      [fainted, alive],
+      opponent,
+      "wild",
+      speciesResolver,
+      moveResolver,
+      () => 0.5,
+    );
+
+    engine.executeTurn({ type: "fight", moveIndex: 0 });
+    expect(engine.state.result?.type).toBe("win");
+  });
+});

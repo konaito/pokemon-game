@@ -23,6 +23,11 @@ export class BattleEngine {
     moveResolver: MoveResolver,
     random?: () => number,
   ) {
+    const hasAlive = playerParty.some((m) => m.currentHp > 0);
+    if (!hasAlive) {
+      throw new Error("全滅状態でバトルを開始できません");
+    }
+
     this.state = initBattle(playerParty, opponentParty, battleType);
     this.speciesResolver = speciesResolver;
     this.moveResolver = moveResolver;
