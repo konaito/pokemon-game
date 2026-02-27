@@ -1220,6 +1220,7 @@ export function Game() {
       return (
         <>
           <BattleScreen
+            inputBlocked={overlayScreen !== null || pendingMessages !== null}
             player={{
               name: playerActive.nickname ?? playerSpecies.name,
               level: playerActive.level,

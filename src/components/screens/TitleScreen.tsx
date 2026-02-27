@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback, useMemo } from "react";
 
 /**
  * タイトル画面 (#54)
@@ -33,23 +33,34 @@ export function TitleScreen({ onNewGame, onContinue, hasSaveData = false }: Titl
     };
   }, []);
 
-  const options = [
-    ...(hasSaveData ? [{ label: "つづきから", action: () => onContinue?.() }] : []),
-    { label: "はじめから", action: () => setShowNameInput(true) },
-  ];
+  const options = useMemo(
+    () => [
+      ...(hasSaveData ? [{ label: "つづきから", action: () => onContinue?.() }] : []),
+      { label: "はじめから", action: () => setShowNameInput(true) },
+    ],
+    [hasSaveData, onContinue],
+  );
 
-  const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (showNameInput) return;
-    if (e.key === "ArrowUp" || e.key === "w") {
-      setSelectedOption((prev) => (prev - 1 + options.length) % options.length);
-    }
-    if (e.key === "ArrowDown" || e.key === "s") {
-      setSelectedOption((prev) => (prev + 1) % options.length);
-    }
-    if (e.key === "Enter" || e.key === "z" || e.key === " ") {
-      options[selectedOption].action();
-    }
-  };
+  const handleKeyDown = useCallback(
+    (e: KeyboardEvent) => {
+      if (showNameInput) return;
+      if (e.key === "ArrowUp" || e.key === "w") {
+        setSelectedOption((prev) => (prev - 1 + options.length) % options.length);
+      }
+      if (e.key === "ArrowDown" || e.key === "s") {
+        setSelectedOption((prev) => (prev + 1) % options.length);
+      }
+      if (e.key === "Enter" || e.key === "z" || e.key === " ") {
+        options[selectedOption].action();
+      }
+    },
+    [showNameInput, selectedOption, options],
+  );
+
+  useEffect(() => {
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [handleKeyDown]);
 
   const handleNameSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -62,8 +73,6 @@ export function TitleScreen({ onNewGame, onContinue, hasSaveData = false }: Titl
   return (
     <div
       className="relative flex h-full w-full flex-col items-center justify-center overflow-hidden bg-[#1a1a2e]"
-      onKeyDown={handleKeyDown}
-      tabIndex={0}
       role="main"
       aria-label="Monster Chronicle タイトル画面"
     >

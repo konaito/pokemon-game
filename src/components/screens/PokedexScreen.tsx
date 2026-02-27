@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { MonsterSprite } from "../ui/MonsterSprite";
 import { TYPE_BG, TYPE_LABEL } from "@/lib/design-tokens";
 
@@ -30,24 +30,28 @@ export function PokedexScreen({ entries, onBack }: PokedexScreenProps) {
   const caughtCount = entries.filter((e) => e.caught).length;
   const selected = entries[selectedIndex];
 
-  const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === "ArrowUp" || e.key === "w") {
-      setSelectedIndex((prev) => Math.max(0, prev - 1));
-    }
-    if (e.key === "ArrowDown" || e.key === "s") {
-      setSelectedIndex((prev) => Math.min(entries.length - 1, prev + 1));
-    }
-    if (e.key === "Escape" || e.key === "x") {
-      onBack();
-    }
-  };
+  const handleKeyDown = useCallback(
+    (e: KeyboardEvent) => {
+      if (e.key === "ArrowUp" || e.key === "w") {
+        setSelectedIndex((prev) => Math.max(0, prev - 1));
+      }
+      if (e.key === "ArrowDown" || e.key === "s") {
+        setSelectedIndex((prev) => Math.min(entries.length - 1, prev + 1));
+      }
+      if (e.key === "Escape" || e.key === "x") {
+        onBack();
+      }
+    },
+    [entries.length, onBack],
+  );
+
+  useEffect(() => {
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [handleKeyDown]);
 
   return (
-    <div
-      className="flex h-full w-full flex-col bg-[#1a1a2e] p-4"
-      onKeyDown={handleKeyDown}
-      tabIndex={0}
-    >
+    <div className="flex h-full w-full flex-col bg-[#1a1a2e] p-4">
       {/* ヘッダー */}
       <div className="mb-3 flex items-baseline justify-between border-b border-[#533483]/30 pb-3">
         <h2 className="game-text-shadow font-[family-name:var(--font-dotgothic)] text-xl text-white">

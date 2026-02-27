@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { MonsterSprite } from "../ui/MonsterSprite";
 import { TYPE_ACCENT, TYPE_HEX } from "@/lib/design-tokens";
 
@@ -26,36 +26,40 @@ export function StarterSelect({ starters, onSelect, professorName = "博士" }: 
   const [selectedIndex, setSelectedIndex] = useState(0);
   const [confirming, setConfirming] = useState(false);
 
-  const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (confirming) {
-      if (e.key === "Enter" || e.key === "z") {
-        onSelect(starters[selectedIndex].speciesId);
+  const handleKeyDown = useCallback(
+    (e: KeyboardEvent) => {
+      if (confirming) {
+        if (e.key === "Enter" || e.key === "z") {
+          onSelect(starters[selectedIndex].speciesId);
+        }
+        if (e.key === "Escape" || e.key === "x") {
+          setConfirming(false);
+        }
+        return;
       }
-      if (e.key === "Escape" || e.key === "x") {
-        setConfirming(false);
-      }
-      return;
-    }
 
-    if (e.key === "ArrowLeft" || e.key === "a") {
-      setSelectedIndex((prev) => (prev - 1 + starters.length) % starters.length);
-    }
-    if (e.key === "ArrowRight" || e.key === "d") {
-      setSelectedIndex((prev) => (prev + 1) % starters.length);
-    }
-    if (e.key === "Enter" || e.key === "z") {
-      setConfirming(true);
-    }
-  };
+      if (e.key === "ArrowLeft" || e.key === "a") {
+        setSelectedIndex((prev) => (prev - 1 + starters.length) % starters.length);
+      }
+      if (e.key === "ArrowRight" || e.key === "d") {
+        setSelectedIndex((prev) => (prev + 1) % starters.length);
+      }
+      if (e.key === "Enter" || e.key === "z") {
+        setConfirming(true);
+      }
+    },
+    [confirming, selectedIndex, starters, onSelect],
+  );
+
+  useEffect(() => {
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [handleKeyDown]);
 
   const selected = starters[selectedIndex];
 
   return (
-    <div
-      className="relative flex h-full w-full flex-col items-center justify-center overflow-hidden bg-[#1a1a2e]"
-      onKeyDown={handleKeyDown}
-      tabIndex={0}
-    >
+    <div className="relative flex h-full w-full flex-col items-center justify-center overflow-hidden bg-[#1a1a2e]">
       {/* 背景エフェクト */}
       <div
         className="pointer-events-none absolute inset-0 transition-all duration-500"

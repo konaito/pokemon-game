@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { HpBar } from "../ui/HpBar";
 import { MonsterSprite } from "../ui/MonsterSprite";
 import { BattleBackground, type BattleEnvironment } from "../ui/BattleBackgrounds";
@@ -45,6 +45,8 @@ export interface BattleScreenProps {
   isProcessing: boolean;
   /** バトル環境（背景決定用） */
   environment?: BattleEnvironment;
+  /** 上位画面がある場合に入力をブロック */
+  inputBlocked?: boolean;
 }
 
 type BattlePhase = "action" | "move_select";
@@ -65,6 +67,7 @@ export function BattleScreen({
   onAction,
   isProcessing,
   environment = "grassland",
+  inputBlocked = false,
 }: BattleScreenProps) {
   const [phase, setPhase] = useState<BattlePhase>("action");
   const [selectedAction, setSelectedAction] = useState(0);
@@ -95,54 +98,62 @@ export function BattleScreen({
     }
   };
 
-  const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (isProcessing) return;
+  const handleKeyDown = useCallback(
+    (e: KeyboardEvent) => {
+      if (inputBlocked) return;
+      if (isProcessing) return;
 
-    if (phase === "action") {
-      if (e.key === "ArrowUp" || e.key === "w") {
-        setSelectedAction((prev) => (prev < 2 ? prev : prev - 2));
+      if (phase === "action") {
+        if (e.key === "ArrowUp" || e.key === "w") {
+          setSelectedAction((prev) => (prev < 2 ? prev : prev - 2));
+        }
+        if (e.key === "ArrowDown" || e.key === "s") {
+          setSelectedAction((prev) => (prev >= 2 ? prev : prev + 2));
+        }
+        if (e.key === "ArrowLeft" || e.key === "a") {
+          setSelectedAction((prev) => (prev % 2 === 0 ? prev : prev - 1));
+        }
+        if (e.key === "ArrowRight" || e.key === "d") {
+          setSelectedAction((prev) => (prev % 2 === 1 ? prev : prev + 1));
+        }
+        if (e.key === "Enter" || e.key === "z") {
+          handleActionSelect(selectedAction);
+        }
+      } else if (phase === "move_select") {
+        if (e.key === "ArrowUp" || e.key === "w") {
+          setSelectedMove((prev) => (prev < 2 ? prev : prev - 2));
+        }
+        if (e.key === "ArrowDown" || e.key === "s") {
+          setSelectedMove((prev) =>
+            prev >= 2 && prev < moves.length ? prev : prev + 2 < moves.length ? prev + 2 : prev,
+          );
+        }
+        if (e.key === "ArrowLeft" || e.key === "a") {
+          setSelectedMove((prev) => (prev % 2 === 0 ? prev : prev - 1));
+        }
+        if (e.key === "ArrowRight" || e.key === "d") {
+          setSelectedMove((prev) => (prev % 2 === 1 || prev + 1 >= moves.length ? prev : prev + 1));
+        }
+        if (e.key === "Enter" || e.key === "z") {
+          handleMoveSelect(selectedMove);
+        }
+        if (e.key === "Escape" || e.key === "x") {
+          setPhase("action");
+        }
       }
-      if (e.key === "ArrowDown" || e.key === "s") {
-        setSelectedAction((prev) => (prev >= 2 ? prev : prev + 2));
-      }
-      if (e.key === "ArrowLeft" || e.key === "a") {
-        setSelectedAction((prev) => (prev % 2 === 0 ? prev : prev - 1));
-      }
-      if (e.key === "ArrowRight" || e.key === "d") {
-        setSelectedAction((prev) => (prev % 2 === 1 ? prev : prev + 1));
-      }
-      if (e.key === "Enter" || e.key === "z") {
-        handleActionSelect(selectedAction);
-      }
-    } else if (phase === "move_select") {
-      if (e.key === "ArrowUp" || e.key === "w") {
-        setSelectedMove((prev) => (prev < 2 ? prev : prev - 2));
-      }
-      if (e.key === "ArrowDown" || e.key === "s") {
-        setSelectedMove((prev) =>
-          prev >= 2 && prev < moves.length ? prev : prev + 2 < moves.length ? prev + 2 : prev,
-        );
-      }
-      if (e.key === "ArrowLeft" || e.key === "a") {
-        setSelectedMove((prev) => (prev % 2 === 0 ? prev : prev - 1));
-      }
-      if (e.key === "ArrowRight" || e.key === "d") {
-        setSelectedMove((prev) => (prev % 2 === 1 || prev + 1 >= moves.length ? prev : prev + 1));
-      }
-      if (e.key === "Enter" || e.key === "z") {
-        handleMoveSelect(selectedMove);
-      }
-      if (e.key === "Escape" || e.key === "x") {
-        setPhase("action");
-      }
-    }
-  };
+    },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [inputBlocked, isProcessing, phase, selectedAction, selectedMove, moves.length, isWild],
+  );
+
+  useEffect(() => {
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [handleKeyDown]);
 
   return (
     <div
       className="flex h-full w-full flex-col bg-[#1a1a2e]"
-      onKeyDown={handleKeyDown}
-      tabIndex={0}
       role="main"
       aria-label={`バトル: ${player.name} 対 ${opponent.name}`}
     >

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { HpBar } from "../ui/HpBar";
 import { MonsterSprite } from "../ui/MonsterSprite";
 import { STATUS_COLOR, TYPE_BG, TYPE_LABEL } from "@/lib/design-tokens";
@@ -46,47 +46,54 @@ export function PartyScreen({
   const [selectedIndex, setSelectedIndex] = useState(0);
   const [swapSource, setSwapSource] = useState<number | null>(null);
 
-  const handleSelect = (index: number) => {
-    if (selectMode) {
-      onSelect?.(index);
-      return;
-    }
-
-    if (swapSource !== null) {
-      if (swapSource !== index) {
-        onSwap?.(swapSource, index);
+  const handleSelect = useCallback(
+    (index: number) => {
+      if (selectMode) {
+        onSelect?.(index);
+        return;
       }
-      setSwapSource(null);
-    } else {
-      setSwapSource(index);
-    }
-  };
 
-  const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === "ArrowUp" || e.key === "w") {
-      setSelectedIndex((prev) => Math.max(0, prev - 1));
-    }
-    if (e.key === "ArrowDown" || e.key === "s") {
-      setSelectedIndex((prev) => Math.min(party.length - 1, prev + 1));
-    }
-    if (e.key === "Enter" || e.key === "z") {
-      handleSelect(selectedIndex);
-    }
-    if (e.key === "Escape" || e.key === "x") {
       if (swapSource !== null) {
+        if (swapSource !== index) {
+          onSwap?.(swapSource, index);
+        }
         setSwapSource(null);
       } else {
-        onBack();
+        setSwapSource(index);
       }
-    }
-  };
+    },
+    [selectMode, onSelect, swapSource, onSwap],
+  );
+
+  const handleKeyDown = useCallback(
+    (e: KeyboardEvent) => {
+      if (e.key === "ArrowUp" || e.key === "w") {
+        setSelectedIndex((prev) => Math.max(0, prev - 1));
+      }
+      if (e.key === "ArrowDown" || e.key === "s") {
+        setSelectedIndex((prev) => Math.min(party.length - 1, prev + 1));
+      }
+      if (e.key === "Enter" || e.key === "z") {
+        handleSelect(selectedIndex);
+      }
+      if (e.key === "Escape" || e.key === "x") {
+        if (swapSource !== null) {
+          setSwapSource(null);
+        } else {
+          onBack();
+        }
+      }
+    },
+    [selectedIndex, swapSource, party.length, onBack, handleSelect],
+  );
+
+  useEffect(() => {
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [handleKeyDown]);
 
   return (
-    <div
-      className="flex h-full w-full flex-col bg-[#1a1a2e] p-4"
-      onKeyDown={handleKeyDown}
-      tabIndex={0}
-    >
+    <div className="flex h-full w-full flex-col bg-[#1a1a2e] p-4">
       <h2 className="game-text-shadow mb-3 font-[family-name:var(--font-dotgothic)] text-xl text-white">
         {selectMode ? "モンスターを選んでください" : "てもち"}
       </h2>
