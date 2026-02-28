@@ -21,6 +21,7 @@ export const MID_MONSTERS: MonsterSpecies[] = [
       { level: 14, moveId: "flame-wheel" },
       { level: 20, moveId: "fire-fang" },
     ],
+    abilities: ["flash_fire"],
     evolvesTo: [{ id: "kaenjishi", level: 30 }],
   },
   {
@@ -39,6 +40,7 @@ export const MID_MONSTERS: MonsterSpecies[] = [
       { level: 30, moveId: "slash" },
       { level: 37, moveId: "flamethrower" },
     ],
+    abilities: ["flash_fire", "intimidate"],
   },
 
   // === 格闘枠: ツチコブシ → イワケンジン ===
@@ -57,6 +59,7 @@ export const MID_MONSTERS: MonsterSpecies[] = [
       { level: 16, moveId: "double-kick" },
       { level: 22, moveId: "brick-break" },
     ],
+    abilities: ["guts", "iron_fist"],
     evolvesTo: [{ id: "iwakenjin", level: 32 }],
   },
   {
@@ -75,6 +78,7 @@ export const MID_MONSTERS: MonsterSpecies[] = [
       { level: 32, moveId: "rock-slide" },
       { level: 40, moveId: "close-combat" },
     ],
+    abilities: ["guts", "sturdy"],
   },
 
   // === 地面枠: モグラッコ → ドゴウ ===
@@ -93,6 +97,7 @@ export const MID_MONSTERS: MonsterSpecies[] = [
       { level: 15, moveId: "dig" },
       { level: 22, moveId: "slash" },
     ],
+    abilities: ["sand_veil"],
     evolvesTo: [{ id: "dogou", level: 28 }],
   },
   {
@@ -111,6 +116,7 @@ export const MID_MONSTERS: MonsterSpecies[] = [
       { level: 28, moveId: "iron-head" },
       { level: 35, moveId: "earthquake" },
     ],
+    abilities: ["sand_veil", "sturdy"],
   },
 
   // === ゴースト枠: ユラビ → カゲボウシ → ヨミカグラ ===
@@ -128,6 +134,7 @@ export const MID_MONSTERS: MonsterSpecies[] = [
       { level: 10, moveId: "shadow-claw" },
       { level: 16, moveId: "psybeam" },
     ],
+    abilities: ["levitate"],
     evolvesTo: [{ id: "kageboushi", level: 25 }],
   },
   {
@@ -144,6 +151,7 @@ export const MID_MONSTERS: MonsterSpecies[] = [
       { level: 16, moveId: "psybeam" },
       { level: 25, moveId: "shadow-ball" },
     ],
+    abilities: ["levitate"],
     evolvesTo: [{ id: "yomikagura", level: 40 }],
   },
   {
@@ -161,6 +169,7 @@ export const MID_MONSTERS: MonsterSpecies[] = [
       { level: 25, moveId: "shadow-ball" },
       { level: 40, moveId: "psychic" },
     ],
+    abilities: ["levitate", "pressure"],
   },
 
   // === フェアリー枠: ハナウサギ → ツキウサギ ===
@@ -178,6 +187,7 @@ export const MID_MONSTERS: MonsterSpecies[] = [
       { level: 8, moveId: "quick-attack" },
       { level: 15, moveId: "dazzling-gleam" },
     ],
+    abilities: ["natural_cure"],
     evolvesTo: [{ id: "tsukiusagi", level: 30 }],
   },
   {
@@ -195,6 +205,7 @@ export const MID_MONSTERS: MonsterSpecies[] = [
       { level: 30, moveId: "psychic" },
       { level: 38, moveId: "moonblast" },
     ],
+    abilities: ["natural_cure", "inner_focus"],
   },
 
   // === 鋼枠: カナモリ（単体・進化なし）===
@@ -214,6 +225,7 @@ export const MID_MONSTERS: MonsterSpecies[] = [
       { level: 26, moveId: "rock-slide" },
       { level: 34, moveId: "iron-tail" },
     ],
+    abilities: ["sturdy", "clear_body"],
   },
 
   // === 毒/草枠: クサカビ → ドクバナ ===
@@ -232,6 +244,7 @@ export const MID_MONSTERS: MonsterSpecies[] = [
       { level: 14, moveId: "leech-seed" },
       { level: 20, moveId: "cross-poison" },
     ],
+    abilities: ["poison_point", "natural_cure"],
     evolvesTo: [{ id: "dokubana", level: 32 }],
   },
   {
@@ -250,6 +263,7 @@ export const MID_MONSTERS: MonsterSpecies[] = [
       { level: 32, moveId: "sludge-bomb" },
       { level: 40, moveId: "energy-ball" },
     ],
+    abilities: ["poison_point", "natural_cure"],
   },
 
   // === 悪枠: ヤミガラス（単体・進化なし）===
@@ -270,5 +284,6 @@ export const MID_MONSTERS: MonsterSpecies[] = [
       { level: 34, moveId: "crunch" },
       { level: 42, moveId: "dark-pulse" },
     ],
+    abilities: ["keen_eye", "inner_focus"],
   },
 ];

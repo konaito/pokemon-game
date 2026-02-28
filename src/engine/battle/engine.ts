@@ -7,6 +7,7 @@ import { calcExpGain, grantExp } from "./experience";
 import { calcAllStats } from "@/engine/monster/stats";
 import { checkEvolution, evolve } from "@/engine/monster/evolution";
 import { applyStatChanges, createStatStages } from "./stat-stage";
+import { processOnEnterAbility, processEndOfTurnAbility } from "./ability";
 
 /** バトルエンジン */
 export class BattleEngine {
@@ -32,6 +33,40 @@ export class BattleEngine {
     this.speciesResolver = speciesResolver;
     this.moveResolver = moveResolver;
     this.random = random ?? Math.random;
+
+    // バトル開始時の登場特性を処理
+    this.processInitialAbilities();
+  }
+
+  /** バトル開始時の登場特性処理 */
+  private processInitialAbilities(): void {
+    // プレイヤー側の登場特性
+    const playerMon = this.playerActive;
+    const playerSpecies = this.speciesResolver(playerMon.speciesId);
+    const playerEnter = processOnEnterAbility(playerMon.abilityId, playerSpecies.name);
+    this.state.messages.push(...playerEnter.messages);
+    if (playerEnter.opponentAtkChange) {
+      const [newStages] = applyStatChanges(
+        this.state.opponent.statStages,
+        { atk: playerEnter.opponentAtkChange },
+        this.speciesResolver(this.opponentActive.speciesId).name,
+      );
+      this.state.opponent.statStages = newStages;
+    }
+
+    // 相手側の登場特性
+    const oppMon = this.opponentActive;
+    const oppSpecies = this.speciesResolver(oppMon.speciesId);
+    const oppEnter = processOnEnterAbility(oppMon.abilityId, oppSpecies.name);
+    this.state.messages.push(...oppEnter.messages);
+    if (oppEnter.opponentAtkChange) {
+      const [newStages] = applyStatChanges(
+        this.state.player.statStages,
+        { atk: oppEnter.opponentAtkChange },
+        playerSpecies.name,
+      );
+      this.state.player.statStages = newStages;
+    }
   }
 
   /** プレイヤーのアクティブモンスター */
@@ -221,6 +256,8 @@ export class BattleEngine {
       () => this.random(),
       attackerBattler.statStages,
       defenderBattler.statStages,
+      action.monster.abilityId,
+      defender.abilityId,
     );
 
     this.state.messages.push(...result.messages);
@@ -297,6 +334,7 @@ export class BattleEngine {
   /** 交代処理 */
   private handleSwitch(side: "player" | "opponent", partyIndex: number): string {
     const battler = side === "player" ? this.state.player : this.state.opponent;
+    const opponentBattler = side === "player" ? this.state.opponent : this.state.player;
 
     if (partyIndex < 0 || partyIndex >= battler.party.length) {
       throw new Error(`無効なパーティインデックス: ${partyIndex}`);
@@ -308,11 +346,35 @@ export class BattleEngine {
       throw new Error("既にバトルに出ているモンスターです！");
     }
 
-    const oldSpecies = this.speciesResolver(battler.party[battler.activeIndex].speciesId);
+    // しぜんかいふく: 交代前のモンスターの状態異常回復
+    const oldMonster = battler.party[battler.activeIndex];
+    if (oldMonster.abilityId === "natural_cure" && oldMonster.status !== null) {
+      oldMonster.status = null;
+    }
+
+    const oldSpecies = this.speciesResolver(oldMonster.speciesId);
     battler.activeIndex = partyIndex;
     battler.statStages = createStatStages(); // 交代時にステージリセット
-    const newSpecies = this.speciesResolver(battler.party[partyIndex].speciesId);
-    return `${oldSpecies.name}を引っ込めて${newSpecies.name}を繰り出した！`;
+    const newMonster = battler.party[partyIndex];
+    const newSpecies = this.speciesResolver(newMonster.speciesId);
+    const switchMsg = `${oldSpecies.name}を引っ込めて${newSpecies.name}を繰り出した！`;
+
+    // 登場時特性（いかく等）
+    const enterResult = processOnEnterAbility(newMonster.abilityId, newSpecies.name);
+    if (enterResult.messages.length > 0) {
+      this.state.messages.push(...enterResult.messages);
+    }
+    if (enterResult.opponentAtkChange) {
+      const [newStages, msgs] = applyStatChanges(
+        opponentBattler.statStages,
+        { atk: enterResult.opponentAtkChange },
+        this.speciesResolver(getActiveMonster(opponentBattler).speciesId).name,
+      );
+      opponentBattler.statStages = newStages;
+      this.state.messages.push(...msgs);
+    }
+
+    return switchMsg;
   }
 
   /** 瀕死チェック & 強制交代/バトル終了 */
@@ -396,11 +458,20 @@ export class BattleEngine {
     return false;
   }
 
-  /** ターン終了時の状態異常ダメージ */
+  /** ターン終了時の状態異常ダメージ＋特性処理 */
   private applyEndOfTurnEffects(): void {
     const applyToMonster = (monster: MonsterInstance) => {
-      if (!monster.status || monster.currentHp <= 0) return;
+      if (monster.currentHp <= 0) return;
       const species = this.speciesResolver(monster.speciesId);
+
+      // だっぴ等のターン終了時特性
+      const abilityMsgs = processEndOfTurnAbility(monster.abilityId, monster, species.name, () =>
+        this.random(),
+      );
+      this.state.messages.push(...abilityMsgs);
+
+      // 状態異常ダメージ
+      if (!monster.status) return;
       const maxHp = calcAllStats(
         species.baseStats,
         monster.ivs,

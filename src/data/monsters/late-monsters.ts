@@ -21,6 +21,7 @@ export const LATE_MONSTERS: MonsterSpecies[] = [
       { level: 15, moveId: "ice-shard" },
       { level: 22, moveId: "ice-fang" },
     ],
+    abilities: ["thick_fat"],
     evolvesTo: [{ id: "koorigitsune", level: 34 }],
   },
   {
@@ -40,6 +41,7 @@ export const LATE_MONSTERS: MonsterSpecies[] = [
       { level: 42, moveId: "ice-beam" },
       { level: 50, moveId: "blizzard" },
     ],
+    abilities: ["thick_fat", "adaptability"],
   },
 
   // === 氷/岩枠: コゴリイワ（単体・進化なし）===
@@ -60,6 +62,7 @@ export const LATE_MONSTERS: MonsterSpecies[] = [
       { level: 34, moveId: "ice-fang" },
       { level: 42, moveId: "stone-edge" },
     ],
+    abilities: ["sturdy", "clear_body"],
   },
 
   // === ドラゴン枠: タツノコ → リュウジン ===
@@ -78,6 +81,7 @@ export const LATE_MONSTERS: MonsterSpecies[] = [
       { level: 15, moveId: "bite" },
       { level: 22, moveId: "slash" },
     ],
+    abilities: ["shed_skin"],
     evolvesTo: [{ id: "ryuubi", level: 30 }],
   },
   {
@@ -96,6 +100,7 @@ export const LATE_MONSTERS: MonsterSpecies[] = [
       { level: 30, moveId: "dragon-claw" },
       { level: 38, moveId: "air-slash" },
     ],
+    abilities: ["intimidate"],
     evolvesTo: [{ id: "ryuujin", level: 48 }],
   },
   {
@@ -113,6 +118,7 @@ export const LATE_MONSTERS: MonsterSpecies[] = [
       { level: 48, moveId: "dragon-pulse" },
       { level: 56, moveId: "outrage" },
     ],
+    abilities: ["intimidate", "multiscale"],
   },
 
   // === エスパー枠: キオクダマ → オモイダマ ===
@@ -130,6 +136,7 @@ export const LATE_MONSTERS: MonsterSpecies[] = [
       { level: 12, moveId: "fairy-wind" },
       { level: 20, moveId: "zen-headbutt" },
     ],
+    abilities: ["levitate", "inner_focus"],
     evolvesTo: [{ id: "omoidama", level: 36 }],
   },
   {
@@ -147,6 +154,7 @@ export const LATE_MONSTERS: MonsterSpecies[] = [
       { level: 36, moveId: "psychic" },
       { level: 44, moveId: "moonblast" },
     ],
+    abilities: ["levitate", "marvel_scale"],
   },
 
   // === 鋼/ドラゴン枠: ハガネダケ（単体・進化なし、擬似伝説）===
@@ -167,6 +175,7 @@ export const LATE_MONSTERS: MonsterSpecies[] = [
       { level: 36, moveId: "flash-cannon" },
       { level: 44, moveId: "iron-tail" },
     ],
+    abilities: ["sturdy", "clear_body"],
   },
 
   // === 悪/格闘枠: クロオニ（単体・進化なし）===
@@ -187,6 +196,7 @@ export const LATE_MONSTERS: MonsterSpecies[] = [
       { level: 34, moveId: "crunch" },
       { level: 42, moveId: "close-combat" },
     ],
+    abilities: ["guts", "inner_focus"],
   },
 
   // === ゴースト/氷枠: フブキレイ（単体・進化なし）===
@@ -206,6 +216,7 @@ export const LATE_MONSTERS: MonsterSpecies[] = [
       { level: 26, moveId: "ice-beam" },
       { level: 34, moveId: "dark-pulse" },
     ],
+    abilities: ["levitate"],
   },
 
   // === 水/ドラゴン枠: ウミヘビ（単体・進化なし）===
@@ -225,6 +236,7 @@ export const LATE_MONSTERS: MonsterSpecies[] = [
       { level: 28, moveId: "surf" },
       { level: 36, moveId: "hydro-pump" },
     ],
+    abilities: ["swift_swim", "marvel_scale"],
   },
 
   // === 電気/鋼枠: デンジムシ → ライジンドウ ===
@@ -243,6 +255,7 @@ export const LATE_MONSTERS: MonsterSpecies[] = [
       { level: 17, moveId: "spark" },
       { level: 24, moveId: "iron-head" },
     ],
+    abilities: ["static", "volt_absorb"],
     evolvesTo: [{ id: "raijindou", level: 38 }],
   },
   {
@@ -261,5 +274,6 @@ export const LATE_MONSTERS: MonsterSpecies[] = [
       { level: 38, moveId: "thunderbolt" },
       { level: 46, moveId: "flash-cannon" },
     ],
+    abilities: ["static", "volt_absorb"],
   },
 ];

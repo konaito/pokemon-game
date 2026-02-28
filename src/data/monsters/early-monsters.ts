@@ -20,6 +20,7 @@ export const EARLY_MONSTERS: MonsterSpecies[] = [
       { level: 7, moveId: "quick-attack" },
       { level: 13, moveId: "bite" },
     ],
+    abilities: ["guts", "keen_eye"],
     evolvesTo: [{ id: "oonezumi", level: 20 }],
   },
   {
@@ -36,6 +37,7 @@ export const EARLY_MONSTERS: MonsterSpecies[] = [
       { level: 13, moveId: "bite" },
       { level: 20, moveId: "headbutt" },
     ],
+    abilities: ["guts", "keen_eye"],
   },
 
   // === 飛行枠: トビバト → ハヤテドリ ===
@@ -53,6 +55,7 @@ export const EARLY_MONSTERS: MonsterSpecies[] = [
       { level: 9, moveId: "quick-attack" },
       { level: 13, moveId: "wing-attack" },
     ],
+    abilities: ["keen_eye"],
     evolvesTo: [{ id: "hayatedori", level: 18 }],
   },
   {
@@ -68,6 +71,7 @@ export const EARLY_MONSTERS: MonsterSpecies[] = [
       { level: 9, moveId: "quick-attack" },
       { level: 13, moveId: "wing-attack" },
     ],
+    abilities: ["keen_eye", "sniper"],
   },
 
   // === 虫枠: マユムシ → ハナムシ ===
@@ -85,6 +89,7 @@ export const EARLY_MONSTERS: MonsterSpecies[] = [
       { level: 7, moveId: "bug-bite" },
       { level: 10, moveId: "harden" },
     ],
+    abilities: ["shed_skin"],
     evolvesTo: [{ id: "hanamushi", level: 10 }],
   },
   {
@@ -100,6 +105,7 @@ export const EARLY_MONSTERS: MonsterSpecies[] = [
       { level: 1, moveId: "gust" },
       { level: 12, moveId: "bug-bite" },
     ],
+    abilities: ["shed_skin"],
   },
 
   // === 電気枠: ヒカリネコ（単体・進化なし）===
@@ -117,6 +123,7 @@ export const EARLY_MONSTERS: MonsterSpecies[] = [
       { level: 8, moveId: "quick-attack" },
       { level: 12, moveId: "bite" },
     ],
+    abilities: ["static"],
   },
 
   // === 毒枠: ドクダマ → ドクヌマ ===
@@ -134,6 +141,7 @@ export const EARLY_MONSTERS: MonsterSpecies[] = [
       { level: 9, moveId: "bite" },
       { level: 13, moveId: "mud-slap" },
     ],
+    abilities: ["poison_point"],
     evolvesTo: [{ id: "dokunuma", level: 22 }],
   },
   {
@@ -149,6 +157,7 @@ export const EARLY_MONSTERS: MonsterSpecies[] = [
       { level: 9, moveId: "bite" },
       { level: 13, moveId: "mud-slap" },
     ],
+    abilities: ["poison_point"],
   },
 
   // === 水枠: カワドジョウ（単体・進化なし）===
@@ -166,5 +175,6 @@ export const EARLY_MONSTERS: MonsterSpecies[] = [
       { level: 7, moveId: "water-gun" },
       { level: 11, moveId: "bite" },
     ],
+    abilities: ["swift_swim", "sand_veil"],
   },
 ];

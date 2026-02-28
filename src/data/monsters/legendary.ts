@@ -21,6 +21,7 @@ export const LEGENDARY_MONSTERS: MonsterSpecies[] = [
       { level: 40, moveId: "thunderbolt" },
       { level: 50, moveId: "flamethrower" },
     ],
+    abilities: ["pressure", "multiscale"],
   },
   {
     id: "wasurenu",
@@ -38,5 +39,6 @@ export const LEGENDARY_MONSTERS: MonsterSpecies[] = [
       { level: 40, moveId: "dragon-pulse" },
       { level: 50, moveId: "flamethrower" },
     ],
+    abilities: ["pressure", "adaptability"],
   },
 ];

@@ -20,6 +20,7 @@ export const STARTERS: MonsterSpecies[] = [
       { level: 9, moveId: "quick-attack" },
       { level: 13, moveId: "bite" },
     ],
+    abilities: ["blaze"],
     evolvesTo: [{ id: "hinomori", level: 16 }],
   },
   {
@@ -38,6 +39,7 @@ export const STARTERS: MonsterSpecies[] = [
       { level: 17, moveId: "flame-wheel" },
       { level: 21, moveId: "double-kick" },
     ],
+    abilities: ["blaze"],
     evolvesTo: [{ id: "enjuu", level: 36 }],
   },
   {
@@ -56,6 +58,7 @@ export const STARTERS: MonsterSpecies[] = [
       { level: 17, moveId: "flame-wheel" },
       { level: 21, moveId: "double-kick" },
     ],
+    abilities: ["blaze", "iron_fist"],
   },
 
   // === シズクモ系列（水 → 水 → 水/超）===
@@ -73,6 +76,7 @@ export const STARTERS: MonsterSpecies[] = [
       { level: 9, moveId: "bubble" },
       { level: 13, moveId: "quick-attack" },
     ],
+    abilities: ["torrent"],
     evolvesTo: [{ id: "namikozou", level: 16 }],
   },
   {
@@ -90,6 +94,7 @@ export const STARTERS: MonsterSpecies[] = [
       { level: 13, moveId: "quick-attack" },
       { level: 17, moveId: "water-pulse" },
     ],
+    abilities: ["torrent"],
     evolvesTo: [{ id: "taikaiou", level: 36 }],
   },
   {
@@ -107,6 +112,7 @@ export const STARTERS: MonsterSpecies[] = [
       { level: 13, moveId: "quick-attack" },
       { level: 17, moveId: "water-pulse" },
     ],
+    abilities: ["torrent", "swift_swim"],
   },
 
   // === コノハナ系列（草 → 草 → 草/岩）===
@@ -124,6 +130,7 @@ export const STARTERS: MonsterSpecies[] = [
       { level: 9, moveId: "leech-seed" },
       { level: 13, moveId: "razor-leaf" },
     ],
+    abilities: ["overgrow"],
     evolvesTo: [{ id: "morinoko", level: 16 }],
   },
   {
@@ -141,6 +148,7 @@ export const STARTERS: MonsterSpecies[] = [
       { level: 13, moveId: "razor-leaf" },
       { level: 17, moveId: "rock-throw" },
     ],
+    abilities: ["overgrow"],
     evolvesTo: [{ id: "taijushin", level: 36 }],
   },
   {
@@ -158,5 +166,6 @@ export const STARTERS: MonsterSpecies[] = [
       { level: 13, moveId: "razor-leaf" },
       { level: 17, moveId: "rock-throw" },
     ],
+    abilities: ["overgrow", "sturdy"],
   },
 ];

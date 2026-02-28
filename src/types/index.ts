@@ -10,6 +10,7 @@ export type MonsterId = string;
 export type MoveId = string;
 export type ItemId = string;
 export type MapId = string;
+export type AbilityId = string;
 
 /** 性格ID（25種類） */
 export type NatureId =
@@ -89,6 +90,8 @@ export interface MonsterSpecies {
   expGroup: ExpGroup;
   learnset: { level: number; moveId: MoveId }[];
   evolvesTo?: { id: MonsterId; level: number; condition?: string }[];
+  /** 種族が持ちうる特性のリスト */
+  abilities?: AbilityId[];
 }
 
 /** 個体としてのモンスター */
@@ -104,6 +107,8 @@ export interface MonsterInstance {
   currentHp: number;
   moves: MoveInstance[];
   status: StatusCondition | null;
+  /** 個体の特性 */
+  abilityId?: AbilityId;
 }
 
 /** 技のインスタンス（PP管理付き） */
@@ -179,6 +184,21 @@ export interface PartyState {
   party: MonsterInstance[];
   /** ボックス（預かりシステム） */
   boxes: MonsterInstance[][];
+}
+
+/** 特性の発動タイミング */
+export type AbilityTrigger =
+  | "on_enter" // 場に出たとき
+  | "on_damage_calc" // ダメージ計算時
+  | "on_type_effectiveness" // タイプ相性判定時
+  | "passive"; // 常時発動
+
+/** 特性定義 */
+export interface AbilityDefinition {
+  id: AbilityId;
+  name: string;
+  description: string;
+  trigger: AbilityTrigger;
 }
 
 /** 種族データを引けるリゾルバ */

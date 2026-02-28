@@ -4,10 +4,13 @@ import type {
   MoveDefinition,
   StatusCondition,
   BaseStats,
+  AbilityId,
 } from "@/types";
 import { calculateDamage, type DamageResult } from "./damage";
 import { canAct } from "./status";
 import type { StatStages } from "./stat-stage";
+import { checkAbilityTypeImmunity, checkContactAbility, applySturdyCheck } from "./ability";
+import { calcAllStats } from "@/engine/monster/stats";
 
 /** 技実行の結果 */
 export interface MoveExecutionResult {
@@ -40,6 +43,8 @@ export function executeMove(
   random?: () => number,
   attackerStages?: StatStages,
   defenderStages?: StatStages,
+  attackerAbility?: AbilityId,
+  defenderAbility?: AbilityId,
 ): MoveExecutionResult {
   const rng = random ?? Math.random;
   const messages: string[] = [];
@@ -93,6 +98,40 @@ export function executeMove(
     };
   }
 
+  // 2.5. 特性によるタイプ無効化チェック（攻撃技の場合）
+  if (move.category !== "status") {
+    const immunityResult = checkAbilityTypeImmunity(defenderAbility, move.type);
+    if (immunityResult === "immune") {
+      messages.push(`${defenderSpecies.name}には効果がなかった！`);
+      return {
+        hit: true,
+        damage: null,
+        defenderHpAfter: defender.currentHp,
+        statusApplied: null,
+        messages,
+      };
+    }
+    if (immunityResult === "absorb") {
+      const maxHp = calcAllStats(
+        defenderSpecies.baseStats,
+        defender.ivs,
+        defender.evs,
+        defender.level,
+        defender.nature,
+      ).hp;
+      const healAmount = Math.floor(maxHp / 4);
+      const newHp = Math.min(maxHp, defender.currentHp + healAmount);
+      messages.push(`${defenderSpecies.name}はHPを回復した！`);
+      return {
+        hit: true,
+        damage: null,
+        defenderHpAfter: newHp,
+        statusApplied: null,
+        messages,
+      };
+    }
+  }
+
   // 3. ステータス技の処理（ダメージなし、効果のみ）
   if (move.category === "status") {
     let statusApplied: StatusCondition | null = null;
@@ -142,6 +181,8 @@ export function executeMove(
     move,
     attackerStages,
     defenderStages,
+    attackerAbility,
+    defenderAbility,
     random: () => rng(),
   });
 
@@ -183,6 +224,15 @@ export function executeMove(
       target: isDebuff ? "opponent" : "self",
       changes: move.effect.statChanges,
     };
+  }
+
+  // 8. 接触特性（物理技を受けたときの状態異常付与）
+  if (damageResult.damage > 0 && attacker.status === null) {
+    const contactResult = checkContactAbility(defenderAbility, move.category, () => rng());
+    if (contactResult) {
+      attacker.status = contactResult.status;
+      messages.push(`${attackerSpecies.name}は${contactResult.message}`);
+    }
   }
 
   return {
