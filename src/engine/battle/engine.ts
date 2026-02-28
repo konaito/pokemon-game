@@ -5,7 +5,7 @@ import { executeMove, executeStruggle } from "./move-executor";
 import { applyStatusDamage } from "./status";
 import { calcExpGain, grantExp } from "./experience";
 import { calcAllStats } from "@/engine/monster/stats";
-import { checkEvolution, evolve } from "@/engine/monster/evolution";
+import { checkEvolution, evolve, type EvolutionContext } from "@/engine/monster/evolution";
 import { applyStatChanges, createStatStages } from "./stat-stage";
 
 /** バトルエンジン */
@@ -14,6 +14,8 @@ export class BattleEngine {
   private speciesResolver: SpeciesResolver;
   private moveResolver: MoveResolver;
   private random: () => number;
+  /** 進化判定に使用するコンテキスト（マップID、パーティ情報等） */
+  evolutionContext: EvolutionContext = {};
 
   constructor(
     playerParty: MonsterInstance[],
@@ -337,8 +339,13 @@ export class BattleEngine {
           `${playerSpecies.name}はレベル${this.playerActive.level}に上がった！`,
         );
 
-        // 進化チェック
-        const evoTarget = checkEvolution(this.playerActive, playerSpecies);
+        // 進化チェック（コンテキスト: マップ、技、パーティ情報）
+        const evoCtx: EvolutionContext = {
+          ...this.evolutionContext,
+          knownMoves: this.playerActive.moves.map((m) => m.moveId),
+          partySpeciesIds: this.state.player.party.map((m) => m.speciesId),
+        };
+        const evoTarget = checkEvolution(this.playerActive, playerSpecies, evoCtx);
         if (evoTarget) {
           const newSpecies = this.speciesResolver(evoTarget);
           this.state.messages.push(`おや…？ ${playerSpecies.name}のようすが…！`);

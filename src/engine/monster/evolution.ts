@@ -13,6 +13,12 @@ export interface EvolutionContext {
   friendship?: number;
   /** 通信交換が発生したか */
   isTrade?: boolean;
+  /** 現在のマップID（場所進化用） */
+  currentMapId?: string;
+  /** モンスターが覚えている技ID一覧（技条件進化用） */
+  knownMoves?: string[];
+  /** パーティのモンスター種族ID一覧（パーティ条件進化用） */
+  partySpeciesIds?: string[];
 }
 
 /** なつき進化に必要な最低なつき度 */
@@ -43,6 +49,21 @@ function checkCondition(condition: string | undefined, context: EvolutionContext
 
   if (condition === "trade") {
     return context.isTrade === true;
+  }
+
+  if (condition.startsWith("location:")) {
+    const requiredMapId = condition.slice(9);
+    return context.currentMapId === requiredMapId;
+  }
+
+  if (condition.startsWith("move:")) {
+    const requiredMoveId = condition.slice(5);
+    return (context.knownMoves ?? []).includes(requiredMoveId);
+  }
+
+  if (condition.startsWith("party:")) {
+    const requiredSpeciesId = condition.slice(6);
+    return (context.partySpeciesIds ?? []).includes(requiredSpeciesId);
   }
 
   return false; // 不明な条件は満たさない

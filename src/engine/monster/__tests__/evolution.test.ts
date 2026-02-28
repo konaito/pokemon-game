@@ -210,6 +210,150 @@ describe("進化システム", () => {
     });
   });
 
+  describe("checkEvolution — 場所進化", () => {
+    const locationEvoSpecies: MonsterSpecies = {
+      id: "test-location",
+      name: "テスト場所進化",
+      types: ["ground"],
+      baseStats: { hp: 50, atk: 50, def: 50, spAtk: 50, spDef: 50, speed: 50 },
+      baseExpYield: 100,
+      expGroup: "medium_fast",
+      learnset: [],
+      evolvesTo: [{ id: "test-location-evo", level: 25, condition: "location:seirei-mountain" }],
+    };
+
+    it("特定マップでレベル条件を満たすと進化する", () => {
+      const monster = createDummyMonster(25);
+      monster.speciesId = "test-location";
+      const ctx: EvolutionContext = { currentMapId: "seirei-mountain" };
+      expect(checkEvolution(monster, locationEvoSpecies, ctx)).toBe("test-location-evo");
+    });
+
+    it("別のマップでは進化しない", () => {
+      const monster = createDummyMonster(25);
+      monster.speciesId = "test-location";
+      const ctx: EvolutionContext = { currentMapId: "wasuremachi" };
+      expect(checkEvolution(monster, locationEvoSpecies, ctx)).toBeNull();
+    });
+
+    it("マップ指定なしでは進化しない", () => {
+      const monster = createDummyMonster(25);
+      monster.speciesId = "test-location";
+      expect(checkEvolution(monster, locationEvoSpecies)).toBeNull();
+    });
+  });
+
+  describe("checkEvolution — 技条件進化", () => {
+    const moveEvoSpecies: MonsterSpecies = {
+      id: "test-move",
+      name: "テスト技進化",
+      types: ["rock"],
+      baseStats: { hp: 50, atk: 50, def: 50, spAtk: 50, spDef: 50, speed: 50 },
+      baseExpYield: 100,
+      expGroup: "medium_fast",
+      learnset: [],
+      evolvesTo: [{ id: "test-move-evo", level: 20, condition: "move:ancient-power" }],
+    };
+
+    it("特定技を覚えた状態でレベル条件を満たすと進化する", () => {
+      const monster = createDummyMonster(20);
+      monster.speciesId = "test-move";
+      const ctx: EvolutionContext = { knownMoves: ["tackle", "ancient-power", "rock-throw"] };
+      expect(checkEvolution(monster, moveEvoSpecies, ctx)).toBe("test-move-evo");
+    });
+
+    it("技を覚えていなければ進化しない", () => {
+      const monster = createDummyMonster(20);
+      monster.speciesId = "test-move";
+      const ctx: EvolutionContext = { knownMoves: ["tackle", "rock-throw"] };
+      expect(checkEvolution(monster, moveEvoSpecies, ctx)).toBeNull();
+    });
+
+    it("技一覧未指定では進化しない", () => {
+      const monster = createDummyMonster(20);
+      monster.speciesId = "test-move";
+      expect(checkEvolution(monster, moveEvoSpecies)).toBeNull();
+    });
+  });
+
+  describe("checkEvolution — パーティ条件進化", () => {
+    const partyEvoSpecies: MonsterSpecies = {
+      id: "test-party",
+      name: "テストパーティ進化",
+      types: ["dark"],
+      baseStats: { hp: 50, atk: 50, def: 50, spAtk: 50, spDef: 50, speed: 50 },
+      baseExpYield: 100,
+      expGroup: "medium_fast",
+      learnset: [],
+      evolvesTo: [{ id: "test-party-evo", level: 30, condition: "party:hikarineko" }],
+    };
+
+    it("パーティに特定モンスターがいるとレベル条件で進化する", () => {
+      const monster = createDummyMonster(30);
+      monster.speciesId = "test-party";
+      const ctx: EvolutionContext = { partySpeciesIds: ["himori", "hikarineko", "konezumi"] };
+      expect(checkEvolution(monster, partyEvoSpecies, ctx)).toBe("test-party-evo");
+    });
+
+    it("パーティに対象モンスターがいなければ進化しない", () => {
+      const monster = createDummyMonster(30);
+      monster.speciesId = "test-party";
+      const ctx: EvolutionContext = { partySpeciesIds: ["himori", "konezumi"] };
+      expect(checkEvolution(monster, partyEvoSpecies, ctx)).toBeNull();
+    });
+
+    it("パーティ情報未指定では進化しない", () => {
+      const monster = createDummyMonster(30);
+      monster.speciesId = "test-party";
+      expect(checkEvolution(monster, partyEvoSpecies)).toBeNull();
+    });
+  });
+
+  describe("checkEvolution — 複合条件", () => {
+    // 複合条件はevolvesToの各エントリにconditionが1つのため、
+    // 複数条件は分岐進化として表現
+    const multiCondSpecies: MonsterSpecies = {
+      id: "test-multi",
+      name: "テスト複合",
+      types: ["normal"],
+      baseStats: { hp: 50, atk: 50, def: 50, spAtk: 50, spDef: 50, speed: 50 },
+      baseExpYield: 100,
+      expGroup: "medium_fast",
+      learnset: [],
+      evolvesTo: [
+        { id: "multi-location", level: 30, condition: "location:seirei-mountain" },
+        { id: "multi-item", level: 1, condition: "item:metal-coat" },
+        { id: "multi-default", level: 40 },
+      ],
+    };
+
+    it("場所条件が先にマッチすればそちらに進化", () => {
+      const monster = createDummyMonster(30);
+      monster.speciesId = "test-multi";
+      const ctx: EvolutionContext = { currentMapId: "seirei-mountain" };
+      expect(checkEvolution(monster, multiCondSpecies, ctx)).toBe("multi-location");
+    });
+
+    it("アイテム条件がマッチすればアイテム進化", () => {
+      const monster = createDummyMonster(5);
+      monster.speciesId = "test-multi";
+      const ctx: EvolutionContext = { usedItemId: "metal-coat" };
+      expect(checkEvolution(monster, multiCondSpecies, ctx)).toBe("multi-item");
+    });
+
+    it("条件なしの場合はレベル40でデフォルト進化", () => {
+      const monster = createDummyMonster(40);
+      monster.speciesId = "test-multi";
+      expect(checkEvolution(monster, multiCondSpecies)).toBe("multi-default");
+    });
+
+    it("どの条件も満たさなければ進化しない", () => {
+      const monster = createDummyMonster(35);
+      monster.speciesId = "test-multi";
+      expect(checkEvolution(monster, multiCondSpecies)).toBeNull();
+    });
+  });
+
   describe("evolve", () => {
     it("speciesIdが更新される", () => {
       const monster = createDummyMonster(16, 30);

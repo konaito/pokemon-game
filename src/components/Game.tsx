@@ -21,6 +21,7 @@ import { processEncounter, generateWildMonster } from "@/engine/map/encounter";
 import { useHealingCenter as healAtCenter } from "@/engine/map/healing";
 import { calcAllStats } from "@/engine/monster/stats";
 import { getLearnableMoves, learnMove, replaceMove } from "@/engine/monster/moves";
+import { checkEvolution, evolve } from "@/engine/monster/evolution";
 import { swapPartyOrder } from "@/engine/monster/party";
 import { addItem, removeItem, useHealItem as applyHealItem } from "@/engine/item/bag";
 import { executeCaptureFlow } from "@/engine/capture/capture-flow";
@@ -293,6 +294,7 @@ export function Game() {
           speciesResolver,
           moveResolver,
         );
+        engine.evolutionContext = { currentMapId: state.overworld?.currentMapId };
         setBattleEngine(engine);
         dispatch({ type: "CHANGE_SCREEN", screen: "battle" });
         setTimeout(() => setIsBattleProcessing(false), 1500);
@@ -556,6 +558,7 @@ export function Game() {
         speciesResolver,
         moveResolver,
       );
+      engine.evolutionContext = { currentMapId: state.overworld?.currentMapId };
       setBattleEngine(engine);
 
       dispatch({ type: "CHANGE_SCREEN", screen: "battle" });
@@ -911,6 +914,40 @@ export function Game() {
           }, 1500);
           return;
         }
+      }
+
+      // フィールドでの進化アイテム使用
+      if (item.effect.type === "evolution") {
+        const target = state.player.partyState.party[0];
+        if (!target) return;
+        const targetSpecies = speciesResolver(target.speciesId);
+        const evoCtx: import("@/engine/monster/evolution").EvolutionContext = {
+          usedItemId: item.effect.evolutionItemId,
+          currentMapId: state.overworld?.currentMapId,
+          knownMoves: target.moves.map((m) => m.moveId),
+          partySpeciesIds: state.player.partyState.party.map((m) => m.speciesId),
+        };
+        const evoTarget = checkEvolution(target, targetSpecies, evoCtx);
+        if (!evoTarget) {
+          showMessages(["このモンスターには使えないようだ…"]);
+          return;
+        }
+        if (!removeItem(state.player.bag, itemId)) return;
+        const newSpecies = speciesResolver(evoTarget);
+        evolve(target, targetSpecies, newSpecies);
+        dispatch({
+          type: "UPDATE_PLAYER",
+          updates: {
+            bag: { ...state.player.bag },
+            partyState: { ...state.player.partyState },
+          },
+        });
+        closeOverlay();
+        showMessages([
+          `おや…？ ${targetSpecies.name}のようすが…！`,
+          `${targetSpecies.name}は${newSpecies.name}に進化した！`,
+        ]);
+        return;
       }
 
       // フィールドでの回復アイテム使用
