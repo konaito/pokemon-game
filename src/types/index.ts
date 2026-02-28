@@ -45,6 +45,18 @@ export type NatureId =
 /** 経験値グループ */
 export type ExpGroup = "fast" | "medium_fast" | "medium_slow" | "slow";
 
+/** タマゴグループ */
+export type EggGroup =
+  | "monster"
+  | "water"
+  | "bug"
+  | "flying"
+  | "field"
+  | "fairy"
+  | "plant"
+  | "mineral"
+  | "undiscovered";
+
 /** タイプID */
 export type TypeId =
   | "normal"
@@ -92,6 +104,12 @@ export interface MonsterSpecies {
   expGroup: ExpGroup;
   learnset: { level: number; moveId: MoveId }[];
   evolvesTo?: { id: MonsterId; level: number; condition?: string }[];
+  /** タマゴグループ */
+  eggGroups?: EggGroup[];
+  /** 遺伝技（タマゴ技） */
+  eggMoves?: MoveId[];
+  /** 孵化歩数 */
+  hatchSteps?: number;
   /** 図鑑説明テキスト */
   dexEntry?: string;
 }
@@ -109,6 +127,10 @@ export interface MonsterInstance {
   currentHp: number;
   moves: MoveInstance[];
   status: StatusCondition | null;
+  /** タマゴかどうか */
+  isEgg?: boolean;
+  /** 孵化までの残り歩数 */
+  eggSteps?: number;
   /** 持ち物 */
   heldItem?: string;
 }
