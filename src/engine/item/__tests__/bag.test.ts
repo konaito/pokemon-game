@@ -7,7 +7,7 @@ import {
   getItemsByCategory,
   useHealItem,
 } from "../bag";
-import type { ItemDefinition, MonsterInstance } from "@/types";
+import type { ItemDefinition, MonsterInstance, MoveDefinition } from "@/types";
 
 function createDummyMonster(hp: number = 30): MonsterInstance {
   return {
@@ -184,6 +184,171 @@ describe("バッグ管理", () => {
     it("状態異常がない場合は使えない", () => {
       const monster = createDummyMonster(30);
       const result = useHealItem(antidote, monster, 50);
+      expect(result.used).toBe(false);
+    });
+  });
+
+  describe("げんきのかけら（瀕死復活）", () => {
+    const revive: ItemDefinition = {
+      id: "revive",
+      name: "げんきのかけら",
+      description: "ひんしのモンスターをHP半分で復活させる。",
+      category: "medicine",
+      price: 1500,
+      usableInBattle: true,
+      effect: { type: "revive", hpPercent: 50 },
+    };
+
+    const maxRevive: ItemDefinition = {
+      id: "max-revive",
+      name: "げんきのかたまり",
+      description: "ひんしのモンスターをHP全回復で復活させる。",
+      category: "medicine",
+      price: 4000,
+      usableInBattle: true,
+      effect: { type: "revive_full" },
+    };
+
+    it("瀕死のモンスターをHP半分で復活させる", () => {
+      const monster = createDummyMonster(0);
+      const result = useHealItem(revive, monster, 100);
+      expect(result.used).toBe(true);
+      expect(monster.currentHp).toBe(50);
+    });
+
+    it("瀕死でないモンスターには使えない", () => {
+      const monster = createDummyMonster(30);
+      const result = useHealItem(revive, monster, 100);
+      expect(result.used).toBe(false);
+    });
+
+    it("復活時に状態異常が治る", () => {
+      const monster = createDummyMonster(0);
+      monster.status = "poison";
+      const result = useHealItem(revive, monster, 100);
+      expect(result.used).toBe(true);
+      expect(monster.status).toBeNull();
+    });
+
+    it("げんきのかたまりでHP全回復", () => {
+      const monster = createDummyMonster(0);
+      const result = useHealItem(maxRevive, monster, 100);
+      expect(result.used).toBe(true);
+      expect(monster.currentHp).toBe(100);
+    });
+
+    it("HP1以上は保証される（最大HPが1の場合）", () => {
+      const monster = createDummyMonster(0);
+      const result = useHealItem(revive, monster, 1);
+      expect(result.used).toBe(true);
+      expect(monster.currentHp).toBe(1);
+    });
+  });
+
+  describe("ふしぎなアメ（レベルアップ）", () => {
+    const rareCandy: ItemDefinition = {
+      id: "rare-candy",
+      name: "ふしぎなアメ",
+      description: "レベルを1上げる。",
+      category: "medicine",
+      price: 0,
+      usableInBattle: false,
+      effect: { type: "level_up" },
+    };
+
+    it("レベルが1上がる", () => {
+      const monster = createDummyMonster(30);
+      monster.level = 10;
+      const result = useHealItem(rareCandy, monster, 50);
+      expect(result.used).toBe(true);
+      expect(monster.level).toBe(11);
+    });
+
+    it("レベル100では使えない", () => {
+      const monster = createDummyMonster(30);
+      monster.level = 100;
+      const result = useHealItem(rareCandy, monster, 50);
+      expect(result.used).toBe(false);
+    });
+
+    it("瀕死のモンスターにも使える", () => {
+      const monster = createDummyMonster(0);
+      monster.level = 50;
+      const result = useHealItem(rareCandy, monster, 50);
+      expect(result.used).toBe(true);
+      expect(monster.level).toBe(51);
+    });
+  });
+
+  describe("PP個別回復（ピーピーエイド）", () => {
+    const ppUp: ItemDefinition = {
+      id: "pp-up",
+      name: "ピーピーエイド",
+      description: "1つの技のPPを10回復する。",
+      category: "medicine",
+      price: 0,
+      usableInBattle: true,
+      effect: { type: "heal_pp_one", amount: 10 },
+    };
+
+    const ppRecover: ItemDefinition = {
+      id: "pp-recover",
+      name: "ピーピーリカバー",
+      description: "1つの技のPPをすべて回復する。",
+      category: "medicine",
+      price: 0,
+      usableInBattle: true,
+      effect: { type: "heal_pp_one", amount: "all" },
+    };
+
+    const tackleMove: MoveDefinition = {
+      id: "tackle",
+      name: "たいあたり",
+      type: "normal",
+      category: "physical",
+      power: 40,
+      accuracy: 100,
+      pp: 35,
+      priority: 0,
+    };
+
+    const moveResolver = (id: string): MoveDefinition => tackleMove;
+
+    it("指定した技のPPを10回復する", () => {
+      const monster = createDummyMonster(30);
+      monster.moves = [{ moveId: "tackle", currentPp: 20 }];
+      const result = useHealItem(ppUp, monster, 50, moveResolver, 0);
+      expect(result.used).toBe(true);
+      expect(monster.moves[0].currentPp).toBe(30);
+    });
+
+    it("PP満タンの技には使えない", () => {
+      const monster = createDummyMonster(30);
+      monster.moves = [{ moveId: "tackle", currentPp: 35 }];
+      const result = useHealItem(ppUp, monster, 50, moveResolver, 0);
+      expect(result.used).toBe(false);
+    });
+
+    it("PP回復は最大PPを超えない", () => {
+      const monster = createDummyMonster(30);
+      monster.moves = [{ moveId: "tackle", currentPp: 30 }];
+      const result = useHealItem(ppUp, monster, 50, moveResolver, 0);
+      expect(result.used).toBe(true);
+      expect(monster.moves[0].currentPp).toBe(35);
+    });
+
+    it("ピーピーリカバーでPP全回復", () => {
+      const monster = createDummyMonster(30);
+      monster.moves = [{ moveId: "tackle", currentPp: 0 }];
+      const result = useHealItem(ppRecover, monster, 50, moveResolver, 0);
+      expect(result.used).toBe(true);
+      expect(monster.moves[0].currentPp).toBe(35);
+    });
+
+    it("技インデックスが指定されていない場合は使えない", () => {
+      const monster = createDummyMonster(30);
+      monster.moves = [{ moveId: "tackle", currentPp: 0 }];
+      const result = useHealItem(ppUp, monster, 50, moveResolver);
       expect(result.used).toBe(false);
     });
   });

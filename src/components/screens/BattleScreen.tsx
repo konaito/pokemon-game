@@ -5,6 +5,7 @@ import { HpBar } from "../ui/HpBar";
 import { ExpBar } from "../ui/ExpBar";
 import { MonsterSprite } from "../ui/MonsterSprite";
 import { BattleBackground, type BattleEnvironment } from "../ui/BattleBackgrounds";
+import { BattleEffect, type BattleEffectDef } from "../ui/BattleEffect";
 import { TYPE_BG, TYPE_HEX, TYPE_LABEL } from "@/lib/design-tokens";
 
 /**
@@ -49,6 +50,8 @@ export interface BattleScreenProps {
   environment?: BattleEnvironment;
   /** 上位画面がある場合に入力をブロック */
   inputBlocked?: boolean;
+  /** 再生中のバトルエフェクト */
+  activeEffect?: { effect: BattleEffectDef; target: "player" | "opponent" } | null;
 }
 
 type BattlePhase = "action" | "move_select";
@@ -70,6 +73,7 @@ export function BattleScreen({
   isProcessing,
   environment = "grassland",
   inputBlocked = false,
+  activeEffect = null,
 }: BattleScreenProps) {
   const [phase, setPhase] = useState<BattlePhase>("action");
   const [selectedAction, setSelectedAction] = useState(0);
@@ -188,6 +192,10 @@ export function BattleScreen({
 
         {/* バトルアリーナ */}
         <div className="relative z-10 flex items-center justify-center py-4">
+          {/* バトルエフェクト */}
+          {activeEffect && (
+            <BattleEffect effect={activeEffect.effect} target={activeEffect.target} />
+          )}
           <div className="flex gap-32">
             {/* 相手モンスター */}
             <div className="animate-float flex flex-col items-center">

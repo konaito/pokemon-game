@@ -12,6 +12,8 @@ export const LEGENDARY_MONSTERS: MonsterSpecies[] = [
     baseStats: { hp: 100, atk: 65, def: 90, spAtk: 130, spDef: 120, speed: 95 },
     baseExpYield: 306,
     expGroup: "slow",
+    dexEntry:
+      "記憶の守護者。世界のあらゆる想い出を虹色の翼に記録し、大忘却から守り続けている。その姿を見た者は、最も大切な記憶を思い出すという。",
     learnset: [
       { level: 1, moveId: "tackle" },
       { level: 1, moveId: "gust" },
@@ -29,6 +31,8 @@ export const LEGENDARY_MONSTERS: MonsterSpecies[] = [
     baseStats: { hp: 100, atk: 130, def: 80, spAtk: 120, spDef: 80, speed: 90 },
     baseExpYield: 306,
     expGroup: "slow",
+    dexEntry:
+      "忘却を司る存在。大忘却を引き起こした張本人とも、世界を忘却から救うために現れた存在とも言われ、その真意は誰にもわからない。",
     learnset: [
       { level: 1, moveId: "tackle" },
       { level: 1, moveId: "bite" },
