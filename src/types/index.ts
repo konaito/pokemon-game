@@ -89,6 +89,8 @@ export interface MonsterSpecies {
   expGroup: ExpGroup;
   learnset: { level: number; moveId: MoveId }[];
   evolvesTo?: { id: MonsterId; level: number; condition?: string }[];
+  /** 基本なつき度（デフォルト70） */
+  baseFriendship?: number;
 }
 
 /** 個体としてのモンスター */
@@ -104,6 +106,8 @@ export interface MonsterInstance {
   currentHp: number;
   moves: MoveInstance[];
   status: StatusCondition | null;
+  /** なつき度（0〜255, デフォルト70） */
+  friendship?: number;
 }
 
 /** 技のインスタンス（PP管理付き） */

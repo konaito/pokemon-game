@@ -7,6 +7,7 @@ import { calcExpGain, grantExp } from "./experience";
 import { calcAllStats } from "@/engine/monster/stats";
 import { checkEvolution, evolve } from "@/engine/monster/evolution";
 import { applyStatChanges, createStatStages } from "./stat-stage";
+import { onBattleWin, onFaint } from "@/engine/friendship";
 
 /** バトルエンジン */
 export class BattleEngine {
@@ -347,6 +348,9 @@ export class BattleEngine {
         }
       }
 
+      // バトル勝利時のなつき度上昇
+      onBattleWin(this.playerActive, playerSpecies);
+
       // 次のモンスターがいるか
       const nextAlive = this.state.opponent.party.findIndex(
         (m, i) => i !== this.state.opponent.activeIndex && m.currentHp > 0,
@@ -377,6 +381,9 @@ export class BattleEngine {
     if (this.playerActive.currentHp <= 0) {
       const species = this.speciesResolver(this.playerActive.speciesId);
       this.state.messages.push(`${species.name}は倒れた！`);
+
+      // 瀕死時のなつき度低下
+      onFaint(this.playerActive, species);
 
       const nextAlive = this.state.player.party.findIndex(
         (m, i) => i !== this.state.player.activeIndex && m.currentHp > 0,
