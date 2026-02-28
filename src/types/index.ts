@@ -11,6 +11,9 @@ export type MoveId = string;
 export type ItemId = string;
 export type MapId = string;
 
+/** 釣り竿の種類 */
+export type FishingRod = "old_rod" | "good_rod" | "super_rod";
+
 /** 性格ID（25種類） */
 export type NatureId =
   | "hardy"

@@ -1,4 +1,4 @@
-import type { MapId, MonsterId } from "@/types";
+import type { MapId, MonsterId, FishingRod } from "@/types";
 import type { FlagRequirement } from "@/engine/state/story-flags";
 
 /** タイルの種類 */
@@ -91,6 +91,17 @@ export interface MapDefinition {
   encounterRate: number;
   /** NPC一覧 */
   npcs: NpcDefinition[];
+  /** 釣りエンカウントテーブル */
+  fishingEncounters?: FishingEncounterEntry[];
+}
+
+/** 釣りエンカウントテーブルのエントリ */
+export interface FishingEncounterEntry {
+  rod: FishingRod;
+  speciesId: MonsterId;
+  minLevel: number;
+  maxLevel: number;
+  weight: number;
 }
 
 /** タイルの基本属性マップ */
