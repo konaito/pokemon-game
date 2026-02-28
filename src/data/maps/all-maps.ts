@@ -41,6 +41,12 @@ export const TSUCHIGUMO_VILLAGE: MapDefinition = {
       x: 2,
       y: 3,
       dialogue: ["モンスターを回復しますね！"],
+      conditionalDialogues: [
+        {
+          condition: "gym1_cleared",
+          dialogue: ["マサキに勝ったのね！すごいわ！", "モンスターを回復しますね！"],
+        },
+      ],
       isTrainer: false,
       onInteract: { heal: true },
     },
@@ -53,6 +59,15 @@ export const TSUCHIGUMO_VILLAGE: MapDefinition = {
         "やあ、新しい挑戦者だね。",
         "僕はマサキ。この島で一番最初の試練を担当している。",
         "それを見せてくれ！",
+      ],
+      conditionalDialogues: [
+        {
+          condition: "gym1_cleared",
+          dialogue: [
+            "見事だったよ！キミの実力は本物だ。",
+            "次の町のカイコも手強いから、準備を万全にしてね。",
+          ],
+        },
       ],
       isTrainer: true,
       onInteract: { setFlags: { gym1_battle_triggered: true } },
@@ -146,6 +161,15 @@ export const MORINOHA_TOWN: MapDefinition = {
       x: 8,
       y: 3,
       dialogue: ["虫タイプの研究をしているの。挑戦する？"],
+      conditionalDialogues: [
+        {
+          condition: "gym2_cleared",
+          dialogue: [
+            "あなたの強さ、虫の知らせで分かっていたわ。",
+            "次のライゾウは電気タイプよ。水や飛行タイプに気をつけてね。",
+          ],
+        },
+      ],
       isTrainer: true,
     },
     {
@@ -238,6 +262,15 @@ export const INAZUMA_CITY: MapDefinition = {
       x: 8,
       y: 3,
       dialogue: ["ビリビリ来るぜ！挑戦するか！"],
+      conditionalDialogues: [
+        {
+          condition: "gym3_cleared",
+          dialogue: [
+            "ビリビリされちまったのは俺の方か！ハハハ！",
+            "カガリ市のカガリは炎タイプだ。気合入れていけよ！",
+          ],
+        },
+      ],
       isTrainer: true,
     },
     {
@@ -330,6 +363,15 @@ export const KAGARI_CITY: MapDefinition = {
       x: 8,
       y: 3,
       dialogue: ["お前の心に火はあるか？"],
+      conditionalDialogues: [
+        {
+          condition: "gym4_cleared",
+          dialogue: [
+            "お前の炎…確かに見せてもらった。",
+            "ゴウキの町の格闘ジムは正面突破が求められる。覚悟しておけ。",
+          ],
+        },
+      ],
       isTrainer: true,
     },
     {
@@ -422,6 +464,12 @@ export const GOUKI_TOWN: MapDefinition = {
       x: 8,
       y: 3,
       dialogue: ["言葉はいらぬ。拳で語り合おう。"],
+      conditionalDialogues: [
+        {
+          condition: "gym5_cleared",
+          dialogue: ["…見事だ。お前の拳、確かに受け取った。", "キリフリ村の次なる試練に備えよ。"],
+        },
+      ],
       isTrainer: true,
     },
     {
@@ -515,6 +563,15 @@ export const KIRIFURI_VILLAGE: MapDefinition = {
       x: 8,
       y: 3,
       dialogue: ["ふふ…よく来たわね。"],
+      conditionalDialogues: [
+        {
+          condition: "gym6_cleared",
+          dialogue: [
+            "あら、やるじゃない。ちょっと見直したわ。",
+            "フユハの町の氷タイプは厄介よ。しっかり対策してね。",
+          ],
+        },
+      ],
       isTrainer: true,
     },
     {
@@ -607,6 +664,15 @@ export const FUYUHA_TOWN: MapDefinition = {
       x: 8,
       y: 3,
       dialogue: ["氷は記憶を閉じ込める。"],
+      conditionalDialogues: [
+        {
+          condition: "gym7_cleared",
+          dialogue: [
+            "あなたの温もりが、わたしの氷を溶かしたのね。",
+            "最後のジムリーダー・タツミの竜は…覚悟が必要よ。",
+          ],
+        },
+      ],
       isTrainer: true,
     },
     {
@@ -716,6 +782,15 @@ export const TATSUMI_CITY: MapDefinition = {
       x: 8,
       y: 3,
       dialogue: ["竜の試練に挑むか。覚悟はいいか。"],
+      conditionalDialogues: [
+        {
+          condition: "gym8_cleared",
+          dialogue: [
+            "…お見事だ。全てのバッジが揃った。",
+            "ポケモンリーグの扉がお前を待っている。健闘を祈る。",
+          ],
+        },
+      ],
       isTrainer: true,
     },
     {
