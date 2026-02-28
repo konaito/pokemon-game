@@ -14,6 +14,8 @@ export const MID_MONSTERS: MonsterSpecies[] = [
     baseStats: { hp: 50, atk: 65, def: 40, spAtk: 45, spDef: 40, speed: 60 },
     baseExpYield: 70,
     expGroup: "medium_fast",
+    dexEntry:
+      "たてがみの火種は一度消えると二度と灯らない。大忘却を生き延びた炎の記憶を守り続ける誇り高きモンスター。",
     learnset: [
       { level: 1, moveId: "tackle" },
       { level: 1, moveId: "ember" },
@@ -30,6 +32,8 @@ export const MID_MONSTERS: MonsterSpecies[] = [
     baseStats: { hp: 76, atk: 98, def: 65, spAtk: 68, spDef: 65, speed: 93 },
     baseExpYield: 180,
     expGroup: "medium_fast",
+    dexEntry:
+      "燃え盛るたてがみは王者の証。群れを率いて忘れられた大地を巡り、かつての繁栄の痕跡を焼き付けるように見つめる。",
     learnset: [
       { level: 1, moveId: "tackle" },
       { level: 1, moveId: "ember" },
@@ -50,6 +54,8 @@ export const MID_MONSTERS: MonsterSpecies[] = [
     baseStats: { hp: 55, atk: 70, def: 55, spAtk: 30, spDef: 40, speed: 45 },
     baseExpYield: 75,
     expGroup: "medium_slow",
+    dexEntry:
+      "大地を拳で叩き続けて鍛える。大忘却で割れた地層を繋ぎ止めるように、黙々と岩を積み上げる姿が目撃されている。",
     learnset: [
       { level: 1, moveId: "tackle" },
       { level: 5, moveId: "leer" },
@@ -66,6 +72,8 @@ export const MID_MONSTERS: MonsterSpecies[] = [
     baseStats: { hp: 80, atk: 105, def: 85, spAtk: 40, spDef: 55, speed: 55 },
     baseExpYield: 190,
     expGroup: "medium_slow",
+    dexEntry:
+      "岩の鎧を纏った拳士。忘れ去られた武術の型を本能で再現し、一撃で巨岩を砕く。その技は大忘却以前の格闘術の名残だという。",
     learnset: [
       { level: 1, moveId: "tackle" },
       { level: 1, moveId: "leer" },
@@ -86,6 +94,8 @@ export const MID_MONSTERS: MonsterSpecies[] = [
     baseStats: { hp: 50, atk: 55, def: 50, spAtk: 35, spDef: 40, speed: 60 },
     baseExpYield: 68,
     expGroup: "medium_fast",
+    dexEntry:
+      "地中のトンネルを掘り進む名人。大忘却で埋もれた地下遺跡を見つけ出すことがあり、考古学者の良きパートナー。",
     learnset: [
       { level: 1, moveId: "scratch" },
       { level: 1, moveId: "mud-slap" },
@@ -102,6 +112,8 @@ export const MID_MONSTERS: MonsterSpecies[] = [
     baseStats: { hp: 75, atk: 90, def: 85, spAtk: 45, spDef: 60, speed: 75 },
     baseExpYield: 178,
     expGroup: "medium_fast",
+    dexEntry:
+      "鋼の爪で地脈を切り開く。体に纏った鉱石は大忘却以前の金属文明の遺産で、決して錆びることがない。",
     learnset: [
       { level: 1, moveId: "scratch" },
       { level: 1, moveId: "mud-slap" },
@@ -122,6 +134,8 @@ export const MID_MONSTERS: MonsterSpecies[] = [
     baseStats: { hp: 35, atk: 25, def: 30, spAtk: 60, spDef: 45, speed: 55 },
     baseExpYield: 55,
     expGroup: "medium_slow",
+    dexEntry:
+      "揺らめく炎のような姿をした幽霊。大忘却で消えた人々の想いの残滓から生まれたとされる。触れると切ない記憶が蘇る。",
     learnset: [
       { level: 1, moveId: "tackle" },
       { level: 4, moveId: "shadow-sneak" },
@@ -137,6 +151,8 @@ export const MID_MONSTERS: MonsterSpecies[] = [
     baseStats: { hp: 50, atk: 40, def: 45, spAtk: 85, spDef: 65, speed: 70 },
     baseExpYield: 140,
     expGroup: "medium_slow",
+    dexEntry:
+      "影に潜み、人の忘れた記憶を拾い集める。月夜に影の中から覗く瞳は、忘却の彼方を見つめているかのようだ。",
     learnset: [
       { level: 1, moveId: "tackle" },
       { level: 1, moveId: "shadow-sneak" },
@@ -153,6 +169,8 @@ export const MID_MONSTERS: MonsterSpecies[] = [
     baseStats: { hp: 65, atk: 55, def: 60, spAtk: 115, spDef: 90, speed: 90 },
     baseExpYield: 230,
     expGroup: "medium_slow",
+    dexEntry:
+      "黄泉の舞を踊ることで、忘れ去られた魂を一時的に呼び戻す。大忘却の犠牲者たちの想いを鎮める神聖な存在とされている。",
     learnset: [
       { level: 1, moveId: "tackle" },
       { level: 1, moveId: "shadow-sneak" },
@@ -172,6 +190,8 @@ export const MID_MONSTERS: MonsterSpecies[] = [
     baseStats: { hp: 50, atk: 35, def: 40, spAtk: 60, spDef: 55, speed: 55 },
     baseExpYield: 72,
     expGroup: "fast",
+    dexEntry:
+      "花畑に隠れて暮らす臆病なモンスター。大忘却で荒れ果てた野原に真っ先に花を咲かせたのは、この子たちだと伝えられている。",
     learnset: [
       { level: 1, moveId: "tackle" },
       { level: 1, moveId: "fairy-wind" },
@@ -187,6 +207,8 @@ export const MID_MONSTERS: MonsterSpecies[] = [
     baseStats: { hp: 70, atk: 50, def: 60, spAtk: 95, spDef: 85, speed: 80 },
     baseExpYield: 185,
     expGroup: "fast",
+    dexEntry:
+      "満月の光を浴びて進化する。月明かりに照らされた耳は忘れた記憶を受信するアンテナのようで、涙を流しながら月を見上げることがある。",
     learnset: [
       { level: 1, moveId: "tackle" },
       { level: 1, moveId: "fairy-wind" },
@@ -206,6 +228,8 @@ export const MID_MONSTERS: MonsterSpecies[] = [
     baseStats: { hp: 65, atk: 70, def: 100, spAtk: 40, spDef: 70, speed: 30 },
     baseExpYield: 140,
     expGroup: "medium_slow",
+    dexEntry:
+      "体は忘れ去られた時代の金属でできている。何千年経っても朽ちず、大忘却の記録を体内に封じ込めた生きた遺跡とも呼ばれる。",
     learnset: [
       { level: 1, moveId: "tackle" },
       { level: 1, moveId: "metal-claw" },
@@ -225,6 +249,8 @@ export const MID_MONSTERS: MonsterSpecies[] = [
     baseStats: { hp: 45, atk: 35, def: 40, spAtk: 55, spDef: 50, speed: 40 },
     baseExpYield: 60,
     expGroup: "medium_fast",
+    dexEntry:
+      "腐った落ち葉から生まれるカビのモンスター。大忘却で朽ちた森の養分を吸い上げ、忘却の瘴気を胞子として撒き散らす。",
     learnset: [
       { level: 1, moveId: "tackle" },
       { level: 1, moveId: "poison-sting" },
@@ -241,6 +267,8 @@ export const MID_MONSTERS: MonsterSpecies[] = [
     baseStats: { hp: 70, atk: 55, def: 65, spAtk: 90, spDef: 80, speed: 60 },
     baseExpYield: 175,
     expGroup: "medium_fast",
+    dexEntry:
+      "美しくも致命的な毒の花を咲かせる。その花弁の香りを嗅ぐと忘れていた記憶が蘇るが、同時に激しい頭痛に襲われるという。",
     learnset: [
       { level: 1, moveId: "tackle" },
       { level: 1, moveId: "poison-sting" },
@@ -261,6 +289,8 @@ export const MID_MONSTERS: MonsterSpecies[] = [
     baseStats: { hp: 55, atk: 75, def: 50, spAtk: 60, spDef: 50, speed: 80 },
     baseExpYield: 130,
     expGroup: "medium_slow",
+    dexEntry:
+      "大忘却の闇夜を自在に飛ぶ不吉な鳥。光る物を集める習性があり、巣には忘れられた時代の宝物が溜まっていることがある。",
     learnset: [
       { level: 1, moveId: "peck" },
       { level: 1, moveId: "bite" },
