@@ -13,6 +13,12 @@ export interface EvolutionContext {
   friendship?: number;
   /** 通信交換が発生したか */
   isTrade?: boolean;
+  /** 現在のマップID（場所進化） */
+  currentMapId?: string;
+  /** モンスターが覚えている技ID一覧（技進化） */
+  knownMoveIds?: string[];
+  /** パーティにいるモンスターのspeciesId一覧（パーティ条件進化） */
+  partySpeciesIds?: string[];
 }
 
 /** なつき進化に必要な最低なつき度 */
@@ -45,7 +51,52 @@ function checkCondition(condition: string | undefined, context: EvolutionContext
     return context.isTrade === true;
   }
 
+  // 場所進化: "location:map_id"
+  if (condition.startsWith("location:")) {
+    const requiredMapId = condition.slice(9);
+    return context.currentMapId === requiredMapId;
+  }
+
+  // 技進化: "move:move_id"
+  if (condition.startsWith("move:")) {
+    const requiredMoveId = condition.slice(5);
+    return context.knownMoveIds?.includes(requiredMoveId) ?? false;
+  }
+
+  // パーティ条件進化: "party:species_id"
+  if (condition.startsWith("party:")) {
+    const requiredSpeciesId = condition.slice(6);
+    return context.partySpeciesIds?.includes(requiredSpeciesId) ?? false;
+  }
+
+  // なつき度指定: "friendship:220"
+  if (condition.startsWith("friendship:")) {
+    const threshold = parseInt(condition.slice(11), 10);
+    return (context.friendship ?? 0) >= threshold;
+  }
+
   return false; // 不明な条件は満たさない
+}
+
+/**
+ * 進化条件文字列から人間が読める説明を生成
+ */
+export function describeCondition(condition: string | undefined): string {
+  if (condition === undefined) return "レベルアップ";
+
+  if (condition.startsWith("item:")) return `${condition.slice(5)}を使う`;
+  if (condition === "time:day") return "昼にレベルアップ";
+  if (condition === "time:night") return "夜にレベルアップ";
+  if (condition === "friendship") return "なつき度が高い状態でレベルアップ";
+  if (condition === "trade") return "通信交換";
+  if (condition.startsWith("location:")) return `${condition.slice(9)}でレベルアップ`;
+  if (condition.startsWith("move:")) return `${condition.slice(5)}を覚えた状態でレベルアップ`;
+  if (condition.startsWith("party:"))
+    return `${condition.slice(6)}がパーティにいる状態でレベルアップ`;
+  if (condition.startsWith("friendship:"))
+    return `なつき度${condition.slice(11)}以上でレベルアップ`;
+
+  return "不明な条件";
 }
 
 /**
