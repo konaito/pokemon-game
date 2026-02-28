@@ -53,6 +53,7 @@ import {
   createChampionScript,
 } from "@/engine/event/elite-four";
 import { createEndingScript } from "@/engine/event/ending";
+import { getEffectForType } from "./ui/BattleEffect";
 
 /** スターター定義 */
 const STARTERS: StarterOption[] = [
@@ -135,6 +136,10 @@ export function Game() {
   const [battleMessages, setBattleMessages] = useState<string[]>([]);
   const [isBattleProcessing, setIsBattleProcessing] = useState(false);
   const [wildMonster, setWildMonster] = useState<MonsterInstance | null>(null);
+  const [battleEffect, setBattleEffect] = useState<{
+    effect: import("./ui/BattleEffect").BattleEffectDef;
+    target: "player" | "opponent";
+  } | null>(null);
 
   // --- オーバーレイ画面（メニュー系） ---
   const [overlayScreen, setOverlayScreen] = useState<OverlayScreen>(null);
@@ -649,6 +654,14 @@ export function Game() {
       let engineAction: BattleAction;
       if (action.type === "fight") {
         engineAction = { type: "fight", moveIndex: action.moveIndex };
+        // 技エフェクトをトリガー
+        const moveId = battleEngine.playerActive.moves[action.moveIndex]?.moveId;
+        if (moveId) {
+          const moveDef = moveResolver(moveId);
+          const effectDef = getEffectForType(moveDef.type);
+          setBattleEffect({ effect: effectDef, target: "opponent" });
+          setTimeout(() => setBattleEffect(null), effectDef.duration + 100);
+        }
       } else {
         engineAction = { type: "run" };
       }
@@ -1393,6 +1406,7 @@ export function Game() {
             onAction={handleBattleAction}
             isProcessing={isBattleProcessing}
             environment={resolveEnvironment(state.overworld?.currentMapId ?? "")}
+            activeEffect={battleEffect}
           />
           {renderOverlay()}
           {messageOverlay}
