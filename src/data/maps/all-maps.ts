@@ -57,6 +57,15 @@ export const TSUCHIGUMO_VILLAGE: MapDefinition = {
       isTrainer: true,
       onInteract: { setFlags: { gym1_battle_triggered: true } },
     },
+    {
+      id: "npc-shop-tsuchigumo",
+      name: "ショップ店員",
+      x: 2,
+      y: 7,
+      dialogue: ["いらっしゃいませ！ 何をお求めですか？"],
+      isTrainer: false,
+      onInteract: { shop: [] },
+    },
   ],
 };
 
@@ -138,6 +147,15 @@ export const MORINOHA_TOWN: MapDefinition = {
       y: 3,
       dialogue: ["虫タイプの研究をしているの。挑戦する？"],
       isTrainer: true,
+    },
+    {
+      id: "npc-shop-morinohano",
+      name: "ショップ店員",
+      x: 2,
+      y: 7,
+      dialogue: ["いらっしゃいませ！"],
+      isTrainer: false,
+      onInteract: { shop: [] },
     },
   ],
 };
@@ -222,6 +240,15 @@ export const INAZUMA_CITY: MapDefinition = {
       dialogue: ["ビリビリ来るぜ！挑戦するか！"],
       isTrainer: true,
     },
+    {
+      id: "npc-shop-inadzuma",
+      name: "ショップ店員",
+      x: 2,
+      y: 7,
+      dialogue: ["いらっしゃいませ！"],
+      isTrainer: false,
+      onInteract: { shop: [] },
+    },
   ],
 };
 
@@ -305,6 +332,15 @@ export const KAGARI_CITY: MapDefinition = {
       dialogue: ["お前の心に火はあるか？"],
       isTrainer: true,
     },
+    {
+      id: "npc-shop-kagari",
+      name: "ショップ店員",
+      x: 2,
+      y: 7,
+      dialogue: ["いらっしゃいませ！"],
+      isTrainer: false,
+      onInteract: { shop: [] },
+    },
   ],
 };
 
@@ -387,6 +423,15 @@ export const GOUKI_TOWN: MapDefinition = {
       y: 3,
       dialogue: ["言葉はいらぬ。拳で語り合おう。"],
       isTrainer: true,
+    },
+    {
+      id: "npc-shop-gouki",
+      name: "ショップ店員",
+      x: 2,
+      y: 7,
+      dialogue: ["いらっしゃいませ！"],
+      isTrainer: false,
+      onInteract: { shop: [] },
     },
   ],
 };
@@ -472,6 +517,15 @@ export const KIRIFURI_VILLAGE: MapDefinition = {
       dialogue: ["ふふ…よく来たわね。"],
       isTrainer: true,
     },
+    {
+      id: "npc-shop-kirifuri",
+      name: "ショップ店員",
+      x: 2,
+      y: 7,
+      dialogue: ["いらっしゃいませ！"],
+      isTrainer: false,
+      onInteract: { shop: [] },
+    },
   ],
 };
 
@@ -554,6 +608,15 @@ export const FUYUHA_TOWN: MapDefinition = {
       y: 3,
       dialogue: ["氷は記憶を閉じ込める。"],
       isTrainer: true,
+    },
+    {
+      id: "npc-shop-fuyuha",
+      name: "ショップ店員",
+      x: 2,
+      y: 7,
+      dialogue: ["いらっしゃいませ！"],
+      isTrainer: false,
+      onInteract: { shop: [] },
     },
   ],
 };
@@ -654,6 +717,15 @@ export const TATSUMI_CITY: MapDefinition = {
       y: 3,
       dialogue: ["竜の試練に挑むか。覚悟はいいか。"],
       isTrainer: true,
+    },
+    {
+      id: "npc-shop-tatsumi",
+      name: "ショップ店員",
+      x: 2,
+      y: 7,
+      dialogue: ["いらっしゃいませ！"],
+      isTrainer: false,
+      onInteract: { shop: [] },
     },
   ],
 };

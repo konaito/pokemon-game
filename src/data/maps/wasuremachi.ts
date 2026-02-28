@@ -89,5 +89,14 @@ export const WASUREMACHI: MapDefinition = {
       ],
       isTrainer: false,
     },
+    {
+      id: "npc-shop-wasuremachi",
+      name: "ショップ店員",
+      x: 8,
+      y: 6,
+      dialogue: ["いらっしゃいませ！ 何をお求めですか？"],
+      isTrainer: false,
+      onInteract: { shop: [] },
+    },
   ],
 };
