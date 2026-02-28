@@ -8,6 +8,7 @@ import { calcAllStats } from "@/engine/monster/stats";
 import { checkEvolution, evolve } from "@/engine/monster/evolution";
 import { applyStatChanges, createStatStages } from "./stat-stage";
 import { selectAiMove, type AiLevel } from "./ai";
+import { calculatePrizeMoney, getAceLevel, type TrainerClass } from "./prize-money";
 
 /** バトルエンジン */
 export class BattleEngine {
@@ -16,6 +17,8 @@ export class BattleEngine {
   private moveResolver: MoveResolver;
   private random: () => number;
   private aiLevel: AiLevel;
+  private trainerName: string | null;
+  private trainerClass: TrainerClass;
 
   constructor(
     playerParty: MonsterInstance[],
@@ -25,6 +28,8 @@ export class BattleEngine {
     moveResolver: MoveResolver,
     random?: () => number,
     aiLevel?: AiLevel,
+    trainerName?: string,
+    trainerClass?: TrainerClass,
   ) {
     const hasAlive = playerParty.some((m) => m.currentHp > 0);
     if (!hasAlive) {
@@ -36,6 +41,8 @@ export class BattleEngine {
     this.moveResolver = moveResolver;
     this.random = random ?? Math.random;
     this.aiLevel = aiLevel ?? "random";
+    this.trainerName = trainerName ?? null;
+    this.trainerClass = trainerClass ?? "normal";
   }
 
   /** プレイヤーのアクティブモンスター */
@@ -357,9 +364,18 @@ export class BattleEngine {
       );
 
       if (nextAlive === -1) {
-        this.state.result = { type: "win" };
+        const winResult: { type: "win"; prizeMoney?: number } = { type: "win" };
+        if (this.state.battleType === "trainer") {
+          const aceLvl = getAceLevel(this.state.opponent.party.map((m) => m.level));
+          const prize = calculatePrizeMoney(aceLvl, this.trainerClass);
+          winResult.prizeMoney = prize;
+          this.state.messages.push("バトルに勝利した！");
+          this.state.messages.push(`${prize}円を手に入れた！`);
+        } else {
+          this.state.messages.push("バトルに勝利した！");
+        }
+        this.state.result = winResult;
         this.state.phase = "battle_end";
-        this.state.messages.push("バトルに勝利した！");
         return true;
       }
 
