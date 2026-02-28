@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { checkEvolution, evolve } from "../evolution";
+import { checkEvolution, evolve, describeCondition } from "../evolution";
 import type { EvolutionContext } from "../evolution";
 import type { MonsterInstance, MonsterSpecies } from "@/types";
 
@@ -207,6 +207,175 @@ describe("進化システム", () => {
       const monster = createDummyMonster(30);
       monster.speciesId = "kadabra";
       expect(checkEvolution(monster, tradeEvoSpecies)).toBeNull();
+    });
+  });
+
+  describe("checkEvolution — 場所進化", () => {
+    const locationEvoSpecies: MonsterSpecies = {
+      id: "magneton",
+      name: "レアコイル",
+      types: ["electric", "steel"],
+      baseStats: { hp: 50, atk: 60, def: 95, spAtk: 120, spDef: 70, speed: 70 },
+      baseExpYield: 163,
+      expGroup: "medium_fast",
+      learnset: [],
+      evolvesTo: [{ id: "magnezone", level: 30, condition: "location:power_plant" }],
+    };
+
+    it("指定マップでレベル条件を満たせば進化する", () => {
+      const monster = createDummyMonster(30);
+      monster.speciesId = "magneton";
+      const ctx: EvolutionContext = { currentMapId: "power_plant" };
+      expect(checkEvolution(monster, locationEvoSpecies, ctx)).toBe("magnezone");
+    });
+
+    it("異なるマップでは進化しない", () => {
+      const monster = createDummyMonster(30);
+      monster.speciesId = "magneton";
+      const ctx: EvolutionContext = { currentMapId: "route_1" };
+      expect(checkEvolution(monster, locationEvoSpecies, ctx)).toBeNull();
+    });
+
+    it("マップ未指定では進化しない", () => {
+      const monster = createDummyMonster(30);
+      monster.speciesId = "magneton";
+      expect(checkEvolution(monster, locationEvoSpecies)).toBeNull();
+    });
+  });
+
+  describe("checkEvolution — 技進化", () => {
+    const moveEvoSpecies: MonsterSpecies = {
+      id: "piloswine",
+      name: "イノムー",
+      types: ["ice", "ground"],
+      baseStats: { hp: 100, atk: 100, def: 80, spAtk: 60, spDef: 60, speed: 50 },
+      baseExpYield: 158,
+      expGroup: "slow",
+      learnset: [],
+      evolvesTo: [{ id: "mamoswine", level: 1, condition: "move:ancient-power" }],
+    };
+
+    it("指定技を覚えていれば進化する", () => {
+      const monster = createDummyMonster(40);
+      monster.speciesId = "piloswine";
+      const ctx: EvolutionContext = { knownMoveIds: ["ancient-power", "ice-beam"] };
+      expect(checkEvolution(monster, moveEvoSpecies, ctx)).toBe("mamoswine");
+    });
+
+    it("指定技を覚えていなければ進化しない", () => {
+      const monster = createDummyMonster(40);
+      monster.speciesId = "piloswine";
+      const ctx: EvolutionContext = { knownMoveIds: ["ice-beam", "earthquake"] };
+      expect(checkEvolution(monster, moveEvoSpecies, ctx)).toBeNull();
+    });
+
+    it("技未指定では進化しない", () => {
+      const monster = createDummyMonster(40);
+      monster.speciesId = "piloswine";
+      expect(checkEvolution(monster, moveEvoSpecies)).toBeNull();
+    });
+  });
+
+  describe("checkEvolution — パーティ条件進化", () => {
+    const partyEvoSpecies: MonsterSpecies = {
+      id: "mantyke",
+      name: "タマンタ",
+      types: ["water", "flying"],
+      baseStats: { hp: 45, atk: 20, def: 50, spAtk: 60, spDef: 120, speed: 50 },
+      baseExpYield: 69,
+      expGroup: "slow",
+      learnset: [],
+      evolvesTo: [{ id: "mantine", level: 1, condition: "party:remoraid" }],
+    };
+
+    it("パーティに指定モンスターがいれば進化する", () => {
+      const monster = createDummyMonster(20);
+      monster.speciesId = "mantyke";
+      const ctx: EvolutionContext = { partySpeciesIds: ["remoraid", "pikachu"] };
+      expect(checkEvolution(monster, partyEvoSpecies, ctx)).toBe("mantine");
+    });
+
+    it("パーティに指定モンスターがいなければ進化しない", () => {
+      const monster = createDummyMonster(20);
+      monster.speciesId = "mantyke";
+      const ctx: EvolutionContext = { partySpeciesIds: ["pikachu", "charmander"] };
+      expect(checkEvolution(monster, partyEvoSpecies, ctx)).toBeNull();
+    });
+
+    it("パーティ未指定では進化しない", () => {
+      const monster = createDummyMonster(20);
+      monster.speciesId = "mantyke";
+      expect(checkEvolution(monster, partyEvoSpecies)).toBeNull();
+    });
+  });
+
+  describe("checkEvolution — なつき度指定進化", () => {
+    const friendshipThresholdSpecies: MonsterSpecies = {
+      id: "riolu",
+      name: "リオル",
+      types: ["fighting"],
+      baseStats: { hp: 40, atk: 70, def: 40, spAtk: 35, spDef: 40, speed: 60 },
+      baseExpYield: 57,
+      expGroup: "medium_slow",
+      learnset: [],
+      evolvesTo: [{ id: "lucario", level: 1, condition: "friendship:180" }],
+    };
+
+    it("指定なつき度以上で進化する", () => {
+      const monster = createDummyMonster(25);
+      monster.speciesId = "riolu";
+      const ctx: EvolutionContext = { friendship: 180 };
+      expect(checkEvolution(monster, friendshipThresholdSpecies, ctx)).toBe("lucario");
+    });
+
+    it("指定なつき度未満では進化しない", () => {
+      const monster = createDummyMonster(25);
+      monster.speciesId = "riolu";
+      const ctx: EvolutionContext = { friendship: 179 };
+      expect(checkEvolution(monster, friendshipThresholdSpecies, ctx)).toBeNull();
+    });
+  });
+
+  describe("describeCondition", () => {
+    it("条件なし", () => {
+      expect(describeCondition(undefined)).toBe("レベルアップ");
+    });
+
+    it("アイテム進化", () => {
+      expect(describeCondition("item:fire-stone")).toContain("fire-stone");
+    });
+
+    it("時間帯進化", () => {
+      expect(describeCondition("time:day")).toContain("昼");
+      expect(describeCondition("time:night")).toContain("夜");
+    });
+
+    it("なつき進化", () => {
+      expect(describeCondition("friendship")).toContain("なつき度");
+    });
+
+    it("通信進化", () => {
+      expect(describeCondition("trade")).toContain("通信");
+    });
+
+    it("場所進化", () => {
+      expect(describeCondition("location:power_plant")).toContain("power_plant");
+    });
+
+    it("技進化", () => {
+      expect(describeCondition("move:ancient-power")).toContain("ancient-power");
+    });
+
+    it("パーティ条件進化", () => {
+      expect(describeCondition("party:remoraid")).toContain("remoraid");
+    });
+
+    it("なつき度指定進化", () => {
+      expect(describeCondition("friendship:180")).toContain("180");
+    });
+
+    it("不明な条件", () => {
+      expect(describeCondition("unknown")).toContain("不明");
     });
   });
 

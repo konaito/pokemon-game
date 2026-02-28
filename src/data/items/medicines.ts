@@ -85,12 +85,19 @@ export const MEDICINE_ITEMS: Record<string, ItemDefinition> = {
     usableInBattle: true,
     effect: { type: "heal_status", status: "all" },
   },
-
-  // ── 瀕死復活アイテム (#195) ──
+  "max-potion": {
+    id: "max-potion",
+    name: "まんたんのくすり",
+    description: "HPをすべて回復する。",
+    category: "medicine",
+    price: 2500,
+    usableInBattle: true,
+    effect: { type: "heal_hp", amount: 9999 },
+  },
   revive: {
     id: "revive",
     name: "げんきのかけら",
-    description: "瀕死のモンスターをHP半分で復活させる。",
+    description: "ひんしのモンスターをHP半分で復活させる。",
     category: "medicine",
     price: 1500,
     usableInBattle: true,
@@ -99,58 +106,43 @@ export const MEDICINE_ITEMS: Record<string, ItemDefinition> = {
   "max-revive": {
     id: "max-revive",
     name: "げんきのかたまり",
-    description: "瀕死のモンスターをHP全回復で復活させる。",
+    description: "ひんしのモンスターをHP全回復で復活させる。",
     category: "medicine",
     price: 4000,
     usableInBattle: true,
-    effect: { type: "revive", hpPercent: 100 },
+    effect: { type: "revive_full" },
   },
-
-  // ── HP全回復 (#195) ──
-  "max-potion": {
-    id: "max-potion",
-    name: "まんたんのくすり",
-    description: "HPをすべて回復する。状態異常は治さない。",
-    category: "medicine",
-    price: 2500,
-    usableInBattle: true,
-    effect: { type: "heal_hp", amount: 9999 },
-  },
-
-  // ── PP回復アイテム (#195) ──
-  "pp-aid": {
-    id: "pp-aid",
+  "pp-up": {
+    id: "pp-up",
     name: "ピーピーエイド",
     description: "1つの技のPPを10回復する。",
     category: "medicine",
     price: 0,
     usableInBattle: true,
-    effect: { type: "heal_pp", amount: 10 },
+    effect: { type: "heal_pp_one", amount: 10 },
+  },
+  "pp-recover": {
+    id: "pp-recover",
+    name: "ピーピーリカバー",
+    description: "1つの技のPPをすべて回復する。",
+    category: "medicine",
+    price: 0,
+    usableInBattle: true,
+    effect: { type: "heal_pp_one", amount: "all" },
   },
   "pp-max": {
     id: "pp-max",
     name: "ピーピーマックス",
-    description: "すべての技のPPを全回復する。",
+    description: "すべての技のPPをすべて回復する。",
     category: "medicine",
     price: 0,
     usableInBattle: true,
     effect: { type: "heal_pp", amount: "all" },
   },
-  "pp-recover": {
-    id: "pp-recover",
-    name: "ピーピーリカバー",
-    description: "1つの技のPPを全回復する。",
-    category: "medicine",
-    price: 0,
-    usableInBattle: true,
-    effect: { type: "heal_pp", amount: 9999 },
-  },
-
-  // ── 特殊回復 (#195) ──
   "rare-candy": {
     id: "rare-candy",
     name: "ふしぎなアメ",
-    description: "モンスターのレベルを1上げる。",
+    description: "レベルを1上げる。",
     category: "medicine",
     price: 0,
     usableInBattle: false,
