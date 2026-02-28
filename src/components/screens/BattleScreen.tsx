@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback } from "react";
 import { HpBar } from "../ui/HpBar";
+import { ExpBar } from "../ui/ExpBar";
 import { MonsterSprite } from "../ui/MonsterSprite";
 import { BattleBackground, type BattleEnvironment } from "../ui/BattleBackgrounds";
 import { TYPE_BG, TYPE_HEX, TYPE_LABEL } from "@/lib/design-tokens";
@@ -19,6 +20,7 @@ export interface BattleMonsterInfo {
   isPlayer: boolean;
   speciesId: string;
   types: string[];
+  expPercent?: number;
 }
 
 export interface BattleMoveInfo {
@@ -223,6 +225,11 @@ export function BattleScreen({
             </div>
             <div className="px-3 pb-2">
               <HpBar current={player.currentHp} max={player.maxHp} className="w-44" />
+              {player.expPercent !== undefined && (
+                <div className="mt-0.5">
+                  <ExpBar percent={player.expPercent} className="w-44" />
+                </div>
+              )}
             </div>
           </div>
         </div>
