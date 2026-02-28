@@ -129,6 +129,8 @@ export interface MonsterInstance {
   currentHp: number;
   moves: MoveInstance[];
   status: StatusCondition | null;
+  /** なつき度 (0-255) */
+  friendship?: number;
   /** この個体の特性 */
   ability?: AbilityId;
   /** タマゴかどうか */
