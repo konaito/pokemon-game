@@ -7,6 +7,7 @@ import { calcExpGain, grantExp } from "./experience";
 import { calcAllStats } from "@/engine/monster/stats";
 import { checkEvolution, evolve } from "@/engine/monster/evolution";
 import { applyStatChanges, createStatStages } from "./stat-stage";
+import { selectAiMove, type AiLevel } from "./ai";
 import { calculatePrizeMoney, getAceLevel, type TrainerClass } from "./prize-money";
 
 /** バトルエンジン */
@@ -15,6 +16,7 @@ export class BattleEngine {
   private speciesResolver: SpeciesResolver;
   private moveResolver: MoveResolver;
   private random: () => number;
+  private aiLevel: AiLevel;
   private trainerName: string | null;
   private trainerClass: TrainerClass;
 
@@ -25,6 +27,7 @@ export class BattleEngine {
     speciesResolver: SpeciesResolver,
     moveResolver: MoveResolver,
     random?: () => number,
+    aiLevel?: AiLevel,
     trainerName?: string,
     trainerClass?: TrainerClass,
   ) {
@@ -37,6 +40,7 @@ export class BattleEngine {
     this.speciesResolver = speciesResolver;
     this.moveResolver = moveResolver;
     this.random = random ?? Math.random;
+    this.aiLevel = aiLevel ?? "random";
     this.trainerName = trainerName ?? null;
     this.trainerClass = trainerClass ?? "normal";
   }
@@ -436,20 +440,22 @@ export class BattleEngine {
     applyToMonster(this.opponentActive);
   }
 
-  /** 相手のAI: ランダムに技を選択 */
+  /** 相手のAI: aiLevelに基づいて技を選択 */
   private selectOpponentAction(): BattleAction {
-    const active = this.opponentActive;
-    const usableMoves = active.moves
-      .map((m, i) => ({ ...m, index: i }))
-      .filter((m) => m.currentPp > 0);
+    const activeSpecies = this.speciesResolver(this.opponentActive.speciesId);
+    const defenderSpecies = this.speciesResolver(this.playerActive.speciesId);
 
-    if (usableMoves.length === 0) {
-      // PPが尽きた場合: わるあがき
-      return { type: "fight", moveIndex: -1 };
-    }
+    const moveIndex = selectAiMove(
+      this.aiLevel,
+      this.opponentActive,
+      activeSpecies,
+      this.playerActive,
+      defenderSpecies,
+      this.moveResolver,
+      () => this.random(),
+    );
 
-    const chosen = usableMoves[Math.floor(this.random() * usableMoves.length)];
-    return { type: "fight", moveIndex: chosen.index };
+    return { type: "fight", moveIndex };
   }
 
   /** 強制交代の実行 */
