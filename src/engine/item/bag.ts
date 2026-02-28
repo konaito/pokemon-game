@@ -53,9 +53,36 @@ export function useHealItem(
   target: MonsterInstance,
   maxHp: number,
   moveResolver?: (moveId: string) => MoveDefinition,
+  moveIndex?: number,
 ): { used: boolean; message: string } {
+  // 瀕死復活系: 瀕死でないと使えない
+  if (item.effect.type === "revive" || item.effect.type === "revive_full") {
+    if (target.currentHp > 0) {
+      return { used: false, message: "ひんしではないので使えない！" };
+    }
+    if (item.effect.type === "revive_full") {
+      target.currentHp = maxHp;
+    } else {
+      target.currentHp = Math.max(1, Math.floor(maxHp * (item.effect.hpPercent / 100)));
+    }
+    target.status = null;
+    const name = target.nickname ?? "モンスター";
+    return { used: true, message: `${name}は元気を取り戻した！` };
+  }
+
+  // レベルアップ: 瀕死でも使用可能
+  if (item.effect.type === "level_up") {
+    if (target.level >= 100) {
+      return { used: false, message: "これ以上レベルは上がらない！" };
+    }
+    target.level++;
+    const name = target.nickname ?? "モンスター";
+    return { used: true, message: `${name}のレベルが${target.level}に上がった！` };
+  }
+
+  // 瀕死の場合は他のアイテムは使えない
   if (target.currentHp <= 0) {
-    return { used: false, message: `${target.nickname ?? "モンスター"}は瀕死のため使えない！` };
+    return { used: false, message: `${target.nickname ?? "モンスター"}はひんしのため使えない！` };
   }
 
   if (item.effect.type === "heal_hp") {
@@ -99,6 +126,28 @@ export function useHealItem(
       return { used: false, message: "PPは満タンだ！" };
     }
     return { used: true, message: "PPが回復した！" };
+  }
+
+  if (item.effect.type === "heal_pp_one") {
+    if (!moveResolver) {
+      return { used: false, message: "このアイテムは使えない！" };
+    }
+    if (moveIndex === undefined || moveIndex < 0 || moveIndex >= target.moves.length) {
+      return { used: false, message: "技を選んでください！" };
+    }
+    const move = target.moves[moveIndex];
+    const moveDef = moveResolver(move.moveId);
+    const maxPp = moveDef.pp;
+    if (move.currentPp >= maxPp) {
+      return { used: false, message: `${moveDef.name}のPPは満タンだ！` };
+    }
+    const amount = item.effect.amount;
+    if (amount === "all") {
+      move.currentPp = maxPp;
+    } else {
+      move.currentPp = Math.min(maxPp, move.currentPp + amount);
+    }
+    return { used: true, message: `${moveDef.name}のPPが回復した！` };
   }
 
   return { used: false, message: "このアイテムは使えない！" };

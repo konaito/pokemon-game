@@ -85,6 +85,30 @@ import {
 // ─── 伝説 ───
 import { omoide, wasurenu } from "./legendary";
 
+// ─── 追加モンスター ───
+import {
+  dokukinoko,
+  kinodokushi,
+  kumoito,
+  jorougumo,
+  hanakabuto,
+  hitodama,
+  yuureibi,
+  amatera,
+  tetsuiwa,
+  koutetsujin,
+  yamitokage,
+  ankokuryuu,
+  koorimogura,
+  toudojin,
+  hikariusagi,
+  yozoraneko,
+  dokurinpu,
+  tsuchinoko,
+  kazewashi,
+  wasurenagusa,
+} from "./new";
+
 const ALL_SPRITES: Record<string, PixelSpriteData> = {
   // スターター
   himori,
@@ -141,6 +165,27 @@ const ALL_SPRITES: Record<string, PixelSpriteData> = {
   // 伝説
   omoide,
   wasurenu,
+  // 追加モンスター
+  dokukinoko,
+  kinodokushi,
+  kumoito,
+  jorougumo,
+  hanakabuto,
+  hitodama,
+  yuureibi,
+  amatera,
+  tetsuiwa,
+  koutetsujin,
+  yamitokage,
+  ankokuryuu,
+  koorimogura,
+  toudojin,
+  hikariusagi,
+  yozoraneko,
+  dokurinpu,
+  tsuchinoko,
+  kazewashi,
+  wasurenagusa,
 };
 
 /** speciesId からスプライトデータを取得。未定義なら undefined */

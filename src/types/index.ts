@@ -5,6 +5,9 @@
 /** ゲームのトップレベル状態 */
 export type GamePhase = "title" | "overworld" | "battle" | "menu" | "dialogue" | "cutscene";
 
+/** 時間帯 */
+export type TimeOfDay = "day" | "evening" | "night";
+
 /** 一意な識別子 */
 export type MonsterId = string;
 export type MoveId = string;
@@ -107,6 +110,8 @@ export interface MonsterSpecies {
   eggMoves?: MoveId[];
   /** 孵化歩数 */
   hatchSteps?: number;
+  /** 図鑑説明テキスト */
+  dexEntry?: string;
 }
 
 /** 個体としてのモンスター */
@@ -126,6 +131,8 @@ export interface MonsterInstance {
   isEgg?: boolean;
   /** 孵化までの残り歩数 */
   eggSteps?: number;
+  /** 持ち物 */
+  heldItem?: string;
 }
 
 /** 技のインスタンス（PP管理付き） */
@@ -181,6 +188,10 @@ export type ItemEffect =
   | { type: "heal_hp"; amount: number }
   | { type: "heal_status"; status: StatusCondition | "all" }
   | { type: "heal_pp"; amount: number | "all" }
+  | { type: "heal_pp_one"; amount: number | "all" }
+  | { type: "revive"; hpPercent: number }
+  | { type: "revive_full" }
+  | { type: "level_up" }
   | { type: "ball"; catchRateModifier: number }
   | { type: "none" };
 
@@ -205,5 +216,8 @@ export interface PartyState {
 
 /** 種族データを引けるリゾルバ */
 export type SpeciesResolver = (speciesId: string) => MonsterSpecies;
+/** 天候ID */
+export type WeatherId = "clear" | "sunny" | "rainy" | "sandstorm" | "hail";
+
 /** 技データを引けるリゾルバ */
 export type MoveResolver = (moveId: string) => MoveDefinition;

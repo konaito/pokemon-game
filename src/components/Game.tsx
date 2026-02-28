@@ -10,6 +10,7 @@ import { MenuScreen } from "./screens/MenuScreen";
 import { PartyScreen, type PartyMemberInfo } from "./screens/PartyScreen";
 import { BagScreen, type BagItemInfo } from "./screens/BagScreen";
 import { PokedexScreen, type PokedexEntry } from "./screens/PokedexScreen";
+import { ShopScreen, type ShopItemInfo } from "./screens/ShopScreen";
 import { MessageWindow } from "./ui/MessageWindow";
 import { SceneTransition, useSceneTransition } from "./ui/SceneTransition";
 import { useAudio } from "./AudioProvider";
@@ -17,12 +18,19 @@ import { resolveEnvironment } from "./ui/BattleBackgrounds";
 import type { MonsterInstance } from "@/types";
 import { BattleEngine } from "@/engine/battle/engine";
 import type { BattleAction } from "@/engine/battle/state-machine";
+import {
+  calculateLossPenalty,
+  resolveTrainerClass,
+  setGymLeaderNames,
+} from "@/engine/battle/prize-money";
 import { processEncounter, generateWildMonster } from "@/engine/map/encounter";
 import { useHealingCenter as healAtCenter } from "@/engine/map/healing";
 import { calcAllStats } from "@/engine/monster/stats";
 import { getLearnableMoves, learnMove, replaceMove } from "@/engine/monster/moves";
 import { swapPartyOrder } from "@/engine/monster/party";
 import { addItem, removeItem, useHealItem as applyHealItem } from "@/engine/item/bag";
+import { buyItem, sellItem } from "@/engine/map/shop";
+import { getShopItems } from "@/data/items/shop-inventory";
 import { executeCaptureFlow } from "@/engine/capture/capture-flow";
 import { ALL_SPECIES, getSpeciesById } from "@/data/monsters";
 import { expProgressPercent, expToNextLevel, expForLevel } from "@/engine/battle/experience";
@@ -45,6 +53,7 @@ import {
   createChampionScript,
 } from "@/engine/event/elite-four";
 import { createEndingScript } from "@/engine/event/ending";
+import { getEffectForType } from "./ui/BattleEffect";
 
 /** スターター定義 */
 const STARTERS: StarterOption[] = [
@@ -99,6 +108,9 @@ const moveResolver = createMoveResolver();
 const itemResolver = createItemResolver();
 const mapResolver = createMapResolver();
 
+// ジムリーダー名を賞金計算モジュールに登録
+setGymLeaderNames(GYM_LEADERS.map((g) => g.leaderName));
+
 /** maxHp計算ヘルパー */
 function getMaxHp(monster: MonsterInstance): number {
   const species = speciesResolver(monster.speciesId);
@@ -107,7 +119,7 @@ function getMaxHp(monster: MonsterInstance): number {
 }
 
 /** 前の画面を記録するためのタイプ */
-type OverlayScreen = "menu" | "party" | "bag" | "pokedex" | null;
+type OverlayScreen = "menu" | "party" | "bag" | "pokedex" | "shop" | null;
 
 export function Game() {
   const state = useGameState();
@@ -124,10 +136,17 @@ export function Game() {
   const [battleMessages, setBattleMessages] = useState<string[]>([]);
   const [isBattleProcessing, setIsBattleProcessing] = useState(false);
   const [wildMonster, setWildMonster] = useState<MonsterInstance | null>(null);
+  const [battleEffect, setBattleEffect] = useState<{
+    effect: import("./ui/BattleEffect").BattleEffectDef;
+    target: "player" | "opponent";
+  } | null>(null);
 
   // --- オーバーレイ画面（メニュー系） ---
   const [overlayScreen, setOverlayScreen] = useState<OverlayScreen>(null);
   const [, setReturnScreen] = useState<"overworld" | "battle">("overworld");
+
+  // --- ショップ ---
+  const [currentShopItems, setCurrentShopItems] = useState<string[]>([]);
 
   // --- メッセージウィンドウ ---
   const [pendingMessages, setPendingMessages] = useState<string[] | null>(null);
@@ -286,12 +305,16 @@ export function Game() {
         setBattleMessages([`${event.trainerName}が勝負を仕掛けてきた！`]);
         setIsBattleProcessing(true);
 
+        const trainerClass = resolveTrainerClass(event.trainerName);
         const engine = new BattleEngine(
           state.player.partyState.party,
           trainerParty,
           "trainer",
           speciesResolver,
           moveResolver,
+          undefined,
+          event.trainerName,
+          trainerClass,
         );
         setBattleEngine(engine);
         dispatch({ type: "CHANGE_SCREEN", screen: "battle" });
@@ -495,6 +518,20 @@ export function Game() {
         return;
       }
 
+      // ショップイベント
+      if (npc.onInteract?.shop) {
+        // バッジ数に応じた品揃え + NPC固有アイテム
+        const badgeCount = Object.keys(state.storyFlags).filter(
+          (f) => f.match(/^gym\d+_cleared$/) && state.storyFlags[f],
+        ).length;
+        const defaultItems = getShopItems(badgeCount);
+        // NPC固有アイテムがあればそれを使用、なければデフォルト
+        const shopItemIds = npc.onInteract.shop.length > 0 ? npc.onInteract.shop : defaultItems;
+        setCurrentShopItems(shopItemIds);
+        setOverlayScreen("shop");
+        return;
+      }
+
       // アイテム付与イベント
       if (npc.onInteract?.giveItem) {
         const { itemId, quantity } = npc.onInteract.giveItem;
@@ -617,6 +654,14 @@ export function Game() {
       let engineAction: BattleAction;
       if (action.type === "fight") {
         engineAction = { type: "fight", moveIndex: action.moveIndex };
+        // 技エフェクトをトリガー
+        const moveId = battleEngine.playerActive.moves[action.moveIndex]?.moveId;
+        if (moveId) {
+          const moveDef = moveResolver(moveId);
+          const effectDef = getEffectForType(moveDef.type);
+          setBattleEffect({ effect: effectDef, target: "opponent" });
+          setTimeout(() => setBattleEffect(null), effectDef.duration + 100);
+        }
       } else {
         engineAction = { type: "run" };
       }
@@ -682,6 +727,14 @@ export function Game() {
       checkLevelUpMoves();
     }
 
+    // トレーナー戦勝利: 賞金を加算
+    if (result?.type === "win" && result.prizeMoney && result.prizeMoney > 0) {
+      dispatch({
+        type: "UPDATE_PLAYER",
+        updates: { money: state.player.money + result.prizeMoney },
+      });
+    }
+
     // overworldに復帰
     setBattleEngine(null);
     setWildMonster(null);
@@ -695,6 +748,15 @@ export function Game() {
       // 全滅 → 町に戻って回復（イベントキューもクリア）
       eventQueueRef.current = [];
       isEventRunningRef.current = false;
+
+      // 所持金ペナルティ
+      const penalty = calculateLossPenalty(state.player.money);
+      const lossMessages = ["目の前が真っ暗になった…"];
+      if (penalty > 0) {
+        lossMessages.push(`${penalty}円を落としてしまった…`);
+      }
+      lossMessages.push("ワスレ町に戻された。");
+
       dispatch({
         type: "SET_OVERWORLD",
         overworld: {
@@ -714,9 +776,12 @@ export function Game() {
       }
       dispatch({
         type: "UPDATE_PLAYER",
-        updates: { partyState: { ...state.player.partyState } },
+        updates: {
+          partyState: { ...state.player.partyState },
+          money: state.player.money - penalty,
+        },
       });
-      showMessages(["目の前が真っ暗になった…", "ワスレ町に戻された。"]);
+      showMessages(lossMessages);
       return;
     }
 
@@ -1030,7 +1095,7 @@ export function Game() {
       id: species.id,
       name: species.name,
       types: species.types as string[],
-      description: `${species.types.join("/")}タイプのモンスター。`,
+      description: species.dexEntry ?? `${species.types.join("/")}タイプのモンスター。`,
       seen: state.player!.pokedexSeen.has(species.id),
       caught: state.player!.pokedexCaught.has(species.id),
     }));
@@ -1135,6 +1200,71 @@ export function Game() {
         break;
       case "pokedex":
         content = <PokedexScreen entries={getPokedexEntries()} onBack={closeOverlay} />;
+        break;
+      case "shop":
+        content = (
+          <ShopScreen
+            shopItems={currentShopItems.map((id) => {
+              const item = itemResolver(id);
+              return {
+                itemId: id,
+                name: item.name,
+                description: item.description,
+                price: item.price,
+              };
+            })}
+            sellItems={
+              state.player
+                ? state.player.bag.items
+                    .map((bi) => {
+                      const item = itemResolver(bi.itemId);
+                      return {
+                        itemId: bi.itemId,
+                        name: item.name,
+                        description: item.description,
+                        price: item.price,
+                        quantity: bi.quantity,
+                      };
+                    })
+                    .filter((si) => si.price > 0)
+                : []
+            }
+            money={state.player?.money ?? 0}
+            onBuy={(itemId, qty) => {
+              if (!state.player) return;
+              const item = itemResolver(itemId);
+              const wallet = { money: state.player.money };
+              const result = buyItem(wallet, state.player.bag, item, qty);
+              if (result.success) {
+                dispatch({
+                  type: "UPDATE_PLAYER",
+                  updates: {
+                    money: wallet.money,
+                    bag: { ...state.player.bag },
+                  },
+                });
+              }
+              showMessages([result.message]);
+            }}
+            onSell={(itemId, qty) => {
+              if (!state.player) return;
+              const item = itemResolver(itemId);
+              const wallet = { money: state.player.money };
+              const result = sellItem(wallet, state.player.bag, item, qty);
+              if (result.success) {
+                dispatch({
+                  type: "UPDATE_PLAYER",
+                  updates: {
+                    money: wallet.money,
+                    bag: { ...state.player.bag },
+                  },
+                });
+              }
+              showMessages([result.message]);
+            }}
+            onBack={closeOverlay}
+          />
+        );
         break;
       default:
         return null;
@@ -1276,6 +1406,7 @@ export function Game() {
             onAction={handleBattleAction}
             isProcessing={isBattleProcessing}
             environment={resolveEnvironment(state.overworld?.currentMapId ?? "")}
+            activeEffect={battleEffect}
           />
           {renderOverlay()}
           {messageOverlay}

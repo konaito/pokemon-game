@@ -278,6 +278,86 @@ body {
   }
 }
 
+/* ─── バトルエフェクト ─── */
+
+@keyframes battle-flash {
+  0% {
+    opacity: 0.8;
+  }
+  50% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+
+@keyframes battle-shake {
+  0%,
+  100% {
+    transform: translate(0, 0);
+    opacity: 0;
+  }
+  10% {
+    opacity: 0.6;
+  }
+  20% {
+    transform: translate(-3px, 2px);
+  }
+  40% {
+    transform: translate(3px, -2px);
+  }
+  60% {
+    transform: translate(-2px, 1px);
+  }
+  80% {
+    transform: translate(2px, -1px);
+  }
+  90% {
+    opacity: 0.3;
+  }
+}
+
+@keyframes battle-wave {
+  0% {
+    width: 10px;
+    height: 10px;
+    opacity: 0.8;
+  }
+  100% {
+    width: 120px;
+    height: 120px;
+    opacity: 0;
+    transform: translate(-50%, -50%);
+  }
+}
+
+@keyframes battle-beam {
+  0% {
+    width: 0;
+    opacity: 1;
+  }
+  60% {
+    width: 50%;
+    opacity: 1;
+  }
+  100% {
+    width: 50%;
+    opacity: 0;
+  }
+}
+
+@keyframes battle-particle {
+  0% {
+    transform: translate(0, 0);
+    opacity: 1;
+  }
+  100% {
+    transform: translate(var(--dx, 0), var(--dy, 0));
+    opacity: 0;
+  }
+}
+
 /* ─── HP バー グラデーション ─── */
 
 .hp-bar-green {
