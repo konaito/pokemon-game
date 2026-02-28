@@ -178,7 +178,10 @@ export const MID_MONSTERS: MonsterSpecies[] = [
       { level: 8, moveId: "quick-attack" },
       { level: 15, moveId: "dazzling-gleam" },
     ],
-    evolvesTo: [{ id: "tsukiusagi", level: 30 }],
+    evolvesTo: [
+      { id: "tsukiusagi", level: 30 },
+      { id: "hikariusagi", level: 30, condition: "day" },
+    ],
   },
   {
     id: "tsukiusagi",

@@ -117,6 +117,7 @@ export const EARLY_MONSTERS: MonsterSpecies[] = [
       { level: 8, moveId: "quick-attack" },
       { level: 12, moveId: "bite" },
     ],
+    evolvesTo: [{ id: "yozoraneko", level: 30, condition: "night" }],
   },
 
   // === 毒枠: ドクダマ → ドクヌマ ===
