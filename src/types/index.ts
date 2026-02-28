@@ -183,5 +183,8 @@ export interface PartyState {
 
 /** 種族データを引けるリゾルバ */
 export type SpeciesResolver = (speciesId: string) => MonsterSpecies;
+/** 天候ID */
+export type WeatherId = "clear" | "sunny" | "rainy" | "sandstorm" | "hail";
+
 /** 技データを引けるリゾルバ */
 export type MoveResolver = (moveId: string) => MoveDefinition;
