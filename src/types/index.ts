@@ -104,6 +104,8 @@ export interface MonsterInstance {
   currentHp: number;
   moves: MoveInstance[];
   status: StatusCondition | null;
+  /** なつき度 (0-255) */
+  friendship?: number;
 }
 
 /** 技のインスタンス（PP管理付き） */
