@@ -1,6 +1,6 @@
 import { describe, it, expect } from "vitest";
 import {
-  calculatePrizeMoney,
+  calculateRewardPrizeMoney,
   calculateDefeatPenalty,
   getVictoryRewardMessage,
   getDefeatPenaltyMessage,
@@ -9,28 +9,28 @@ import {
   SHOP_INVENTORY,
 } from "../rewards";
 
-describe("calculatePrizeMoney", () => {
+describe("calculateRewardPrizeMoney", () => {
   it("一般トレーナー: レベル×40", () => {
-    expect(calculatePrizeMoney(10, "normal")).toBe(400);
-    expect(calculatePrizeMoney(30, "normal")).toBe(1200);
+    expect(calculateRewardPrizeMoney(10, "normal")).toBe(400);
+    expect(calculateRewardPrizeMoney(30, "normal")).toBe(1200);
   });
 
   it("ジムリーダー: レベル×200", () => {
-    expect(calculatePrizeMoney(15, "gym_leader")).toBe(3000);
-    expect(calculatePrizeMoney(50, "gym_leader")).toBe(10000);
+    expect(calculateRewardPrizeMoney(15, "gym_leader")).toBe(3000);
+    expect(calculateRewardPrizeMoney(50, "gym_leader")).toBe(10000);
   });
 
   it("四天王: レベル×300", () => {
-    expect(calculatePrizeMoney(50, "elite_four")).toBe(15000);
+    expect(calculateRewardPrizeMoney(50, "elite_four")).toBe(15000);
   });
 
   it("チャンピオン: レベル×500", () => {
-    expect(calculatePrizeMoney(60, "champion")).toBe(30000);
+    expect(calculateRewardPrizeMoney(60, "champion")).toBe(30000);
   });
 
   it("おまもりこばん所持で2倍", () => {
-    expect(calculatePrizeMoney(30, "normal", true)).toBe(2400);
-    expect(calculatePrizeMoney(50, "gym_leader", true)).toBe(20000);
+    expect(calculateRewardPrizeMoney(30, "normal", true)).toBe(2400);
+    expect(calculateRewardPrizeMoney(50, "gym_leader", true)).toBe(20000);
   });
 });
 

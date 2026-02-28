@@ -5,6 +5,9 @@
 /** ゲームのトップレベル状態 */
 export type GamePhase = "title" | "overworld" | "battle" | "menu" | "dialogue" | "cutscene";
 
+/** 時間帯 */
+export type TimeOfDay = "day" | "evening" | "night";
+
 /** 一意な識別子 */
 export type MonsterId = string;
 export type MoveId = string;
@@ -41,6 +44,18 @@ export type NatureId =
 
 /** 経験値グループ */
 export type ExpGroup = "fast" | "medium_fast" | "medium_slow" | "slow";
+
+/** タマゴグループ */
+export type EggGroup =
+  | "monster"
+  | "water"
+  | "bug"
+  | "flying"
+  | "field"
+  | "fairy"
+  | "plant"
+  | "mineral"
+  | "undiscovered";
 
 /** タイプID */
 export type TypeId =
@@ -89,6 +104,16 @@ export interface MonsterSpecies {
   expGroup: ExpGroup;
   learnset: { level: number; moveId: MoveId }[];
   evolvesTo?: { id: MonsterId; level: number; condition?: string }[];
+  /** 取り得る特性のリスト */
+  abilities?: AbilityId[];
+  /** タマゴグループ */
+  eggGroups?: EggGroup[];
+  /** 遺伝技（タマゴ技） */
+  eggMoves?: MoveId[];
+  /** 孵化歩数 */
+  hatchSteps?: number;
+  /** 図鑑説明テキスト */
+  dexEntry?: string;
 }
 
 /** 個体としてのモンスター */
@@ -104,6 +129,18 @@ export interface MonsterInstance {
   currentHp: number;
   moves: MoveInstance[];
   status: StatusCondition | null;
+  /** 色違いか */
+  isShiny?: boolean;
+  /** なつき度 (0-255) */
+  friendship?: number;
+  /** この個体の特性 */
+  ability?: AbilityId;
+  /** タマゴかどうか */
+  isEgg?: boolean;
+  /** 孵化までの残り歩数 */
+  eggSteps?: number;
+  /** 持ち物 */
+  heldItem?: string;
 }
 
 /** 技のインスタンス（PP管理付き） */
@@ -159,6 +196,10 @@ export type ItemEffect =
   | { type: "heal_hp"; amount: number }
   | { type: "heal_status"; status: StatusCondition | "all" }
   | { type: "heal_pp"; amount: number | "all" }
+  | { type: "heal_pp_one"; amount: number | "all" }
+  | { type: "revive"; hpPercent: number }
+  | { type: "revive_full" }
+  | { type: "level_up" }
   | { type: "ball"; catchRateModifier: number }
   | { type: "none" };
 
@@ -181,7 +222,24 @@ export interface PartyState {
   boxes: MonsterInstance[][];
 }
 
+/** 特性（アビリティ）ID */
+export type AbilityId = string;
+
+/** 特性の発動タイミング */
+export type AbilityTrigger = "on_damage_calc" | "on_enter" | "on_type_effectiveness" | "on_stab";
+
+/** 特性定義 */
+export interface AbilityDefinition {
+  id: AbilityId;
+  name: string;
+  description: string;
+  trigger: AbilityTrigger;
+}
+
 /** 種族データを引けるリゾルバ */
 export type SpeciesResolver = (speciesId: string) => MonsterSpecies;
+/** 天候ID */
+export type WeatherId = "clear" | "sunny" | "rainy" | "sandstorm" | "hail";
+
 /** 技データを引けるリゾルバ */
 export type MoveResolver = (moveId: string) => MoveDefinition;

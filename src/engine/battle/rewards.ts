@@ -21,7 +21,7 @@ const PRIZE_MULTIPLIER: Record<TrainerRank, number> = {
  * @param rank トレーナー種別
  * @param hasAmuletCoin おまもりこばん所持（2倍ボーナス）
  */
-export function calculatePrizeMoney(
+export function calculateRewardPrizeMoney(
   aceLevel: number,
   rank: TrainerRank,
   hasAmuletCoin: boolean = false,
@@ -117,12 +117,12 @@ export function getShopItems(badgeCount: number): string[] {
  * ジムリーダーの推定賞金一覧（バッジ番号→賞金額）
  */
 export const GYM_PRIZE_TABLE: Record<number, number> = {
-  1: calculatePrizeMoney(15, "gym_leader"), // 3000
-  2: calculatePrizeMoney(20, "gym_leader"), // 4000
-  3: calculatePrizeMoney(25, "gym_leader"), // 5000
-  4: calculatePrizeMoney(30, "gym_leader"), // 6000
-  5: calculatePrizeMoney(35, "gym_leader"), // 7000
-  6: calculatePrizeMoney(40, "gym_leader"), // 8000
-  7: calculatePrizeMoney(45, "gym_leader"), // 9000
-  8: calculatePrizeMoney(50, "gym_leader"), // 10000
+  1: calculateRewardPrizeMoney(15, "gym_leader"), // 3000
+  2: calculateRewardPrizeMoney(20, "gym_leader"), // 4000
+  3: calculateRewardPrizeMoney(25, "gym_leader"), // 5000
+  4: calculateRewardPrizeMoney(30, "gym_leader"), // 6000
+  5: calculateRewardPrizeMoney(35, "gym_leader"), // 7000
+  6: calculateRewardPrizeMoney(40, "gym_leader"), // 8000
+  7: calculateRewardPrizeMoney(45, "gym_leader"), // 9000
+  8: calculateRewardPrizeMoney(50, "gym_leader"), // 10000
 };

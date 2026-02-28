@@ -55,7 +55,7 @@ export interface BattleState {
 }
 
 export type BattleResult =
-  | { type: "win" }
+  | { type: "win"; prizeMoney?: number }
   | { type: "lose" }
   | { type: "capture" }
   | { type: "run_success" }
