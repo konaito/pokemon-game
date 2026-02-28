@@ -3,6 +3,7 @@ import type { MapDefinition, EncounterEntry } from "./map-data";
 import { calcAllStats } from "@/engine/monster/stats";
 import { randomNature } from "@/engine/monster/nature";
 import { generateUid } from "@/engine/monster/uid";
+import { expForLevel } from "@/engine/battle/experience";
 
 /**
  * エンカウントシステム (#34)
@@ -105,7 +106,7 @@ export function generateWildMonster(
     uid: generateUid(),
     speciesId: entry.speciesId,
     level,
-    exp: 0,
+    exp: expForLevel(level, species.expGroup),
     nature,
     ivs,
     evs,

@@ -60,7 +60,7 @@ function makeMonster(
     uid: `test-${speciesId}-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`,
     speciesId,
     level,
-    exp: 0,
+    exp: level * level * level,
     nature: "hardy",
     ivs: { ...DEFAULT_IVS },
     evs: { ...ZERO_EVS },

@@ -25,7 +25,7 @@ import { swapPartyOrder } from "@/engine/monster/party";
 import { addItem, removeItem, useHealItem as applyHealItem } from "@/engine/item/bag";
 import { executeCaptureFlow } from "@/engine/capture/capture-flow";
 import { ALL_SPECIES, getSpeciesById } from "@/data/monsters";
-import { expProgressPercent, expToNextLevel } from "@/engine/battle/experience";
+import { expProgressPercent, expToNextLevel, expForLevel } from "@/engine/battle/experience";
 import { saveGame, loadGame } from "@/engine/state/save-data";
 import { checkFlagRequirement } from "@/engine/state/story-flags";
 import {
@@ -77,7 +77,7 @@ function createStarterInstance(speciesId: string): MonsterInstance {
     uid: crypto.randomUUID(),
     speciesId,
     level: 5,
-    exp: 0,
+    exp: expForLevel(5, species.expGroup),
     nature: "hardy",
     ivs,
     evs,
