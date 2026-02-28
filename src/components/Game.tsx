@@ -17,6 +17,11 @@ import { resolveEnvironment } from "./ui/BattleBackgrounds";
 import type { MonsterInstance } from "@/types";
 import { BattleEngine } from "@/engine/battle/engine";
 import type { BattleAction } from "@/engine/battle/state-machine";
+import {
+  calculateLossPenalty,
+  resolveTrainerClass,
+  setGymLeaderNames,
+} from "@/engine/battle/prize-money";
 import { processEncounter, generateWildMonster } from "@/engine/map/encounter";
 import { useHealingCenter as healAtCenter } from "@/engine/map/healing";
 import { calcAllStats } from "@/engine/monster/stats";
@@ -98,6 +103,9 @@ const speciesResolver = createSpeciesResolver();
 const moveResolver = createMoveResolver();
 const itemResolver = createItemResolver();
 const mapResolver = createMapResolver();
+
+// ジムリーダー名を賞金計算モジュールに登録
+setGymLeaderNames(GYM_LEADERS.map((g) => g.leaderName));
 
 /** maxHp計算ヘルパー */
 function getMaxHp(monster: MonsterInstance): number {
@@ -286,12 +294,16 @@ export function Game() {
         setBattleMessages([`${event.trainerName}が勝負を仕掛けてきた！`]);
         setIsBattleProcessing(true);
 
+        const trainerClass = resolveTrainerClass(event.trainerName);
         const engine = new BattleEngine(
           state.player.partyState.party,
           trainerParty,
           "trainer",
           speciesResolver,
           moveResolver,
+          undefined,
+          event.trainerName,
+          trainerClass,
         );
         setBattleEngine(engine);
         dispatch({ type: "CHANGE_SCREEN", screen: "battle" });
@@ -682,6 +694,14 @@ export function Game() {
       checkLevelUpMoves();
     }
 
+    // トレーナー戦勝利: 賞金を加算
+    if (result?.type === "win" && result.prizeMoney && result.prizeMoney > 0) {
+      dispatch({
+        type: "UPDATE_PLAYER",
+        updates: { money: state.player.money + result.prizeMoney },
+      });
+    }
+
     // overworldに復帰
     setBattleEngine(null);
     setWildMonster(null);
@@ -695,6 +715,15 @@ export function Game() {
       // 全滅 → 町に戻って回復（イベントキューもクリア）
       eventQueueRef.current = [];
       isEventRunningRef.current = false;
+
+      // 所持金ペナルティ
+      const penalty = calculateLossPenalty(state.player.money);
+      const lossMessages = ["目の前が真っ暗になった…"];
+      if (penalty > 0) {
+        lossMessages.push(`${penalty}円を落としてしまった…`);
+      }
+      lossMessages.push("ワスレ町に戻された。");
+
       dispatch({
         type: "SET_OVERWORLD",
         overworld: {
@@ -714,9 +743,12 @@ export function Game() {
       }
       dispatch({
         type: "UPDATE_PLAYER",
-        updates: { partyState: { ...state.player.partyState } },
+        updates: {
+          partyState: { ...state.player.partyState },
+          money: state.player.money - penalty,
+        },
       });
-      showMessages(["目の前が真っ暗になった…", "ワスレ町に戻された。"]);
+      showMessages(lossMessages);
       return;
     }
 
