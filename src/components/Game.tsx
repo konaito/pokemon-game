@@ -25,6 +25,7 @@ import { swapPartyOrder } from "@/engine/monster/party";
 import { addItem, removeItem, useHealItem as applyHealItem } from "@/engine/item/bag";
 import { executeCaptureFlow } from "@/engine/capture/capture-flow";
 import { ALL_SPECIES, getSpeciesById } from "@/data/monsters";
+import { expProgressPercent, expToNextLevel } from "@/engine/battle/experience";
 import { saveGame, loadGame } from "@/engine/state/save-data";
 import { checkFlagRequirement } from "@/engine/state/story-flags";
 import {
@@ -1002,6 +1003,8 @@ export function Game() {
         maxHp: getMaxHp(m),
         status: m.status,
         types: species.types as string[],
+        expPercent: expProgressPercent(m.exp, m.level, species.expGroup),
+        expToNext: expToNextLevel(m.exp, m.level, species.expGroup),
       };
     });
   }, [state.player]);
@@ -1243,6 +1246,11 @@ export function Game() {
               isPlayer: true,
               speciesId: playerActive.speciesId,
               types: playerSpecies.types as string[],
+              expPercent: expProgressPercent(
+                playerActive.exp,
+                playerActive.level,
+                playerSpecies.expGroup,
+              ),
             }}
             opponent={{
               name: opponentSpecies.name,

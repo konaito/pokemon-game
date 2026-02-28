@@ -33,6 +33,23 @@ export function expForLevel(level: number, group: ExpGroup = "medium_fast"): num
   }
 }
 
+/** 現在レベル内での経験値進捗率 (0〜100) */
+export function expProgressPercent(currentExp: number, level: number, expGroup: ExpGroup): number {
+  if (level >= 100) return 100;
+  const currentLevelExp = expForLevel(level, expGroup);
+  const nextLevelExp = expForLevel(level + 1, expGroup);
+  const range = nextLevelExp - currentLevelExp;
+  if (range <= 0) return 100;
+  return Math.min(100, Math.max(0, ((currentExp - currentLevelExp) / range) * 100));
+}
+
+/** 次のレベルまでの残り経験値 */
+export function expToNextLevel(currentExp: number, level: number, expGroup: ExpGroup): number {
+  if (level >= 100) return 0;
+  const nextLevelExp = expForLevel(level + 1, expGroup);
+  return Math.max(0, nextLevelExp - currentExp);
+}
+
 /**
  * 経験値を付与してレベルアップを処理
  * @param expGroup 経験値グループ（省略時は medium_fast）

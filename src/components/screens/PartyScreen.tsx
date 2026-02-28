@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback } from "react";
 import { HpBar } from "../ui/HpBar";
+import { ExpBar } from "../ui/ExpBar";
 import { MonsterSprite } from "../ui/MonsterSprite";
 import { STATUS_COLOR, TYPE_BG, TYPE_LABEL } from "@/lib/design-tokens";
 
@@ -18,6 +19,8 @@ export interface PartyMemberInfo {
   maxHp: number;
   status: string | null;
   types: string[];
+  expPercent: number;
+  expToNext: number;
 }
 
 export interface PartyScreenProps {
@@ -142,6 +145,12 @@ export function PartyScreen({
                   )}
                 </div>
                 <HpBar current={member.currentHp} max={member.maxHp} className="mt-1 w-48" />
+                <ExpBar
+                  percent={member.expPercent}
+                  className="mt-0.5 w-48"
+                  showLabel
+                  expToNext={member.expToNext}
+                />
               </div>
 
               <div className="flex gap-1">
