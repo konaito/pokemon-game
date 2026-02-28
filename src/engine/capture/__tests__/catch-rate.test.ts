@@ -1,5 +1,10 @@
 import { describe, it, expect } from "vitest";
-import { calcCatchValue, calcShakeThreshold, attemptCatch } from "../catch-rate";
+import {
+  calcCatchValue,
+  calcShakeThreshold,
+  attemptCatch,
+  resolveBallModifier,
+} from "../catch-rate";
 
 describe("捕獲率計算", () => {
   describe("calcCatchValue", () => {
@@ -162,6 +167,153 @@ describe("捕獲率計算", () => {
       );
       expect(result.caught).toBe(false);
       expect(result.shakeCount).toBe(2);
+    });
+  });
+
+  describe("resolveBallModifier - 条件付きボール", () => {
+    it("ballIdがundefinedならbaseModifierを返す", () => {
+      const result = resolveBallModifier(2, undefined, {
+        targetTypes: ["fire"],
+        turnCount: 1,
+        isRegistered: false,
+      });
+      expect(result).toBe(2);
+    });
+
+    it("未知のballIdならbaseModifierを返す", () => {
+      const result = resolveBallModifier(1.5, "unknown-ball", {
+        targetTypes: ["fire"],
+        turnCount: 1,
+        isRegistered: false,
+      });
+      expect(result).toBe(1.5);
+    });
+
+    describe("ネットボール", () => {
+      it("水タイプに3.0倍", () => {
+        const result = resolveBallModifier(1, "net-ball", {
+          targetTypes: ["water"],
+          turnCount: 1,
+          isRegistered: false,
+        });
+        expect(result).toBe(3);
+      });
+
+      it("虫タイプに3.0倍", () => {
+        const result = resolveBallModifier(1, "net-ball", {
+          targetTypes: ["bug"],
+          turnCount: 1,
+          isRegistered: false,
+        });
+        expect(result).toBe(3);
+      });
+
+      it("水/虫の複合タイプにも3.0倍", () => {
+        const result = resolveBallModifier(1, "net-ball", {
+          targetTypes: ["water", "bug"],
+          turnCount: 1,
+          isRegistered: false,
+        });
+        expect(result).toBe(3);
+      });
+
+      it("対象外タイプには1.0倍", () => {
+        const result = resolveBallModifier(1, "net-ball", {
+          targetTypes: ["fire", "dragon"],
+          turnCount: 1,
+          isRegistered: false,
+        });
+        expect(result).toBe(1);
+      });
+    });
+
+    describe("ダークボール", () => {
+      it("常に3.0倍（洞窟想定）", () => {
+        const result = resolveBallModifier(1, "dark-ball", {
+          targetTypes: ["normal"],
+          turnCount: 1,
+          isRegistered: false,
+        });
+        expect(result).toBe(3);
+      });
+    });
+
+    describe("タイマーボール", () => {
+      it("1ターン目は1.3倍", () => {
+        const result = resolveBallModifier(1, "timer-ball", {
+          targetTypes: ["normal"],
+          turnCount: 1,
+          isRegistered: false,
+        });
+        expect(result).toBe(1.3);
+      });
+
+      it("5ターン目は2.5倍", () => {
+        const result = resolveBallModifier(1, "timer-ball", {
+          targetTypes: ["normal"],
+          turnCount: 5,
+          isRegistered: false,
+        });
+        expect(result).toBe(2.5);
+      });
+
+      it("10ターン目は4.0倍（上限）", () => {
+        const result = resolveBallModifier(1, "timer-ball", {
+          targetTypes: ["normal"],
+          turnCount: 10,
+          isRegistered: false,
+        });
+        expect(result).toBe(4);
+      });
+
+      it("20ターン目でも4.0倍が上限", () => {
+        const result = resolveBallModifier(1, "timer-ball", {
+          targetTypes: ["normal"],
+          turnCount: 20,
+          isRegistered: false,
+        });
+        expect(result).toBe(4);
+      });
+    });
+
+    describe("クイックボール", () => {
+      it("1ターン目は4.0倍", () => {
+        const result = resolveBallModifier(1, "quick-ball", {
+          targetTypes: ["normal"],
+          turnCount: 1,
+          isRegistered: false,
+        });
+        expect(result).toBe(4);
+      });
+
+      it("2ターン目以降は1.0倍", () => {
+        const result = resolveBallModifier(1, "quick-ball", {
+          targetTypes: ["normal"],
+          turnCount: 2,
+          isRegistered: false,
+        });
+        expect(result).toBe(1);
+      });
+    });
+
+    describe("リピートボール", () => {
+      it("図鑑登録済みなら3.0倍", () => {
+        const result = resolveBallModifier(1, "repeat-ball", {
+          targetTypes: ["normal"],
+          turnCount: 1,
+          isRegistered: true,
+        });
+        expect(result).toBe(3);
+      });
+
+      it("未登録なら1.0倍", () => {
+        const result = resolveBallModifier(1, "repeat-ball", {
+          targetTypes: ["normal"],
+          turnCount: 1,
+          isRegistered: false,
+        });
+        expect(result).toBe(1);
+      });
     });
   });
 });

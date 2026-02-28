@@ -1,4 +1,4 @@
-import type { StatusCondition } from "@/types";
+import type { StatusCondition, TypeId } from "@/types";
 
 /**
  * 捕獲率計算エンジン (#59)
@@ -93,4 +93,47 @@ export function attemptCatch(
   }
 
   return { caught: shakeCount === 3, shakeCount };
+}
+
+/** 条件付きボールの判定に使うバトル文脈 */
+export interface CatchContext {
+  /** 対象モンスターのタイプ */
+  targetTypes: TypeId[];
+  /** 現在のバトルターン数 */
+  turnCount: number;
+  /** 図鑑に捕獲済みか */
+  isRegistered: boolean;
+}
+
+/**
+ * ボールIDに応じた条件付き捕獲率補正を解決する
+ * ballIdが未指定 or 該当なしの場合はbaseModifierをそのまま返す
+ */
+export function resolveBallModifier(
+  baseModifier: number,
+  ballId: string | undefined,
+  context: CatchContext,
+): number {
+  if (!ballId) return baseModifier;
+
+  switch (ballId) {
+    case "net-ball": {
+      const hasWaterOrBug = context.targetTypes.some((t) => t === "water" || t === "bug");
+      return hasWaterOrBug ? 3 : 1;
+    }
+    case "dark-ball":
+      // 洞窟内想定（将来の時間帯システム連携にも対応可能）
+      // 現在は固定で3.0x（洞窟マップ判定は将来実装）
+      return 3;
+    case "timer-ball": {
+      // ターン数 × 0.3 + 1、最大4.0
+      return Math.min(4, context.turnCount * 0.3 + 1);
+    }
+    case "quick-ball":
+      return context.turnCount === 1 ? 4 : 1;
+    case "repeat-ball":
+      return context.isRegistered ? 3 : 1;
+    default:
+      return baseModifier;
+  }
 }

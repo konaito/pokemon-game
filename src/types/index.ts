@@ -159,7 +159,7 @@ export type ItemEffect =
   | { type: "heal_hp"; amount: number }
   | { type: "heal_status"; status: StatusCondition | "all" }
   | { type: "heal_pp"; amount: number | "all" }
-  | { type: "ball"; catchRateModifier: number }
+  | { type: "ball"; catchRateModifier: number; ballId?: string }
   | { type: "none" };
 
 /** バッグ内のアイテム（個数管理） */

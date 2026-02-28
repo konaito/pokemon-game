@@ -24,6 +24,7 @@ import { getLearnableMoves, learnMove, replaceMove } from "@/engine/monster/move
 import { swapPartyOrder } from "@/engine/monster/party";
 import { addItem, removeItem, useHealItem as applyHealItem } from "@/engine/item/bag";
 import { executeCaptureFlow } from "@/engine/capture/capture-flow";
+import { resolveBallModifier } from "@/engine/capture/catch-rate";
 import { ALL_SPECIES, getSpeciesById } from "@/data/monsters";
 import { expProgressPercent, expToNextLevel, expForLevel } from "@/engine/battle/experience";
 import { saveGame, loadGame } from "@/engine/state/save-data";
@@ -838,12 +839,22 @@ export function Game() {
           setIsBattleProcessing(true);
 
           const maxHp = getMaxHp(wildMonster);
+          const wildSpecies = getSpeciesById(wildMonster.speciesId);
+          const ballModifier = resolveBallModifier(
+            item.effect.catchRateModifier,
+            item.effect.ballId,
+            {
+              targetTypes: wildSpecies ? [...wildSpecies.types] : [],
+              turnCount: battleEngine.state.turnNumber,
+              isRegistered: state.player.pokedexCaught.has(wildMonster.speciesId),
+            },
+          );
           const captureResult = executeCaptureFlow(
             {
               maxHp,
               currentHp: wildMonster.currentHp,
               baseCatchRate: 100, // デフォルト捕獲率
-              ballModifier: item.effect.catchRateModifier,
+              ballModifier,
               status: wildMonster.status,
             },
             wildMonster,
