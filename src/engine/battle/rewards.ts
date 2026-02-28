@@ -1,14 +1,13 @@
 /**
- * バトル報酬モジュール: 賞金計算・敗北ペナルティ
+ * バトル報酬システム (#196)
+ * トレーナー戦の賞金計算、敗北時のペナルティ、ショップ品揃え管理
  */
 
 /** トレーナー種別 */
-export type TrainerClass = "normal" | "gym_leader" | "elite_four" | "champion";
+export type TrainerRank = "normal" | "gym_leader" | "elite_four" | "champion";
 
-/**
- * トレーナー種別ごとの賞金倍率
- */
-const PRIZE_MULTIPLIER: Record<TrainerClass, number> = {
+/** トレーナー種別ごとの賞金倍率 */
+const PRIZE_MULTIPLIER: Record<TrainerRank, number> = {
   normal: 40,
   gym_leader: 200,
   elite_four: 300,
@@ -16,64 +15,114 @@ const PRIZE_MULTIPLIER: Record<TrainerClass, number> = {
 };
 
 /**
- * 賞金を計算
- * @param aceLevel トレーナーのエースモンスターのレベル
- * @param trainerClass トレーナー種別
- * @returns 賞金額
+ * 賞金を計算する
+ * 賞金 = エースモンスターのレベル × トレーナー種別倍率
+ * @param aceLevel エースモンスターのレベル
+ * @param rank トレーナー種別
+ * @param hasAmuletCoin おまもりこばん所持（2倍ボーナス）
  */
-export function calculatePrizeMoney(
+export function calculateRewardPrizeMoney(
   aceLevel: number,
-  trainerClass: TrainerClass = "normal",
+  rank: TrainerRank,
+  hasAmuletCoin: boolean = false,
 ): number {
-  return aceLevel * PRIZE_MULTIPLIER[trainerClass];
+  const base = aceLevel * PRIZE_MULTIPLIER[rank];
+  return hasAmuletCoin ? base * 2 : base;
 }
 
 /**
- * 敗北時のペナルティ（所持金の半分を失う、最低100円は残る）
+ * 敗北時のペナルティ計算
+ * 所持金の半分を失う（最低100円は残る）
  * @param currentMoney 現在の所持金
- * @returns 失う金額
+ * @returns { lostAmount, remainingMoney }
  */
-export function calculateDefeatPenalty(currentMoney: number): number {
-  if (currentMoney <= 100) return 0;
+export function calculateDefeatPenalty(currentMoney: number): {
+  lostAmount: number;
+  remainingMoney: number;
+} {
+  if (currentMoney <= 100) {
+    return { lostAmount: 0, remainingMoney: currentMoney };
+  }
+
   const lostAmount = Math.floor(currentMoney / 2);
-  // 最低100円は残す
-  return Math.min(lostAmount, currentMoney - 100);
+  const remainingMoney = Math.max(100, currentMoney - lostAmount);
+
+  return { lostAmount, remainingMoney };
 }
 
 /**
- * バッジ数に応じたショップ品揃えティアを取得
+ * 勝利時の賞金獲得メッセージ
  */
-export function getShopTier(badgeCount: number): number {
-  if (badgeCount >= 8) return 5;
-  if (badgeCount >= 6) return 4;
-  if (badgeCount >= 4) return 3;
-  if (badgeCount >= 2) return 2;
-  return 1;
+export function getVictoryRewardMessage(prizeMoney: number): string {
+  return `${prizeMoney}円 手に入れた！`;
 }
 
-/** ショップティアごとの販売アイテム */
-export const SHOP_ITEMS_BY_TIER: Record<number, string[]> = {
-  1: ["potion", "monster-ball"],
-  2: ["potion", "super-potion", "monster-ball", "super-ball", "antidote"],
-  3: ["super-potion", "hyper-potion", "super-ball", "hyper-ball", "revive"],
-  4: [
-    "hyper-potion",
-    "full-restore",
-    "hyper-ball",
-    "net-ball",
-    "antidote",
-    "paralyze-heal",
-    "burn-heal",
-    "ice-heal",
-    "awakening",
-  ],
-  5: ["full-restore", "max-potion", "hyper-ball", "ultra-ball", "revive", "max-revive"],
+/**
+ * 敗北時のペナルティメッセージ
+ */
+export function getDefeatPenaltyMessage(lostAmount: number): string[] {
+  if (lostAmount <= 0) return ["目の前が真っ暗になった…"];
+  return ["目の前が真っ暗になった…", `${lostAmount}円を落としてしまった！`];
+}
+
+/** ショップ品揃えエントリ */
+export interface ShopItem {
+  itemId: string;
+  requiredBadges: number;
+}
+
+/** バッジ数に応じたショップ品揃えテーブル */
+export const SHOP_INVENTORY: ShopItem[] = [
+  // バッジ0
+  { itemId: "potion", requiredBadges: 0 },
+  { itemId: "monster-ball", requiredBadges: 0 },
+  { itemId: "antidote", requiredBadges: 0 },
+
+  // バッジ2
+  { itemId: "super-potion", requiredBadges: 2 },
+  { itemId: "super-ball", requiredBadges: 2 },
+  { itemId: "parlyz-heal", requiredBadges: 2 },
+  { itemId: "burn-heal", requiredBadges: 2 },
+  { itemId: "awakening", requiredBadges: 2 },
+
+  // バッジ4
+  { itemId: "hyper-potion", requiredBadges: 4 },
+  { itemId: "hyper-ball", requiredBadges: 4 },
+  { itemId: "revive", requiredBadges: 4 },
+  { itemId: "full-heal", requiredBadges: 4 },
+
+  // バッジ6
+  { itemId: "full-restore", requiredBadges: 6 },
+  { itemId: "net-ball", requiredBadges: 6 },
+  { itemId: "dark-ball", requiredBadges: 6 },
+
+  // バッジ8
+  { itemId: "max-potion", requiredBadges: 8 },
+  { itemId: "max-revive", requiredBadges: 8 },
+  { itemId: "quick-ball", requiredBadges: 8 },
+  { itemId: "timer-ball", requiredBadges: 8 },
+  { itemId: "repeat-ball", requiredBadges: 8 },
+];
+
+/**
+ * バッジ数に応じたショップで購入可能なアイテムIDリストを返す
+ */
+export function getShopItems(badgeCount: number): string[] {
+  return SHOP_INVENTORY.filter((item) => badgeCount >= item.requiredBadges).map(
+    (item) => item.itemId,
+  );
+}
+
+/**
+ * ジムリーダーの推定賞金一覧（バッジ番号→賞金額）
+ */
+export const GYM_PRIZE_TABLE: Record<number, number> = {
+  1: calculateRewardPrizeMoney(15, "gym_leader"), // 3000
+  2: calculateRewardPrizeMoney(20, "gym_leader"), // 4000
+  3: calculateRewardPrizeMoney(25, "gym_leader"), // 5000
+  4: calculateRewardPrizeMoney(30, "gym_leader"), // 6000
+  5: calculateRewardPrizeMoney(35, "gym_leader"), // 7000
+  6: calculateRewardPrizeMoney(40, "gym_leader"), // 8000
+  7: calculateRewardPrizeMoney(45, "gym_leader"), // 9000
+  8: calculateRewardPrizeMoney(50, "gym_leader"), // 10000
 };
-
-/**
- * バッジ数に応じたショップ販売アイテムを取得
- */
-export function getAvailableShopItems(badgeCount: number): string[] {
-  const tier = getShopTier(badgeCount);
-  return SHOP_ITEMS_BY_TIER[tier] ?? SHOP_ITEMS_BY_TIER[1];
-}
