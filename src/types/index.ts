@@ -104,6 +104,8 @@ export interface MonsterInstance {
   currentHp: number;
   moves: MoveInstance[];
   status: StatusCondition | null;
+  /** 色違いかどうか */
+  isShiny?: boolean;
 }
 
 /** 技のインスタンス（PP管理付き） */

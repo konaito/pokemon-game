@@ -4,6 +4,7 @@ import { calcAllStats } from "@/engine/monster/stats";
 import { randomNature } from "@/engine/monster/nature";
 import { generateUid } from "@/engine/monster/uid";
 import { expForLevel } from "@/engine/battle/experience";
+import { rollShiny } from "@/engine/shiny";
 
 /**
  * エンカウントシステム (#34)
@@ -113,6 +114,7 @@ export function generateWildMonster(
     currentHp: maxHp,
     moves,
     status: null,
+    isShiny: rollShiny(random),
   };
 }
 
