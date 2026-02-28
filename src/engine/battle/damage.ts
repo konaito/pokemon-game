@@ -3,6 +3,7 @@ import { getMultiTypeEffectiveness } from "@/engine/type/effectiveness";
 import { calcAllStats } from "@/engine/monster/stats";
 import { getStatusEffect } from "./status";
 import { getStageMultiplier, type StatStages } from "./stat-stage";
+import { getHeldItemDamageModifiers } from "./held-item";
 
 /** ダメージ計算結果 */
 export interface DamageResult {
@@ -25,6 +26,8 @@ export interface DamageContext {
   defenderStages?: StatStages;
   /** 乱数生成器（テスト時に固定するため注入可能） */
   random?: () => number;
+  /** 攻撃側の持ち物ID */
+  attackerHeldItem?: string;
 }
 
 /**
@@ -77,6 +80,20 @@ export function calculateDamage(ctx: DamageContext): DamageResult {
     attackStat = Math.floor(attackStat * getStatusEffect("burn").attackModifier);
   }
 
+  // 持ち物による攻撃・特攻倍率
+  const heldItemMods = getHeldItemDamageModifiers(
+    ctx.attackerHeldItem,
+    move.type,
+    move.category,
+    0, // effectiveness計算前なのでまず0を渡す（power/atk/spAtkの倍率のみ適用）
+  );
+
+  if (move.category === "physical") {
+    attackStat = Math.floor(attackStat * heldItemMods.attackMultiplier);
+  } else {
+    attackStat = Math.floor(attackStat * heldItemMods.spAtkMultiplier);
+  }
+
   // 基本ダメージ
   const baseDamage =
     Math.floor(
@@ -95,6 +112,14 @@ export function calculateDamage(ctx: DamageContext): DamageResult {
     return { damage: 0, effectiveness: 0, isCritical: false, isStab };
   }
 
+  // 持ち物による効果抜群時の追加倍率（effectivenessが判明した後に取得）
+  const heldItemEffMods = getHeldItemDamageModifiers(
+    ctx.attackerHeldItem,
+    move.type,
+    move.category,
+    effectiveness,
+  );
+
   // 急所判定（1/24の確率）
   const isCritical = random() < 1 / 24;
   const criticalModifier = isCritical ? 1.5 : 1;
@@ -102,10 +127,21 @@ export function calculateDamage(ctx: DamageContext): DamageResult {
   // 乱数補正（0.85 - 1.00の範囲）
   const randomModifier = 0.85 + random() * 0.15;
 
+  // 持ち物倍率（威力倍率 + 効果抜群倍率）
+  const heldItemMultiplier =
+    heldItemMods.powerMultiplier * heldItemEffMods.superEffectiveMultiplier;
+
   // 最終ダメージ（等倍以上なら最低1保証）
   const damage = Math.max(
     1,
-    Math.floor(baseDamage * stabModifier * effectiveness * criticalModifier * randomModifier),
+    Math.floor(
+      baseDamage *
+        stabModifier *
+        effectiveness *
+        criticalModifier *
+        randomModifier *
+        heldItemMultiplier,
+    ),
   );
 
   return { damage, effectiveness, isCritical, isStab };

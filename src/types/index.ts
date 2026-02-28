@@ -104,6 +104,8 @@ export interface MonsterInstance {
   currentHp: number;
   moves: MoveInstance[];
   status: StatusCondition | null;
+  /** 持ち物 */
+  heldItem?: ItemId;
 }
 
 /** 技のインスタンス（PP管理付き） */
@@ -179,6 +181,31 @@ export interface PartyState {
   party: MonsterInstance[];
   /** ボックス（預かりシステム） */
   boxes: MonsterInstance[][];
+}
+
+/** 持ち物の効果タイプ */
+export type HeldItemEffectType =
+  | "type_boost" // タイプ威力UP
+  | "life_orb" // 技威力1.3倍＋反動
+  | "choice_band" // 攻撃1.5倍＋技固定
+  | "choice_specs" // 特攻1.5倍＋技固定
+  | "focus_sash" // HP満タンから一撃KO防止（消費）
+  | "berry_sitrus" // HP1/2以下でHP1/4回復（消費）
+  | "berry_lum" // 状態異常自動回復（消費）
+  | "leftovers" // 毎ターンHP1/16回復
+  | "berry_pinch_atk" // HP1/4以下で攻撃UP（消費）
+  | "expert_belt"; // 効果抜群時ダメージ1.2倍
+
+/** 持ち物定義 */
+export interface HeldItemDefinition {
+  id: ItemId;
+  name: string;
+  description: string;
+  effect: HeldItemEffectType;
+  /** タイプ強化系の対象タイプ */
+  boostType?: TypeId;
+  /** 消費アイテムかどうか */
+  consumable: boolean;
 }
 
 /** 種族データを引けるリゾルバ */

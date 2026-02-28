@@ -40,6 +40,7 @@ export function executeMove(
   random?: () => number,
   attackerStages?: StatStages,
   defenderStages?: StatStages,
+  attackerHeldItem?: string,
 ): MoveExecutionResult {
   const rng = random ?? Math.random;
   const messages: string[] = [];
@@ -143,6 +144,7 @@ export function executeMove(
     attackerStages,
     defenderStages,
     random: () => rng(),
+    attackerHeldItem,
   });
 
   // 5. HP更新

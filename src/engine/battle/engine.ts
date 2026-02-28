@@ -7,6 +7,13 @@ import { calcExpGain, grantExp } from "./experience";
 import { calcAllStats } from "@/engine/monster/stats";
 import { checkEvolution, evolve } from "@/engine/monster/evolution";
 import { applyStatChanges, createStatStages } from "./stat-stage";
+import {
+  getLifeOrbRecoil,
+  applyFocusSash,
+  checkBerryAfterDamage,
+  checkLumBerry,
+  applyEndOfTurnHeldItem,
+} from "./held-item";
 
 /** バトルエンジン */
 export class BattleEngine {
@@ -221,6 +228,7 @@ export class BattleEngine {
       () => this.random(),
       attackerBattler.statStages,
       defenderBattler.statStages,
+      action.monster.heldItem,
     );
 
     this.state.messages.push(...result.messages);
@@ -228,9 +236,47 @@ export class BattleEngine {
     // HP更新
     defender.currentHp = result.defenderHpAfter;
 
+    // きあいのタスキチェック（HP更新前に適用）
+    if (result.damage && result.damage.damage > 0) {
+      const [adjustedDmg, sashConsumed] = applyFocusSash(
+        defender.heldItem,
+        defender,
+        defenderSpecies,
+        result.damage.damage,
+      );
+      if (sashConsumed) {
+        defender.currentHp = Math.max(0, defender.currentHp + result.damage.damage - adjustedDmg);
+        defender.heldItem = undefined;
+        this.state.messages.push(`${defenderSpecies.name}はきあいのタスキで持ちこたえた！`);
+      }
+    }
+
     // 状態異常付与
     if (result.statusApplied) {
       defender.status = result.statusApplied;
+      // ラムのみチェック
+      const lumMsgs = checkLumBerry(defender, defenderSpecies.name);
+      this.state.messages.push(...lumMsgs);
+    }
+
+    // 被ダメージ後のきのみチェック（オボンのみ等）
+    if (result.damage && result.damage.damage > 0 && defender.currentHp > 0) {
+      const berryMsgs = checkBerryAfterDamage(defender, defenderSpecies);
+      this.state.messages.push(...berryMsgs);
+    }
+
+    // いのちのたま反動ダメージ
+    if (result.damage && result.damage.damage > 0) {
+      const recoil = getLifeOrbRecoil(
+        action.monster.heldItem,
+        action.monster,
+        attackerSpecies,
+        true,
+      );
+      if (recoil > 0) {
+        action.monster.currentHp = Math.max(0, action.monster.currentHp - recoil);
+        this.state.messages.push(`${attackerSpecies.name}はいのちのたまで反動ダメージを受けた！`);
+      }
     }
 
     // 能力変化適用
@@ -396,10 +442,10 @@ export class BattleEngine {
     return false;
   }
 
-  /** ターン終了時の状態異常ダメージ */
+  /** ターン終了時の状態異常ダメージ＆持ち物効果 */
   private applyEndOfTurnEffects(): void {
     const applyToMonster = (monster: MonsterInstance) => {
-      if (!monster.status || monster.currentHp <= 0) return;
+      if (monster.currentHp <= 0) return;
       const species = this.speciesResolver(monster.speciesId);
       const maxHp = calcAllStats(
         species.baseStats,
@@ -408,11 +454,21 @@ export class BattleEngine {
         monster.level,
         monster.nature,
       ).hp;
-      const hpBefore = monster.currentHp;
-      monster.currentHp = applyStatusDamage(monster, maxHp);
-      if (monster.currentHp < hpBefore) {
-        const statusName = monster.status === "poison" ? "毒" : "やけど";
-        this.state.messages.push(`${species.name}は${statusName}のダメージを受けた！`);
+
+      // 状態異常ダメージ
+      if (monster.status) {
+        const hpBefore = monster.currentHp;
+        monster.currentHp = applyStatusDamage(monster, maxHp);
+        if (monster.currentHp < hpBefore) {
+          const statusName = monster.status === "poison" ? "毒" : "やけど";
+          this.state.messages.push(`${species.name}は${statusName}のダメージを受けた！`);
+        }
+      }
+
+      // たべのこし等の持ち物効果
+      const heldItemResult = applyEndOfTurnHeldItem(monster, species);
+      if (heldItemResult.message) {
+        this.state.messages.push(heldItemResult.message);
       }
     };
 
