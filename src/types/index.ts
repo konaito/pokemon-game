@@ -89,6 +89,8 @@ export interface MonsterSpecies {
   expGroup: ExpGroup;
   learnset: { level: number; moveId: MoveId }[];
   evolvesTo?: { id: MonsterId; level: number; condition?: string }[];
+  /** 取り得る特性のリスト */
+  abilities?: AbilityId[];
 }
 
 /** 個体としてのモンスター */
@@ -104,6 +106,8 @@ export interface MonsterInstance {
   currentHp: number;
   moves: MoveInstance[];
   status: StatusCondition | null;
+  /** この個体の特性 */
+  ability?: AbilityId;
 }
 
 /** 技のインスタンス（PP管理付き） */
@@ -179,6 +183,20 @@ export interface PartyState {
   party: MonsterInstance[];
   /** ボックス（預かりシステム） */
   boxes: MonsterInstance[][];
+}
+
+/** 特性（アビリティ）ID */
+export type AbilityId = string;
+
+/** 特性の発動タイミング */
+export type AbilityTrigger = "on_damage_calc" | "on_enter" | "on_type_effectiveness" | "on_stab";
+
+/** 特性定義 */
+export interface AbilityDefinition {
+  id: AbilityId;
+  name: string;
+  description: string;
+  trigger: AbilityTrigger;
 }
 
 /** 種族データを引けるリゾルバ */
