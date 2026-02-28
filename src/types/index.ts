@@ -109,6 +109,8 @@ export interface MonsterInstance {
   currentHp: number;
   moves: MoveInstance[];
   status: StatusCondition | null;
+  /** 持ち物 */
+  heldItem?: string;
 }
 
 /** 技のインスタンス（PP管理付き） */
