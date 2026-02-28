@@ -5,6 +5,9 @@
 /** ゲームのトップレベル状態 */
 export type GamePhase = "title" | "overworld" | "battle" | "menu" | "dialogue" | "cutscene";
 
+/** 時間帯 */
+export type TimeOfDay = "day" | "evening" | "night";
+
 /** 一意な識別子 */
 export type MonsterId = string;
 export type MoveId = string;

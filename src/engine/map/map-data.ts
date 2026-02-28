@@ -37,6 +37,8 @@ export interface EncounterEntry {
   maxLevel: number;
   /** 出現率の重み（合計100） */
   weight: number;
+  /** 出現する時間帯（未指定は全時間帯） */
+  timeOfDay?: import("@/types").TimeOfDay[];
 }
 
 /** 条件付きダイアログ — ストーリーフラグに基づいて分岐 */
