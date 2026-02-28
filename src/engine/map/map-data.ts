@@ -1,4 +1,4 @@
-import type { MapId, MonsterId } from "@/types";
+import type { MapId, MonsterId, ItemId } from "@/types";
 import type { FlagRequirement } from "@/engine/state/story-flags";
 
 /** タイルの種類 */
@@ -55,6 +55,8 @@ export interface NpcEvent {
   heal?: boolean;
   /** アイテム付与 */
   giveItem?: { itemId: string; quantity: number };
+  /** ショップ（販売アイテム一覧） */
+  shop?: ItemId[];
 }
 
 /** NPC定義 */

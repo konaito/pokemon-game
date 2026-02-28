@@ -10,6 +10,7 @@ import { MenuScreen } from "./screens/MenuScreen";
 import { PartyScreen, type PartyMemberInfo } from "./screens/PartyScreen";
 import { BagScreen, type BagItemInfo } from "./screens/BagScreen";
 import { PokedexScreen, type PokedexEntry } from "./screens/PokedexScreen";
+import { ShopScreen, type ShopItemInfo } from "./screens/ShopScreen";
 import { MessageWindow } from "./ui/MessageWindow";
 import { SceneTransition, useSceneTransition } from "./ui/SceneTransition";
 import { useAudio } from "./AudioProvider";
@@ -23,6 +24,8 @@ import { calcAllStats } from "@/engine/monster/stats";
 import { getLearnableMoves, learnMove, replaceMove } from "@/engine/monster/moves";
 import { swapPartyOrder } from "@/engine/monster/party";
 import { addItem, removeItem, useHealItem as applyHealItem } from "@/engine/item/bag";
+import { buyItem, sellItem } from "@/engine/map/shop";
+import { getShopItems } from "@/data/items/shop-inventory";
 import { executeCaptureFlow } from "@/engine/capture/capture-flow";
 import { ALL_SPECIES, getSpeciesById } from "@/data/monsters";
 import { expProgressPercent, expToNextLevel, expForLevel } from "@/engine/battle/experience";
@@ -107,7 +110,7 @@ function getMaxHp(monster: MonsterInstance): number {
 }
 
 /** 前の画面を記録するためのタイプ */
-type OverlayScreen = "menu" | "party" | "bag" | "pokedex" | null;
+type OverlayScreen = "menu" | "party" | "bag" | "pokedex" | "shop" | null;
 
 export function Game() {
   const state = useGameState();
@@ -128,6 +131,9 @@ export function Game() {
   // --- オーバーレイ画面（メニュー系） ---
   const [overlayScreen, setOverlayScreen] = useState<OverlayScreen>(null);
   const [, setReturnScreen] = useState<"overworld" | "battle">("overworld");
+
+  // --- ショップ ---
+  const [currentShopItems, setCurrentShopItems] = useState<string[]>([]);
 
   // --- メッセージウィンドウ ---
   const [pendingMessages, setPendingMessages] = useState<string[] | null>(null);
@@ -492,6 +498,20 @@ export function Game() {
             partyState: { ...state.player.partyState },
           },
         });
+        return;
+      }
+
+      // ショップイベント
+      if (npc.onInteract?.shop) {
+        // バッジ数に応じた品揃え + NPC固有アイテム
+        const badgeCount = Object.keys(state.storyFlags).filter(
+          (f) => f.match(/^gym\d+_cleared$/) && state.storyFlags[f],
+        ).length;
+        const defaultItems = getShopItems(badgeCount);
+        // NPC固有アイテムがあればそれを使用、なければデフォルト
+        const shopItemIds = npc.onInteract.shop.length > 0 ? npc.onInteract.shop : defaultItems;
+        setCurrentShopItems(shopItemIds);
+        setOverlayScreen("shop");
         return;
       }
 
@@ -1135,6 +1155,71 @@ export function Game() {
         break;
       case "pokedex":
         content = <PokedexScreen entries={getPokedexEntries()} onBack={closeOverlay} />;
+        break;
+      case "shop":
+        content = (
+          <ShopScreen
+            shopItems={currentShopItems.map((id) => {
+              const item = itemResolver(id);
+              return {
+                itemId: id,
+                name: item.name,
+                description: item.description,
+                price: item.price,
+              };
+            })}
+            sellItems={
+              state.player
+                ? state.player.bag.items
+                    .map((bi) => {
+                      const item = itemResolver(bi.itemId);
+                      return {
+                        itemId: bi.itemId,
+                        name: item.name,
+                        description: item.description,
+                        price: item.price,
+                        quantity: bi.quantity,
+                      };
+                    })
+                    .filter((si) => si.price > 0)
+                : []
+            }
+            money={state.player?.money ?? 0}
+            onBuy={(itemId, qty) => {
+              if (!state.player) return;
+              const item = itemResolver(itemId);
+              const wallet = { money: state.player.money };
+              const result = buyItem(wallet, state.player.bag, item, qty);
+              if (result.success) {
+                dispatch({
+                  type: "UPDATE_PLAYER",
+                  updates: {
+                    money: wallet.money,
+                    bag: { ...state.player.bag },
+                  },
+                });
+              }
+              showMessages([result.message]);
+            }}
+            onSell={(itemId, qty) => {
+              if (!state.player) return;
+              const item = itemResolver(itemId);
+              const wallet = { money: state.player.money };
+              const result = sellItem(wallet, state.player.bag, item, qty);
+              if (result.success) {
+                dispatch({
+                  type: "UPDATE_PLAYER",
+                  updates: {
+                    money: wallet.money,
+                    bag: { ...state.player.bag },
+                  },
+                });
+              }
+              showMessages([result.message]);
+            }}
+            onBack={closeOverlay}
+          />
+        );
         break;
       default:
         return null;
