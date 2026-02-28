@@ -159,6 +159,8 @@ export type ItemEffect =
   | { type: "heal_hp"; amount: number }
   | { type: "heal_status"; status: StatusCondition | "all" }
   | { type: "heal_pp"; amount: number | "all" }
+  | { type: "revive"; hpPercent: number }
+  | { type: "level_up" }
   | { type: "ball"; catchRateModifier: number }
   | { type: "none" };
 
