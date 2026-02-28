@@ -16,6 +16,7 @@ import { useAudio } from "./AudioProvider";
 import { resolveEnvironment } from "./ui/BattleBackgrounds";
 import type { MonsterInstance } from "@/types";
 import { BattleEngine } from "@/engine/battle/engine";
+import type { AiLevel } from "@/engine/battle/ai";
 import type { BattleAction } from "@/engine/battle/state-machine";
 import { processEncounter, generateWildMonster } from "@/engine/map/encounter";
 import { useHealingCenter as healAtCenter } from "@/engine/map/healing";
@@ -286,12 +287,22 @@ export function Game() {
         setBattleMessages([`${event.trainerName}が勝負を仕掛けてきた！`]);
         setIsBattleProcessing(true);
 
+        // AIレベル判定: ジムリーダー・四天王・チャンピオンはsmart、一般トレーナーはbasic
+        const trainerAiLevel: AiLevel =
+          event.trainerName.includes("チャンピオン") ||
+          event.trainerName.includes("四天王") ||
+          GYM_LEADERS.some((g) => g.leaderName === event.trainerName)
+            ? "smart"
+            : "basic";
+
         const engine = new BattleEngine(
           state.player.partyState.party,
           trainerParty,
           "trainer",
           speciesResolver,
           moveResolver,
+          undefined,
+          trainerAiLevel,
         );
         setBattleEngine(engine);
         dispatch({ type: "CHANGE_SCREEN", screen: "battle" });

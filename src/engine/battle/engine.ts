@@ -7,6 +7,7 @@ import { calcExpGain, grantExp } from "./experience";
 import { calcAllStats } from "@/engine/monster/stats";
 import { checkEvolution, evolve } from "@/engine/monster/evolution";
 import { applyStatChanges, createStatStages } from "./stat-stage";
+import { type AiLevel, type AiStrategy, getAiStrategy } from "./ai";
 
 /** バトルエンジン */
 export class BattleEngine {
@@ -14,6 +15,7 @@ export class BattleEngine {
   private speciesResolver: SpeciesResolver;
   private moveResolver: MoveResolver;
   private random: () => number;
+  private aiStrategy: AiStrategy;
 
   constructor(
     playerParty: MonsterInstance[],
@@ -22,6 +24,7 @@ export class BattleEngine {
     speciesResolver: SpeciesResolver,
     moveResolver: MoveResolver,
     random?: () => number,
+    aiLevel?: AiLevel,
   ) {
     const hasAlive = playerParty.some((m) => m.currentHp > 0);
     if (!hasAlive) {
@@ -32,6 +35,7 @@ export class BattleEngine {
     this.speciesResolver = speciesResolver;
     this.moveResolver = moveResolver;
     this.random = random ?? Math.random;
+    this.aiStrategy = getAiStrategy(aiLevel ?? "random");
   }
 
   /** プレイヤーのアクティブモンスター */
@@ -420,20 +424,29 @@ export class BattleEngine {
     applyToMonster(this.opponentActive);
   }
 
-  /** 相手のAI: ランダムに技を選択 */
+  /** 相手のAI: 戦略に基づいて技を選択 */
   private selectOpponentAction(): BattleAction {
     const active = this.opponentActive;
     const usableMoves = active.moves
-      .map((m, i) => ({ ...m, index: i }))
+      .map((m, i) => ({ move: this.moveResolver(m.moveId), index: i, currentPp: m.currentPp }))
       .filter((m) => m.currentPp > 0);
 
     if (usableMoves.length === 0) {
-      // PPが尽きた場合: わるあがき
       return { type: "fight", moveIndex: -1 };
     }
 
-    const chosen = usableMoves[Math.floor(this.random() * usableMoves.length)];
-    return { type: "fight", moveIndex: chosen.index };
+    const selfSpecies = this.speciesResolver(active.speciesId);
+    const opponentSpecies = this.speciesResolver(this.playerActive.speciesId);
+
+    return this.aiStrategy.selectAction({
+      self: active,
+      selfSpecies,
+      opponent: this.playerActive,
+      opponentSpecies,
+      usableMoves,
+      selfBattler: this.state.opponent,
+      random: () => this.random(),
+    });
   }
 
   /** 強制交代の実行 */
