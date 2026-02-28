@@ -1137,7 +1137,7 @@ export function Game() {
         return null;
     }
 
-    return <div className="absolute inset-0 z-50">{content}</div>;
+    return <div className="fixed inset-0 z-50">{content}</div>;
   };
 
   // メイン画面の描画
