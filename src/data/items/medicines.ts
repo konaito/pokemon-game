@@ -148,4 +148,13 @@ export const MEDICINE_ITEMS: Record<string, ItemDefinition> = {
     usableInBattle: false,
     effect: { type: "level_up" },
   },
+  "energy-shard": {
+    id: "energy-shard",
+    name: "たいりょくのかけら",
+    description: "最大HPの1/4を回復する。",
+    category: "medicine",
+    price: 0,
+    usableInBattle: true,
+    effect: { type: "heal_hp", amount: -25 },
+  },
 };
