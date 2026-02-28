@@ -89,6 +89,8 @@ export interface MonsterSpecies {
   expGroup: ExpGroup;
   learnset: { level: number; moveId: MoveId }[];
   evolvesTo?: { id: MonsterId; level: number; condition?: string }[];
+  /** 図鑑説明テキスト */
+  dexEntry?: string;
 }
 
 /** 個体としてのモンスター */

@@ -1082,7 +1082,7 @@ export function Game() {
       id: species.id,
       name: species.name,
       types: species.types as string[],
-      description: `${species.types.join("/")}タイプのモンスター。`,
+      description: species.dexEntry ?? `${species.types.join("/")}タイプのモンスター。`,
       seen: state.player!.pokedexSeen.has(species.id),
       caught: state.player!.pokedexCaught.has(species.id),
     }));
