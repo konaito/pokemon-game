@@ -7,6 +7,7 @@ import { calcExpGain, grantExp } from "./experience";
 import { calcAllStats } from "@/engine/monster/stats";
 import { checkEvolution, evolve } from "@/engine/monster/evolution";
 import { applyStatChanges, createStatStages } from "./stat-stage";
+import { setWeather, applyWeatherDamage, tickWeather } from "./weather";
 
 /** バトルエンジン */
 export class BattleEngine {
@@ -221,9 +222,16 @@ export class BattleEngine {
       () => this.random(),
       attackerBattler.statStages,
       defenderBattler.statStages,
+      this.state.weather.current,
     );
 
     this.state.messages.push(...result.messages);
+
+    // 技による天候変化
+    if (action.move.effect?.weather) {
+      const weatherMsgs = setWeather(this.state.weather, action.move.effect.weather);
+      this.state.messages.push(...weatherMsgs);
+    }
 
     // HP更新
     defender.currentHp = result.defenderHpAfter;
@@ -396,8 +404,33 @@ export class BattleEngine {
     return false;
   }
 
-  /** ターン終了時の状態異常ダメージ */
+  /** ターン終了時の状態異常ダメージ＋天候処理 */
   private applyEndOfTurnEffects(): void {
+    // 天候ダメージ
+    if (this.state.weather.current !== "clear") {
+      const playerSpecies = this.speciesResolver(this.playerActive.speciesId);
+      const oppSpecies = this.speciesResolver(this.opponentActive.speciesId);
+
+      const pResult = applyWeatherDamage(
+        this.state.weather.current,
+        this.playerActive,
+        playerSpecies,
+      );
+      if (pResult.message) this.state.messages.push(pResult.message);
+
+      const oResult = applyWeatherDamage(
+        this.state.weather.current,
+        this.opponentActive,
+        oppSpecies,
+      );
+      if (oResult.message) this.state.messages.push(oResult.message);
+
+      // 天候ターン進行
+      const weatherMsgs = tickWeather(this.state.weather);
+      this.state.messages.push(...weatherMsgs);
+    }
+
+    // 状態異常ダメージ
     const applyToMonster = (monster: MonsterInstance) => {
       if (!monster.status || monster.currentHp <= 0) return;
       const species = this.speciesResolver(monster.speciesId);

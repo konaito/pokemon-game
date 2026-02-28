@@ -11,6 +11,9 @@ export type MoveId = string;
 export type ItemId = string;
 export type MapId = string;
 
+/** 天候ID */
+export type WeatherId = "clear" | "sunny" | "rainy" | "sandstorm" | "hail";
+
 /** 性格ID（25種類） */
 export type NatureId =
   | "hardy"
@@ -130,6 +133,8 @@ export interface MoveEffect {
   statusCondition?: StatusCondition;
   statusChance?: number;
   statChanges?: Partial<Record<keyof BaseStats, number>>;
+  /** 天候変化 */
+  weather?: WeatherId;
 }
 
 /** 状態異常 */

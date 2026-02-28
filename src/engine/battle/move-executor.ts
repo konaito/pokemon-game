@@ -4,6 +4,7 @@ import type {
   MoveDefinition,
   StatusCondition,
   BaseStats,
+  WeatherId,
 } from "@/types";
 import { calculateDamage, type DamageResult } from "./damage";
 import { canAct } from "./status";
@@ -40,6 +41,7 @@ export function executeMove(
   random?: () => number,
   attackerStages?: StatStages,
   defenderStages?: StatStages,
+  weather?: WeatherId,
 ): MoveExecutionResult {
   const rng = random ?? Math.random;
   const messages: string[] = [];
@@ -142,6 +144,7 @@ export function executeMove(
     move,
     attackerStages,
     defenderStages,
+    weather,
     random: () => rng(),
   });
 

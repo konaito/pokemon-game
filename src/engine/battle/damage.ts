@@ -1,8 +1,9 @@
-import type { MoveDefinition, MonsterInstance, MonsterSpecies } from "@/types";
+import type { MoveDefinition, MonsterInstance, MonsterSpecies, WeatherId } from "@/types";
 import { getMultiTypeEffectiveness } from "@/engine/type/effectiveness";
 import { calcAllStats } from "@/engine/monster/stats";
 import { getStatusEffect } from "./status";
 import { getStageMultiplier, type StatStages } from "./stat-stage";
+import { getWeatherDamageMultiplier, getWeatherSpDefMultiplier } from "./weather";
 
 /** ダメージ計算結果 */
 export interface DamageResult {
@@ -23,6 +24,8 @@ export interface DamageContext {
   attackerStages?: StatStages;
   /** 防御側の能力変化ステージ */
   defenderStages?: StatStages;
+  /** 現在の天候 */
+  weather?: WeatherId;
   /** 乱数生成器（テスト時に固定するため注入可能） */
   random?: () => number;
 }
@@ -77,6 +80,12 @@ export function calculateDamage(ctx: DamageContext): DamageResult {
     attackStat = Math.floor(attackStat * getStatusEffect("burn").attackModifier);
   }
 
+  // 天候: 砂嵐時の岩タイプ特防1.5倍
+  if (ctx.weather && move.category === "special") {
+    const spDefMod = getWeatherSpDefMultiplier(ctx.weather, [...defenderSpecies.types]);
+    defenseStat = Math.floor(defenseStat * spDefMod);
+  }
+
   // 基本ダメージ
   const baseDamage =
     Math.floor(
@@ -99,13 +108,23 @@ export function calculateDamage(ctx: DamageContext): DamageResult {
   const isCritical = random() < 1 / 24;
   const criticalModifier = isCritical ? 1.5 : 1;
 
+  // 天候倍率
+  const weatherModifier = ctx.weather ? getWeatherDamageMultiplier(ctx.weather, move.type) : 1;
+
   // 乱数補正（0.85 - 1.00の範囲）
   const randomModifier = 0.85 + random() * 0.15;
 
   // 最終ダメージ（等倍以上なら最低1保証）
   const damage = Math.max(
     1,
-    Math.floor(baseDamage * stabModifier * effectiveness * criticalModifier * randomModifier),
+    Math.floor(
+      baseDamage *
+        stabModifier *
+        effectiveness *
+        criticalModifier *
+        weatherModifier *
+        randomModifier,
+    ),
   );
 
   return { damage, effectiveness, isCritical, isStab };

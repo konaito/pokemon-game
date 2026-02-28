@@ -1,5 +1,6 @@
-import type { MonsterInstance, ItemId } from "@/types";
+import type { MonsterInstance, ItemId, WeatherId } from "@/types";
 import { createStatStages, type StatStages } from "./stat-stage";
+import { createWeatherState, type WeatherState } from "./weather";
 
 /**
  * バトルの状態遷移図:
@@ -52,6 +53,8 @@ export interface BattleState {
   messages: string[];
   /** バトル結果（終了時のみ） */
   result: BattleResult | null;
+  /** 天候状態 */
+  weather: WeatherState;
 }
 
 export type BattleResult =
@@ -66,6 +69,7 @@ export function initBattle(
   playerParty: MonsterInstance[],
   opponentParty: MonsterInstance[],
   battleType: BattleType,
+  defaultWeather: WeatherId = "clear",
 ): BattleState {
   const playerStartIndex = playerParty.findIndex((m) => m.currentHp > 0);
   const opponentStartIndex = opponentParty.findIndex((m) => m.currentHp > 0);
@@ -87,6 +91,7 @@ export function initBattle(
     escapeAttempts: 0,
     messages: [],
     result: null,
+    weather: createWeatherState(defaultWeather),
   };
 }
 
