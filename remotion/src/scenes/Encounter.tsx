@@ -148,14 +148,7 @@ export const Encounter: React.FC = () => {
         </AbsoluteFill>
 
         {/* 光パーティクル */}
-        <Particles
-          count={20}
-          color="#FFFDE0"
-          baseSize={3}
-          mode="rise"
-          opacity={0.5}
-          seed={33}
-        />
+        <Particles count={20} color="#FFFDE0" baseSize={3} mode="rise" opacity={0.5} seed={33} />
       </Sequence>
 
       {/* フェーズ3: テロップ「人を信じるモンスターがいた」 */}

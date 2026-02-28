@@ -24,17 +24,21 @@ export const GlowEffect: React.FC<GlowEffectProps> = ({
   const frame = useCurrentFrame();
 
   const pulse =
-    pulseSpeed > 0
-      ? intensity * (0.6 + 0.4 * Math.sin(frame * pulseSpeed * 0.1))
-      : intensity;
+    pulseSpeed > 0 ? intensity * (0.6 + 0.4 * Math.sin(frame * pulseSpeed * 0.1)) : intensity;
 
   let background: string;
   switch (mode) {
     case "radial":
-      background = `radial-gradient(ellipse at center, ${color}${Math.round(pulse * 255).toString(16).padStart(2, "0")} 0%, transparent 70%)`;
+      background = `radial-gradient(ellipse at center, ${color}${Math.round(pulse * 255)
+        .toString(16)
+        .padStart(2, "0")} 0%, transparent 70%)`;
       break;
     case "edge":
-      background = `radial-gradient(ellipse at center, transparent 40%, ${color}${Math.round(pulse * 255).toString(16).padStart(2, "0")} 100%)`;
+      background = `radial-gradient(ellipse at center, transparent 40%, ${color}${Math.round(
+        pulse * 255,
+      )
+        .toString(16)
+        .padStart(2, "0")} 100%)`;
       break;
     case "fullscreen":
       background = color;
@@ -57,9 +61,7 @@ export const GlowEffect: React.FC<GlowEffectProps> = ({
 };
 
 /** シンプルなビネット（画面端を暗くする） */
-export const Vignette: React.FC<{ intensity?: number }> = ({
-  intensity = 0.7,
-}) => (
+export const Vignette: React.FC<{ intensity?: number }> = ({ intensity = 0.7 }) => (
   <div
     style={{
       position: "absolute",

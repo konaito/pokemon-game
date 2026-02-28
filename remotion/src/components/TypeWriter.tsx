@@ -70,9 +70,7 @@ export const TypeWriter: React.FC<TypeWriterProps> = ({
       }}
     >
       <span>{typedText}</span>
-      {!isComplete && showCursor && (
-        <span style={{ opacity: cursorOpacity }}>▎</span>
-      )}
+      {!isComplete && showCursor && <span style={{ opacity: cursorOpacity }}>▎</span>}
     </div>
   );
 };

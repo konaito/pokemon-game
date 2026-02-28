@@ -19,10 +19,7 @@ import { COLORS } from "../styles";
 import { fontBody } from "../fonts";
 
 /** オブリヴィオン団員シルエット */
-const ShadowFigures: React.FC<{ count: number; opacity: number }> = ({
-  count,
-  opacity,
-}) => (
+const ShadowFigures: React.FC<{ count: number; opacity: number }> = ({ count, opacity }) => (
   <div
     style={{
       display: "flex",
@@ -97,37 +94,57 @@ const Mural: React.FC<{ crackProgress: number }> = ({ crackProgress }) => (
       {crackProgress > 0 && (
         <g opacity={crackProgress}>
           <line
-            x1={400} y1={0} x2={350} y2={150}
-            stroke="#0a0a0a" strokeWidth={3}
+            x1={400}
+            y1={0}
+            x2={350}
+            y2={150}
+            stroke="#0a0a0a"
+            strokeWidth={3}
             strokeDasharray={`${crackProgress * 200}`}
           />
           <line
-            x1={350} y1={150} x2={380} y2={300}
-            stroke="#0a0a0a" strokeWidth={3}
+            x1={350}
+            y1={150}
+            x2={380}
+            y2={300}
+            stroke="#0a0a0a"
+            strokeWidth={3}
             strokeDasharray={`${crackProgress * 200}`}
           />
           <line
-            x1={350} y1={150} x2={280} y2={250}
-            stroke="#0a0a0a" strokeWidth={2}
+            x1={350}
+            y1={150}
+            x2={280}
+            y2={250}
+            stroke="#0a0a0a"
+            strokeWidth={2}
             strokeDasharray={`${crackProgress * 150}`}
           />
           <line
-            x1={350} y1={150} x2={450} y2={220}
-            stroke="#0a0a0a" strokeWidth={2}
+            x1={350}
+            y1={150}
+            x2={450}
+            y2={220}
+            stroke="#0a0a0a"
+            strokeWidth={2}
             strokeDasharray={`${crackProgress * 150}`}
           />
 
           {/* 崩れる破片 */}
           <rect
-            x={340} y={130}
-            width={20} height={30}
+            x={340}
+            y={130}
+            width={20}
+            height={30}
             fill="#3a2a1e"
             transform={`rotate(${crackProgress * 15}, 350, 145) translate(${crackProgress * 10}, ${crackProgress * 20})`}
             opacity={1 - crackProgress * 0.5}
           />
           <rect
-            x={360} y={160}
-            width={15} height={20}
+            x={360}
+            y={160}
+            width={15}
+            height={20}
             fill="#3a2a1e"
             transform={`rotate(${-crackProgress * 20}, 367, 170) translate(${-crackProgress * 8}, ${crackProgress * 25})`}
             opacity={1 - crackProgress * 0.5}
@@ -159,18 +176,19 @@ export const Darkness: React.FC = () => {
       />
 
       {/* ダークパーティクル */}
-      <Particles
-        count={15}
-        color="#200020"
-        baseSize={15}
-        mode="float"
-        opacity={0.3}
-        seed={66}
-      />
+      <Particles count={15} color="#200020" baseSize={15} mode="float" opacity={0.3} seed={66} />
 
       {/* セクション1: オブリヴィオン団 (0〜170f) */}
       <Sequence durationInFrames={170} premountFor={15}>
-        <AbsoluteFill style={{ display: "flex", flexDirection: "column", justifyContent: "center", alignItems: "center", gap: 60 }}>
+        <AbsoluteFill
+          style={{
+            display: "flex",
+            flexDirection: "column",
+            justifyContent: "center",
+            alignItems: "center",
+            gap: 60,
+          }}
+        >
           <ShadowFigures
             count={5}
             opacity={interpolate(frame, [0, 40], [0, 1], { extrapolateRight: "clamp" })}
@@ -237,11 +255,38 @@ export const Darkness: React.FC = () => {
               {(() => {
                 const localFrame = Math.max(0, frame - 170);
                 const eyeGlow = 0.5 + 0.5 * Math.sin(localFrame * 0.1);
-                const eyeOpacity = interpolate(localFrame, [20, 40], [0, 1], { extrapolateRight: "clamp" });
+                const eyeOpacity = interpolate(localFrame, [20, 40], [0, 1], {
+                  extrapolateRight: "clamp",
+                });
                 return (
-                  <div style={{ position: "absolute", top: 20, left: 10, display: "flex", gap: 16, opacity: eyeOpacity }}>
-                    <div style={{ width: 8, height: 8, borderRadius: "50%", backgroundColor: "#FFD700", boxShadow: `0 0 ${10 + eyeGlow * 20}px #FFD700` }} />
-                    <div style={{ width: 8, height: 8, borderRadius: "50%", backgroundColor: "#FFD700", boxShadow: `0 0 ${10 + eyeGlow * 20}px #FFD700` }} />
+                  <div
+                    style={{
+                      position: "absolute",
+                      top: 20,
+                      left: 10,
+                      display: "flex",
+                      gap: 16,
+                      opacity: eyeOpacity,
+                    }}
+                  >
+                    <div
+                      style={{
+                        width: 8,
+                        height: 8,
+                        borderRadius: "50%",
+                        backgroundColor: "#FFD700",
+                        boxShadow: `0 0 ${10 + eyeGlow * 20}px #FFD700`,
+                      }}
+                    />
+                    <div
+                      style={{
+                        width: 8,
+                        height: 8,
+                        borderRadius: "50%",
+                        backgroundColor: "#FFD700",
+                        boxShadow: `0 0 ${10 + eyeGlow * 20}px #FFD700`,
+                      }}
+                    />
                   </div>
                 );
               })()}

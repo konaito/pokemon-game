@@ -28,10 +28,7 @@ const ELITE_FOUR = [
 ];
 
 /** 四天王カード */
-const EliteFourCard: React.FC<{ name: string; type: string }> = ({
-  name,
-  type,
-}) => {
+const EliteFourCard: React.FC<{ name: string; type: string }> = ({ name, type }) => {
   const frame = useCurrentFrame();
   const { fps } = useVideoConfig();
   const color = TYPE_HEX[type] ?? "#A8A878";
@@ -142,8 +139,18 @@ export const Climax: React.FC = () => {
               }}
             >
               <div style={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
-                <div style={{ width: 40, height: 40, borderRadius: "50%", backgroundColor: "#1a1a3e" }} />
-                <div style={{ width: 50, height: 120, backgroundColor: "#1a1a3e", borderRadius: "4px 4px 15px 15px", marginTop: -2 }} />
+                <div
+                  style={{ width: 40, height: 40, borderRadius: "50%", backgroundColor: "#1a1a3e" }}
+                />
+                <div
+                  style={{
+                    width: 50,
+                    height: 120,
+                    backgroundColor: "#1a1a3e",
+                    borderRadius: "4px 4px 15px 15px",
+                    marginTop: -2,
+                  }}
+                />
               </div>
             </div>
 
@@ -169,8 +176,18 @@ export const Climax: React.FC = () => {
               }}
             >
               <div style={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
-                <div style={{ width: 40, height: 40, borderRadius: "50%", backgroundColor: "#2a2a4e" }} />
-                <div style={{ width: 50, height: 120, backgroundColor: "#2a2a4e", borderRadius: "4px 4px 15px 15px", marginTop: -2 }} />
+                <div
+                  style={{ width: 40, height: 40, borderRadius: "50%", backgroundColor: "#2a2a4e" }}
+                />
+                <div
+                  style={{
+                    width: 50,
+                    height: 120,
+                    backgroundColor: "#2a2a4e",
+                    borderRadius: "4px 4px 15px 15px",
+                    marginTop: -2,
+                  }}
+                />
               </div>
             </div>
           </div>
@@ -191,11 +208,7 @@ export const Climax: React.FC = () => {
       <Sequence from={110} durationInFrames={120} premountFor={15}>
         <FlashCut interval={30}>
           {ELITE_FOUR.map((member) => (
-            <EliteFourCard
-              key={member.name}
-              name={member.name}
-              type={member.type}
-            />
+            <EliteFourCard key={member.name} name={member.name} type={member.type} />
           ))}
         </FlashCut>
       </Sequence>
@@ -259,12 +272,7 @@ export const Climax: React.FC = () => {
           </div>
 
           {/* 荘厳な紫グロー */}
-          <GlowEffect
-            color={COLORS.purple}
-            pulseSpeed={2}
-            intensity={0.3}
-            mode="edge"
-          />
+          <GlowEffect color={COLORS.purple} pulseSpeed={2} intensity={0.3} mode="edge" />
         </AbsoluteFill>
       </Sequence>
 
@@ -293,8 +301,12 @@ export const Climax: React.FC = () => {
                     position: "absolute",
                     inset: 0,
                     background: `radial-gradient(ellipse at center,
-                      ${TYPE_HEX.fairy}${Math.round(lightIntensity * 40).toString(16).padStart(2, "0")} 0%,
-                      ${TYPE_HEX.psychic}${Math.round(lightIntensity * 20).toString(16).padStart(2, "0")} 40%,
+                      ${TYPE_HEX.fairy}${Math.round(lightIntensity * 40)
+                        .toString(16)
+                        .padStart(2, "0")} 0%,
+                      ${TYPE_HEX.psychic}${Math.round(lightIntensity * 20)
+                        .toString(16)
+                        .padStart(2, "0")} 40%,
                       transparent 70%)`,
                   }}
                 />

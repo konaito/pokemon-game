@@ -85,14 +85,7 @@ export const ForgottenWorld: React.FC = () => {
       />
 
       {/* 暗い霧パーティクル */}
-      <Particles
-        count={25}
-        color="#1a0a2e"
-        baseSize={10}
-        mode="float"
-        opacity={0.4}
-        seed={21}
-      />
+      <Particles count={25} color="#1a0a2e" baseSize={10} mode="float" opacity={0.4} seed={21} />
 
       {/* フェーズ1: 町並み + テロップ */}
       <Sequence durationInFrames={195} premountFor={15}>

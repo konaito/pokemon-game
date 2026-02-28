@@ -91,16 +91,12 @@ export const HPExpPanel: React.FC<HPExpPanelProps> = ({
         >
           {monsterName}
         </span>
-        <span style={{ color: COLORS.textSecondary, fontSize: 22 }}>
-          Lv.{level}
-        </span>
+        <span style={{ color: COLORS.textSecondary, fontSize: 22 }}>Lv.{level}</span>
       </div>
 
       {/* HP バー */}
       <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-        <span style={{ color: "#FBBF24", fontSize: 16, fontWeight: "bold" }}>
-          HP
-        </span>
+        <span style={{ color: "#FBBF24", fontSize: 16, fontWeight: "bold" }}>HP</span>
         <div
           style={{
             flex: 1,

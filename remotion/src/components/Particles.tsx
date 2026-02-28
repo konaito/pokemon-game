@@ -95,18 +95,10 @@ export const Particles: React.FC<ParticlesProps> = ({
           }
         }
 
-        const particleOpacity =
-          opacity * (0.3 + 0.7 * Math.abs(Math.sin(t * 2 + p.phase)));
+        const particleOpacity = opacity * (0.3 + 0.7 * Math.abs(Math.sin(t * 2 + p.phase)));
 
         return (
-          <circle
-            key={p.id}
-            cx={px}
-            cy={py}
-            r={p.size}
-            fill={color}
-            opacity={particleOpacity}
-          />
+          <circle key={p.id} cx={px} cy={py} r={p.size} fill={color} opacity={particleOpacity} />
         );
       })}
     </svg>

@@ -14,12 +14,42 @@ function midiToFreq(midi: number): number {
 }
 
 const NOTE_MAP: Record<string, number> = {
-  C3: 48, "C#3": 49, D3: 50, "D#3": 51, E3: 52, F3: 53, "F#3": 54,
-  G3: 55, "G#3": 56, A3: 57, "A#3": 58, B3: 59,
-  C4: 60, "C#4": 61, D4: 62, "D#4": 63, E4: 64, F4: 65, "F#4": 66,
-  G4: 67, "G#4": 68, A4: 69, "A#4": 70, B4: 71,
-  C5: 72, "C#5": 73, D5: 74, "D#5": 75, E5: 76, F5: 77, "F#5": 78,
-  G5: 79, "G#5": 80, A5: 81, "A#5": 82, B5: 83,
+  C3: 48,
+  "C#3": 49,
+  D3: 50,
+  "D#3": 51,
+  E3: 52,
+  F3: 53,
+  "F#3": 54,
+  G3: 55,
+  "G#3": 56,
+  A3: 57,
+  "A#3": 58,
+  B3: 59,
+  C4: 60,
+  "C#4": 61,
+  D4: 62,
+  "D#4": 63,
+  E4: 64,
+  F4: 65,
+  "F#4": 66,
+  G4: 67,
+  "G#4": 68,
+  A4: 69,
+  "A#4": 70,
+  B4: 71,
+  C5: 72,
+  "C#5": 73,
+  D5: 74,
+  "D#5": 75,
+  E5: 76,
+  F5: 77,
+  "F#5": 78,
+  G5: 79,
+  "G#5": 80,
+  A5: 81,
+  "A#5": 82,
+  B5: 83,
   C6: 84,
 };
 
@@ -31,14 +61,36 @@ function noteToFreq(note: string): number {
 
 type ChipWave = "square" | "triangle" | "sawtooth" | "sine" | "noise";
 
-interface ChipNote { note: string; duration: number; }
-interface ChipChannel { wave: ChipWave; volume: number; notes: ChipNote[]; }
-interface ChipTrack { bpm: number; channels: ChipChannel[]; }
-interface ChipSeNote { freq: number; duration: number; wave: ChipWave; volume: number; slideTo?: number; }
-interface ChipSeDefinition { notes: ChipSeNote[]; }
+interface ChipNote {
+  note: string;
+  duration: number;
+}
+interface ChipChannel {
+  wave: ChipWave;
+  volume: number;
+  notes: ChipNote[];
+}
+interface ChipTrack {
+  bpm: number;
+  channels: ChipChannel[];
+}
+interface ChipSeNote {
+  freq: number;
+  duration: number;
+  wave: ChipWave;
+  volume: number;
+  slideTo?: number;
+}
+interface ChipSeDefinition {
+  notes: ChipSeNote[];
+}
 
-function n(note: string, duration: number = 2): ChipNote { return { note, duration }; }
-function r(duration: number = 2): ChipNote { return { note: "_", duration }; }
+function n(note: string, duration: number = 2): ChipNote {
+  return { note, duration };
+}
+function r(duration: number = 2): ChipNote {
+  return { note: "_", duration };
+}
 
 // ─── BGM楽曲データ（chiptune-synth.ts から完全コピー）─────────────────
 
@@ -46,60 +98,566 @@ const BGM_TRACKS: Record<string, ChipTrack> = {
   title: {
     bpm: 100,
     channels: [
-      { wave: "square", volume: 0.25, notes: [n("E4",4),n("G4",4),n("A4",4),n("B4",4),n("A4",4),n("G4",4),n("E4",8),n("D4",4),n("E4",4),n("G4",4),n("A4",4),n("G4",4),n("E4",4),n("D4",8),n("E4",4),n("G4",4),n("B4",4),n("C5",4),n("B4",4),n("A4",4),n("G4",8),n("A4",4),n("B4",4),n("A4",4),n("G4",4),n("E4",8),r(8)] },
-      { wave: "triangle", volume: 0.3, notes: [n("E3",8),n("A3",8),n("D3",8),n("G3",8),n("E3",8),n("A3",8),n("C3",8),r(8)] },
+      {
+        wave: "square",
+        volume: 0.25,
+        notes: [
+          n("E4", 4),
+          n("G4", 4),
+          n("A4", 4),
+          n("B4", 4),
+          n("A4", 4),
+          n("G4", 4),
+          n("E4", 8),
+          n("D4", 4),
+          n("E4", 4),
+          n("G4", 4),
+          n("A4", 4),
+          n("G4", 4),
+          n("E4", 4),
+          n("D4", 8),
+          n("E4", 4),
+          n("G4", 4),
+          n("B4", 4),
+          n("C5", 4),
+          n("B4", 4),
+          n("A4", 4),
+          n("G4", 8),
+          n("A4", 4),
+          n("B4", 4),
+          n("A4", 4),
+          n("G4", 4),
+          n("E4", 8),
+          r(8),
+        ],
+      },
+      {
+        wave: "triangle",
+        volume: 0.3,
+        notes: [
+          n("E3", 8),
+          n("A3", 8),
+          n("D3", 8),
+          n("G3", 8),
+          n("E3", 8),
+          n("A3", 8),
+          n("C3", 8),
+          r(8),
+        ],
+      },
     ],
   },
   "battle-wild": {
     bpm: 160,
     channels: [
-      { wave: "square", volume: 0.22, notes: [n("E4",2),n("E4",1),r(1),n("E4",2),n("G4",2),n("A4",2),n("B4",2),n("A4",2),n("G4",2),n("E4",2),n("E4",1),r(1),n("E4",2),n("D4",2),n("E4",4),r(4),n("A4",2),n("A4",1),r(1),n("A4",2),n("B4",2),n("C5",2),n("B4",2),n("A4",2),n("G4",2),n("A4",2),n("G4",2),n("E4",2),n("D4",2),n("E4",4),r(4)] },
-      { wave: "square", volume: 0.12, notes: [n("C4",2),n("C4",1),r(1),n("C4",2),n("E4",2),n("F4",2),n("G4",2),n("F4",2),n("E4",2),n("C4",2),n("C4",1),r(1),n("C4",2),n("B3",2),n("C4",4),r(4),n("F4",2),n("F4",1),r(1),n("F4",2),n("G4",2),n("A4",2),n("G4",2),n("F4",2),n("E4",2),n("F4",2),n("E4",2),n("C4",2),n("B3",2),n("C4",4),r(4)] },
-      { wave: "triangle", volume: 0.3, notes: [n("A3",2),r(2),n("A3",2),r(2),n("F3",2),r(2),n("F3",2),r(2),n("A3",2),r(2),n("G3",2),r(2),n("A3",4),r(4),n("F3",2),r(2),n("F3",2),r(2),n("A3",2),r(2),n("A3",2),r(2),n("F3",2),r(2),n("G3",2),r(2),n("A3",4),r(4)] },
-      { wave: "noise", volume: 0.08, notes: [r(2),n("C4",1),r(1),r(2),n("C4",1),r(1),r(2),n("C4",1),r(1),r(2),n("C4",1),r(1),r(2),n("C4",1),r(1),r(2),n("C4",1),r(1),r(2),n("C4",1),r(1),r(2),n("C4",1),r(1),r(2),n("C4",1),r(1),r(2),n("C4",1),r(1),r(2),n("C4",1),r(1),r(2),n("C4",1),r(1),r(2),n("C4",1),r(1),r(2),n("C4",1),r(1),r(2),n("C4",1),r(1),r(4)] },
+      {
+        wave: "square",
+        volume: 0.22,
+        notes: [
+          n("E4", 2),
+          n("E4", 1),
+          r(1),
+          n("E4", 2),
+          n("G4", 2),
+          n("A4", 2),
+          n("B4", 2),
+          n("A4", 2),
+          n("G4", 2),
+          n("E4", 2),
+          n("E4", 1),
+          r(1),
+          n("E4", 2),
+          n("D4", 2),
+          n("E4", 4),
+          r(4),
+          n("A4", 2),
+          n("A4", 1),
+          r(1),
+          n("A4", 2),
+          n("B4", 2),
+          n("C5", 2),
+          n("B4", 2),
+          n("A4", 2),
+          n("G4", 2),
+          n("A4", 2),
+          n("G4", 2),
+          n("E4", 2),
+          n("D4", 2),
+          n("E4", 4),
+          r(4),
+        ],
+      },
+      {
+        wave: "square",
+        volume: 0.12,
+        notes: [
+          n("C4", 2),
+          n("C4", 1),
+          r(1),
+          n("C4", 2),
+          n("E4", 2),
+          n("F4", 2),
+          n("G4", 2),
+          n("F4", 2),
+          n("E4", 2),
+          n("C4", 2),
+          n("C4", 1),
+          r(1),
+          n("C4", 2),
+          n("B3", 2),
+          n("C4", 4),
+          r(4),
+          n("F4", 2),
+          n("F4", 1),
+          r(1),
+          n("F4", 2),
+          n("G4", 2),
+          n("A4", 2),
+          n("G4", 2),
+          n("F4", 2),
+          n("E4", 2),
+          n("F4", 2),
+          n("E4", 2),
+          n("C4", 2),
+          n("B3", 2),
+          n("C4", 4),
+          r(4),
+        ],
+      },
+      {
+        wave: "triangle",
+        volume: 0.3,
+        notes: [
+          n("A3", 2),
+          r(2),
+          n("A3", 2),
+          r(2),
+          n("F3", 2),
+          r(2),
+          n("F3", 2),
+          r(2),
+          n("A3", 2),
+          r(2),
+          n("G3", 2),
+          r(2),
+          n("A3", 4),
+          r(4),
+          n("F3", 2),
+          r(2),
+          n("F3", 2),
+          r(2),
+          n("A3", 2),
+          r(2),
+          n("A3", 2),
+          r(2),
+          n("F3", 2),
+          r(2),
+          n("G3", 2),
+          r(2),
+          n("A3", 4),
+          r(4),
+        ],
+      },
+      {
+        wave: "noise",
+        volume: 0.08,
+        notes: [
+          r(2),
+          n("C4", 1),
+          r(1),
+          r(2),
+          n("C4", 1),
+          r(1),
+          r(2),
+          n("C4", 1),
+          r(1),
+          r(2),
+          n("C4", 1),
+          r(1),
+          r(2),
+          n("C4", 1),
+          r(1),
+          r(2),
+          n("C4", 1),
+          r(1),
+          r(2),
+          n("C4", 1),
+          r(1),
+          r(2),
+          n("C4", 1),
+          r(1),
+          r(2),
+          n("C4", 1),
+          r(1),
+          r(2),
+          n("C4", 1),
+          r(1),
+          r(2),
+          n("C4", 1),
+          r(1),
+          r(2),
+          n("C4", 1),
+          r(1),
+          r(2),
+          n("C4", 1),
+          r(1),
+          r(2),
+          n("C4", 1),
+          r(1),
+          r(2),
+          n("C4", 1),
+          r(1),
+          r(4),
+        ],
+      },
     ],
   },
   "battle-gym": {
     bpm: 165,
     channels: [
-      { wave: "square", volume: 0.22, notes: [n("E4",1),n("E4",1),n("G4",2),n("A4",1),n("A4",1),n("B4",2),n("C5",2),n("B4",2),n("A4",2),n("G4",2),n("E4",1),n("E4",1),n("G4",2),n("B4",1),n("B4",1),n("C5",2),n("D5",2),n("C5",2),n("B4",2),n("A4",2),n("G4",2),n("A4",2),n("B4",2),n("C5",2),n("D5",2),n("E5",2),n("D5",2),n("C5",2),n("B4",2),n("A4",2),n("G4",2),n("E4",2),n("D4",4),n("E4",4)] },
-      { wave: "square", volume: 0.12, notes: [n("C4",1),n("C4",1),n("E4",2),n("F4",1),n("F4",1),n("G4",2),n("A4",2),n("G4",2),n("F4",2),n("E4",2),n("C4",1),n("C4",1),n("E4",2),n("G4",1),n("G4",1),n("A4",2),n("B4",2),n("A4",2),n("G4",2),n("F4",2),n("E4",2),n("F4",2),n("G4",2),n("A4",2),n("B4",2),n("C5",2),n("B4",2),n("A4",2),n("G4",2),n("F4",2),n("E4",2),n("C4",2),n("B3",4),n("C4",4)] },
-      { wave: "triangle", volume: 0.3, notes: [n("A3",2),r(2),n("A3",2),r(2),n("A3",2),r(2),n("A3",2),r(2),n("A3",2),r(2),n("A3",2),r(2),n("B3",2),r(2),n("B3",2),r(2),n("C3",2),r(2),n("C3",2),r(2),n("D3",2),r(2),n("D3",2),r(2),n("E3",2),r(2),n("E3",2),r(2),n("G3",4),n("A3",4)] },
-      { wave: "noise", volume: 0.06, notes: Array.from({length: 32}, () => [n("C4",1),r(1)]).flat().concat([n("C4",1),r(1)]) },
+      {
+        wave: "square",
+        volume: 0.22,
+        notes: [
+          n("E4", 1),
+          n("E4", 1),
+          n("G4", 2),
+          n("A4", 1),
+          n("A4", 1),
+          n("B4", 2),
+          n("C5", 2),
+          n("B4", 2),
+          n("A4", 2),
+          n("G4", 2),
+          n("E4", 1),
+          n("E4", 1),
+          n("G4", 2),
+          n("B4", 1),
+          n("B4", 1),
+          n("C5", 2),
+          n("D5", 2),
+          n("C5", 2),
+          n("B4", 2),
+          n("A4", 2),
+          n("G4", 2),
+          n("A4", 2),
+          n("B4", 2),
+          n("C5", 2),
+          n("D5", 2),
+          n("E5", 2),
+          n("D5", 2),
+          n("C5", 2),
+          n("B4", 2),
+          n("A4", 2),
+          n("G4", 2),
+          n("E4", 2),
+          n("D4", 4),
+          n("E4", 4),
+        ],
+      },
+      {
+        wave: "square",
+        volume: 0.12,
+        notes: [
+          n("C4", 1),
+          n("C4", 1),
+          n("E4", 2),
+          n("F4", 1),
+          n("F4", 1),
+          n("G4", 2),
+          n("A4", 2),
+          n("G4", 2),
+          n("F4", 2),
+          n("E4", 2),
+          n("C4", 1),
+          n("C4", 1),
+          n("E4", 2),
+          n("G4", 1),
+          n("G4", 1),
+          n("A4", 2),
+          n("B4", 2),
+          n("A4", 2),
+          n("G4", 2),
+          n("F4", 2),
+          n("E4", 2),
+          n("F4", 2),
+          n("G4", 2),
+          n("A4", 2),
+          n("B4", 2),
+          n("C5", 2),
+          n("B4", 2),
+          n("A4", 2),
+          n("G4", 2),
+          n("F4", 2),
+          n("E4", 2),
+          n("C4", 2),
+          n("B3", 4),
+          n("C4", 4),
+        ],
+      },
+      {
+        wave: "triangle",
+        volume: 0.3,
+        notes: [
+          n("A3", 2),
+          r(2),
+          n("A3", 2),
+          r(2),
+          n("A3", 2),
+          r(2),
+          n("A3", 2),
+          r(2),
+          n("A3", 2),
+          r(2),
+          n("A3", 2),
+          r(2),
+          n("B3", 2),
+          r(2),
+          n("B3", 2),
+          r(2),
+          n("C3", 2),
+          r(2),
+          n("C3", 2),
+          r(2),
+          n("D3", 2),
+          r(2),
+          n("D3", 2),
+          r(2),
+          n("E3", 2),
+          r(2),
+          n("E3", 2),
+          r(2),
+          n("G3", 4),
+          n("A3", 4),
+        ],
+      },
+      {
+        wave: "noise",
+        volume: 0.06,
+        notes: Array.from({ length: 32 }, () => [n("C4", 1), r(1)])
+          .flat()
+          .concat([n("C4", 1), r(1)]),
+      },
     ],
   },
   "battle-elite": {
     bpm: 170,
     channels: [
-      { wave: "square", volume: 0.22, notes: [n("E4",2),n("G4",2),n("B4",2),n("E5",2),n("D5",2),n("B4",2),n("G4",2),n("B4",2),n("C5",2),n("E5",2),n("G5",2),n("E5",2),n("D5",4),n("C5",2),n("B4",2),n("A4",2),n("C5",2),n("E5",4),n("D5",2),n("C5",2),n("B4",2),n("A4",2),n("G4",2),n("A4",2),n("B4",2),n("C5",2),n("B4",4),n("E4",4)] },
-      { wave: "triangle", volume: 0.3, notes: [n("E3",2),r(2),n("E3",2),r(2),n("G3",2),r(2),n("G3",2),r(2),n("A3",2),r(2),n("A3",2),r(2),n("B3",2),r(2),n("A3",2),n("G3",2),n("F3",2),r(2),n("A3",2),r(2),n("B3",2),r(2),n("A3",2),r(2),n("G3",2),r(2),n("F3",2),r(2),n("E3",4),n("E3",4)] },
+      {
+        wave: "square",
+        volume: 0.22,
+        notes: [
+          n("E4", 2),
+          n("G4", 2),
+          n("B4", 2),
+          n("E5", 2),
+          n("D5", 2),
+          n("B4", 2),
+          n("G4", 2),
+          n("B4", 2),
+          n("C5", 2),
+          n("E5", 2),
+          n("G5", 2),
+          n("E5", 2),
+          n("D5", 4),
+          n("C5", 2),
+          n("B4", 2),
+          n("A4", 2),
+          n("C5", 2),
+          n("E5", 4),
+          n("D5", 2),
+          n("C5", 2),
+          n("B4", 2),
+          n("A4", 2),
+          n("G4", 2),
+          n("A4", 2),
+          n("B4", 2),
+          n("C5", 2),
+          n("B4", 4),
+          n("E4", 4),
+        ],
+      },
+      {
+        wave: "triangle",
+        volume: 0.3,
+        notes: [
+          n("E3", 2),
+          r(2),
+          n("E3", 2),
+          r(2),
+          n("G3", 2),
+          r(2),
+          n("G3", 2),
+          r(2),
+          n("A3", 2),
+          r(2),
+          n("A3", 2),
+          r(2),
+          n("B3", 2),
+          r(2),
+          n("A3", 2),
+          n("G3", 2),
+          n("F3", 2),
+          r(2),
+          n("A3", 2),
+          r(2),
+          n("B3", 2),
+          r(2),
+          n("A3", 2),
+          r(2),
+          n("G3", 2),
+          r(2),
+          n("F3", 2),
+          r(2),
+          n("E3", 4),
+          n("E3", 4),
+        ],
+      },
     ],
   },
   evolution: {
     bpm: 110,
     channels: [
-      { wave: "square", volume: 0.2, notes: [n("C4",4),n("D4",4),n("E4",4),n("F4",4),n("G4",4),n("A4",4),n("B4",4),n("C5",4),n("C5",2),n("E5",2),n("G5",4),n("E5",4),n("C5",8),r(8)] },
-      { wave: "triangle", volume: 0.3, notes: [n("C3",8),n("F3",8),n("G3",8),n("C3",8),n("C3",4),n("E3",4),n("G3",4),n("C4",4),n("C3",8),r(8)] },
+      {
+        wave: "square",
+        volume: 0.2,
+        notes: [
+          n("C4", 4),
+          n("D4", 4),
+          n("E4", 4),
+          n("F4", 4),
+          n("G4", 4),
+          n("A4", 4),
+          n("B4", 4),
+          n("C5", 4),
+          n("C5", 2),
+          n("E5", 2),
+          n("G5", 4),
+          n("E5", 4),
+          n("C5", 8),
+          r(8),
+        ],
+      },
+      {
+        wave: "triangle",
+        volume: 0.3,
+        notes: [
+          n("C3", 8),
+          n("F3", 8),
+          n("G3", 8),
+          n("C3", 8),
+          n("C3", 4),
+          n("E3", 4),
+          n("G3", 4),
+          n("C4", 4),
+          n("C3", 8),
+          r(8),
+        ],
+      },
     ],
   },
   victory: {
     bpm: 140,
     channels: [
-      { wave: "square", volume: 0.22, notes: [n("C5",2),n("E5",2),n("G5",4),n("C5",2),n("E5",2),n("G5",4),n("C5",2),n("D5",2),n("E5",2),n("F5",2),n("G5",8),n("A5",4),n("G5",2),n("F5",2),n("E5",4),n("D5",2),n("C5",2),n("D5",4),n("E5",4),n("C5",8)] },
-      { wave: "triangle", volume: 0.3, notes: [n("C3",4),n("E3",4),n("C3",4),n("E3",4),n("C3",4),n("F3",4),n("G3",8),n("F3",4),n("E3",4),n("C3",4),n("A3",4),n("G3",4),n("G3",4),n("C3",8)] },
+      {
+        wave: "square",
+        volume: 0.22,
+        notes: [
+          n("C5", 2),
+          n("E5", 2),
+          n("G5", 4),
+          n("C5", 2),
+          n("E5", 2),
+          n("G5", 4),
+          n("C5", 2),
+          n("D5", 2),
+          n("E5", 2),
+          n("F5", 2),
+          n("G5", 8),
+          n("A5", 4),
+          n("G5", 2),
+          n("F5", 2),
+          n("E5", 4),
+          n("D5", 2),
+          n("C5", 2),
+          n("D5", 4),
+          n("E5", 4),
+          n("C5", 8),
+        ],
+      },
+      {
+        wave: "triangle",
+        volume: 0.3,
+        notes: [
+          n("C3", 4),
+          n("E3", 4),
+          n("C3", 4),
+          n("E3", 4),
+          n("C3", 4),
+          n("F3", 4),
+          n("G3", 8),
+          n("F3", 4),
+          n("E3", 4),
+          n("C3", 4),
+          n("A3", 4),
+          n("G3", 4),
+          n("G3", 4),
+          n("C3", 8),
+        ],
+      },
     ],
   },
 };
 
 // SE定義
 const SE_DEFINITIONS: Record<string, ChipSeDefinition> = {
-  "se-attack-normal": { notes: [{ freq: 600, duration: 0.06, wave: "square", volume: 0.4 },{ freq: 400, duration: 0.04, wave: "noise", volume: 0.3 }] },
-  "se-attack-super": { notes: [{ freq: 800, duration: 0.05, wave: "square", volume: 0.5 },{ freq: 1000, duration: 0.05, wave: "square", volume: 0.4 },{ freq: 500, duration: 0.06, wave: "noise", volume: 0.3 }] },
-  "se-damage": { notes: [{ freq: 100, duration: 0.08, wave: "noise", volume: 0.4 },{ freq: 80, duration: 0.06, wave: "noise", volume: 0.3 }] },
-  "se-evolution": { notes: [{ freq: 400, duration: 0.1, wave: "sine", volume: 0.3, slideTo: 800 },{ freq: 800, duration: 0.15, wave: "sine", volume: 0.35, slideTo: 1200 }] },
-  "se-encounter": { notes: [{ freq: 800, duration: 0.05, wave: "square", volume: 0.35 },{ freq: 600, duration: 0.05, wave: "square", volume: 0.3 },{ freq: 800, duration: 0.05, wave: "square", volume: 0.35 },{ freq: 1000, duration: 0.1, wave: "square", volume: 0.4 }] },
-  "se-level-up": { notes: [{ freq: 523, duration: 0.08, wave: "square", volume: 0.3 },{ freq: 659, duration: 0.08, wave: "square", volume: 0.3 },{ freq: 784, duration: 0.08, wave: "square", volume: 0.3 },{ freq: 1047, duration: 0.15, wave: "square", volume: 0.35 }] },
-  "se-confirm": { notes: [{ freq: 700, duration: 0.05, wave: "square", volume: 0.2 },{ freq: 900, duration: 0.05, wave: "square", volume: 0.25 }] },
+  "se-attack-normal": {
+    notes: [
+      { freq: 600, duration: 0.06, wave: "square", volume: 0.4 },
+      { freq: 400, duration: 0.04, wave: "noise", volume: 0.3 },
+    ],
+  },
+  "se-attack-super": {
+    notes: [
+      { freq: 800, duration: 0.05, wave: "square", volume: 0.5 },
+      { freq: 1000, duration: 0.05, wave: "square", volume: 0.4 },
+      { freq: 500, duration: 0.06, wave: "noise", volume: 0.3 },
+    ],
+  },
+  "se-damage": {
+    notes: [
+      { freq: 100, duration: 0.08, wave: "noise", volume: 0.4 },
+      { freq: 80, duration: 0.06, wave: "noise", volume: 0.3 },
+    ],
+  },
+  "se-evolution": {
+    notes: [
+      { freq: 400, duration: 0.1, wave: "sine", volume: 0.3, slideTo: 800 },
+      { freq: 800, duration: 0.15, wave: "sine", volume: 0.35, slideTo: 1200 },
+    ],
+  },
+  "se-encounter": {
+    notes: [
+      { freq: 800, duration: 0.05, wave: "square", volume: 0.35 },
+      { freq: 600, duration: 0.05, wave: "square", volume: 0.3 },
+      { freq: 800, duration: 0.05, wave: "square", volume: 0.35 },
+      { freq: 1000, duration: 0.1, wave: "square", volume: 0.4 },
+    ],
+  },
+  "se-level-up": {
+    notes: [
+      { freq: 523, duration: 0.08, wave: "square", volume: 0.3 },
+      { freq: 659, duration: 0.08, wave: "square", volume: 0.3 },
+      { freq: 784, duration: 0.08, wave: "square", volume: 0.3 },
+      { freq: 1047, duration: 0.15, wave: "square", volume: 0.35 },
+    ],
+  },
+  "se-confirm": {
+    notes: [
+      { freq: 700, duration: 0.05, wave: "square", volume: 0.2 },
+      { freq: 900, duration: 0.05, wave: "square", volume: 0.25 },
+    ],
+  },
 };
 
 // ─── レンダリングエンジン ─────────────────
@@ -126,7 +684,10 @@ function renderChannel(channel: ChipChannel, bpm: number): Float32Array {
     const noteDuration = note.duration * sixteenthDuration;
     const noteSamples = Math.floor(noteDuration * SAMPLE_RATE);
 
-    if (note.note === "_") { offset += noteSamples; continue; }
+    if (note.note === "_") {
+      offset += noteSamples;
+      continue;
+    }
 
     const freq = noteToFreq(note.note);
     const vol = channel.volume;
@@ -142,11 +703,21 @@ function renderChannel(channel: ChipChannel, bpm: number): Float32Array {
 
       let sample = 0;
       switch (channel.wave) {
-        case "square": sample = (phase < 0.5 ? 1 : -1) * 0.5; break;
-        case "triangle": sample = phase < 0.5 ? 4 * phase - 1 : 3 - 4 * phase; break;
-        case "sawtooth": sample = (2 * phase - 1) * 0.4; break;
-        case "sine": sample = Math.sin(2 * Math.PI * phase); break;
-        case "noise": sample = seededNoise() * 0.3; break;
+        case "square":
+          sample = (phase < 0.5 ? 1 : -1) * 0.5;
+          break;
+        case "triangle":
+          sample = phase < 0.5 ? 4 * phase - 1 : 3 - 4 * phase;
+          break;
+        case "sawtooth":
+          sample = (2 * phase - 1) * 0.4;
+          break;
+        case "sine":
+          sample = Math.sin(2 * Math.PI * phase);
+          break;
+        case "noise":
+          sample = seededNoise() * 0.3;
+          break;
       }
       data[offset + i] = sample * vol * envelope;
     }
@@ -156,8 +727,8 @@ function renderChannel(channel: ChipChannel, bpm: number): Float32Array {
 }
 
 function renderTrack(track: ChipTrack, loops: number = 1): Float32Array {
-  const channelBuffers = track.channels.map(ch => renderChannel(ch, track.bpm));
-  const maxLen = Math.max(...channelBuffers.map(b => b.length)) * loops;
+  const channelBuffers = track.channels.map((ch) => renderChannel(ch, track.bpm));
+  const maxLen = Math.max(...channelBuffers.map((b) => b.length)) * loops;
   const mixed = new Float32Array(maxLen);
 
   for (const buf of channelBuffers) {
@@ -195,11 +766,20 @@ function renderSe(seDef: ChipSeDefinition): Float32Array {
 
       let sample = 0;
       switch (seNote.wave) {
-        case "square": sample = phase < 0.5 ? 0.5 : -0.5; break;
-        case "triangle": sample = phase < 0.5 ? 4 * phase - 1 : 3 - 4 * phase; break;
-        case "sine": sample = Math.sin(2 * Math.PI * freq * t); break;
-        case "noise": sample = seededNoise() * 0.4; break;
-        default: sample = (2 * phase - 1) * 0.4;
+        case "square":
+          sample = phase < 0.5 ? 0.5 : -0.5;
+          break;
+        case "triangle":
+          sample = phase < 0.5 ? 4 * phase - 1 : 3 - 4 * phase;
+          break;
+        case "sine":
+          sample = Math.sin(2 * Math.PI * freq * t);
+          break;
+        case "noise":
+          sample = seededNoise() * 0.4;
+          break;
+        default:
+          sample = (2 * phase - 1) * 0.4;
       }
       data[offset + i] = sample * seNote.volume * envelope;
     }
@@ -222,13 +802,13 @@ function float32ToWav(samples: Float32Array, sampleRate: number): Buffer {
 
   // fmt subchunk
   buffer.write("fmt ", 12);
-  buffer.writeUInt32LE(16, 16);           // SubChunk1Size
-  buffer.writeUInt16LE(1, 20);            // AudioFormat (PCM)
-  buffer.writeUInt16LE(1, 22);            // NumChannels (mono)
-  buffer.writeUInt32LE(sampleRate, 24);   // SampleRate
+  buffer.writeUInt32LE(16, 16); // SubChunk1Size
+  buffer.writeUInt16LE(1, 20); // AudioFormat (PCM)
+  buffer.writeUInt16LE(1, 22); // NumChannels (mono)
+  buffer.writeUInt32LE(sampleRate, 24); // SampleRate
   buffer.writeUInt32LE(sampleRate * bytesPerSample, 28); // ByteRate
   buffer.writeUInt16LE(bytesPerSample, 32); // BlockAlign
-  buffer.writeUInt16LE(16, 34);           // BitsPerSample
+  buffer.writeUInt16LE(16, 34); // BitsPerSample
 
   // data subchunk
   buffer.write("data", 36);
@@ -359,11 +939,11 @@ function generatePvSe(): Float32Array {
    * 各SE配置はACTローカルフレーム÷30fpsで算出
    */
 
-  const ACT2 = 19.0;   // Encounter: 450f (15s)
-  const ACT3 = 33.5;   // Adventure: 450f (15s)
-  const ACT4 = 48.0;   // Darkness: 450f (15s)
-  const ACT5 = 62.5;   // Climax: 450f (15s)
-  const ACT6 = 77.17;  // TitleCall: 385f (12.8s)
+  const ACT2 = 19.0; // Encounter: 450f (15s)
+  const ACT3 = 33.5; // Adventure: 450f (15s)
+  const ACT4 = 48.0; // Darkness: 450f (15s)
+  const ACT5 = 62.5; // Climax: 450f (15s)
+  const ACT6 = 77.17; // TitleCall: 385f (12.8s)
 
   const confirmSe = renderSe(SE_DEFINITIONS["se-confirm"]);
   const encounterSe = renderSe(SE_DEFINITIONS["se-encounter"]);
@@ -390,13 +970,13 @@ function generatePvSe(): Float32Array {
   // Local frames: 125, 190, 255 → seconds: 4.17, 6.33, 8.50
   placeSe(mixed, evoSe, ACT3 + 4.17, 0.9);
   placeSe(mixed, evoSe, ACT3 + 6.33, 0.9);
-  placeSe(mixed, evoSe, ACT3 + 8.50, 1.0);
+  placeSe(mixed, evoSe, ACT3 + 8.5, 1.0);
 
   // ACT3: バトルシーン 攻撃SE + ダメージSE
   // Phase3 starts at local frame 340, attack at +30 frames, damage at +35
   // Local frames: 370, 375 → seconds: 12.33, 12.50
   placeSe(mixed, attackSe, ACT3 + 12.33, 0.8);
-  placeSe(mixed, damageSe, ACT3 + 12.50, 0.7);
+  placeSe(mixed, damageSe, ACT3 + 12.5, 0.7);
 
   // ACT4: エンカウント音（暗転）— シーン開始直後
   // Local frame ~15 → 0.5s
@@ -441,14 +1021,18 @@ console.log("Generating BGM...");
 const bgmSamples = generatePvBgm();
 const bgmWav = float32ToWav(bgmSamples, SAMPLE_RATE);
 writeFileSync(join(outDir, "pv-bgm.wav"), bgmWav);
-console.log(`  pv-bgm.wav (${(bgmWav.length / 1024 / 1024).toFixed(1)} MB, ${(bgmSamples.length / SAMPLE_RATE).toFixed(1)}s)`);
+console.log(
+  `  pv-bgm.wav (${(bgmWav.length / 1024 / 1024).toFixed(1)} MB, ${(bgmSamples.length / SAMPLE_RATE).toFixed(1)}s)`,
+);
 
 // SE生成
 console.log("Generating SE...");
 const seSamples = generatePvSe();
 const seWav = float32ToWav(seSamples, SAMPLE_RATE);
 writeFileSync(join(outDir, "pv-se.wav"), seWav);
-console.log(`  pv-se.wav (${(seWav.length / 1024 / 1024).toFixed(1)} MB, ${(seSamples.length / SAMPLE_RATE).toFixed(1)}s)`);
+console.log(
+  `  pv-se.wav (${(seWav.length / 1024 / 1024).toFixed(1)} MB, ${(seSamples.length / SAMPLE_RATE).toFixed(1)}s)`,
+);
 
 console.log("");
 console.log("Done! Audio files saved to public/audio/");

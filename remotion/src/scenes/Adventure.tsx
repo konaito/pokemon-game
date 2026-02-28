@@ -135,11 +135,7 @@ export const Adventure: React.FC = () => {
       <Sequence durationInFrames={125} premountFor={15}>
         <FlashCut interval={25}>
           {GYM_LEADERS.map((leader) => (
-            <GymLeaderCard
-              key={leader.name + leader.type}
-              name={leader.name}
-              type={leader.type}
-            />
+            <GymLeaderCard key={leader.name + leader.type} name={leader.name} type={leader.type} />
           ))}
         </FlashCut>
       </Sequence>
@@ -281,21 +277,12 @@ export const Adventure: React.FC = () => {
 
           {/* 敵スプライト */}
           <div style={{ position: "absolute", top: 200, right: 300 }}>
-            <PixelSprite
-              speciesId="kaenjishi"
-              types={["fire"]}
-              size={220}
-              flip
-            />
+            <PixelSprite speciesId="kaenjishi" types={["fire"]} size={220} flip />
           </div>
 
           {/* 味方スプライト */}
           <div style={{ position: "absolute", bottom: 260, left: 200 }}>
-            <PixelSprite
-              speciesId="enjuu"
-              types={["fire", "fighting"]}
-              size={220}
-            />
+            <PixelSprite speciesId="enjuu" types={["fire", "fighting"]} size={220} />
           </div>
 
           {/* ダメージシェイクは interpolate で */}

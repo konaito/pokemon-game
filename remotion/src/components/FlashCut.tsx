@@ -13,21 +13,14 @@ export type FlashCutProps = {
   children: React.ReactNode[];
 };
 
-export const FlashCut: React.FC<FlashCutProps> = ({
-  interval,
-  flashFrames = 3,
-  children,
-}) => {
+export const FlashCut: React.FC<FlashCutProps> = ({ interval, flashFrames = 3, children }) => {
   const frame = useCurrentFrame();
   const { width, height } = useVideoConfig();
 
   const totalItems = children.length;
   if (totalItems === 0) return null;
 
-  const currentIndex = Math.min(
-    Math.floor(frame / interval),
-    totalItems - 1,
-  );
+  const currentIndex = Math.min(Math.floor(frame / interval), totalItems - 1);
 
   // カット切り替わり直後のフレーム
   const frameInCut = frame - currentIndex * interval;
@@ -40,9 +33,7 @@ export const FlashCut: React.FC<FlashCutProps> = ({
 
   return (
     <div style={{ position: "relative", width, height }}>
-      <div style={{ position: "absolute", inset: 0 }}>
-        {children[currentIndex]}
-      </div>
+      <div style={{ position: "absolute", inset: 0 }}>{children[currentIndex]}</div>
       {/* 白フラッシュオーバーレイ */}
       {flashOpacity > 0 && (
         <div

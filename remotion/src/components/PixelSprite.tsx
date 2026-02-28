@@ -87,9 +87,7 @@ export const PixelSprite: React.FC<PixelSpriteProps> = ({
       if (ch === ".") continue;
       const color = silhouetteColor ?? colorMap[ch];
       if (!color) continue;
-      rects.push(
-        <rect key={`${x}-${y}`} x={x} y={y} width={1} height={1} fill={color} />,
-      );
+      rects.push(<rect key={`${x}-${y}`} x={x} y={y} width={1} height={1} fill={color} />);
     }
   }
 
