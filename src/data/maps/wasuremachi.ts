@@ -67,6 +67,30 @@ export const WASUREMACHI: MapDefinition = {
         "この世界には「大忘却」と呼ばれる謎の現象があったんじゃ…",
         "キミのモンスターを大切に育てるんじゃぞ！",
       ],
+      conditionalDialogues: [
+        {
+          condition: "champion_cleared",
+          dialogue: [
+            "キミがチャンピオンになるとは…わしも鼻が高いわい！",
+            "「大忘却」の謎に、キミならきっと迫れるじゃろう。",
+          ],
+        },
+        {
+          condition: "gym8_cleared",
+          dialogue: [
+            "全てのジムバッジを手にしたか！",
+            "ポケモンリーグが待っておるぞ。万全の準備をするんじゃ！",
+          ],
+        },
+        {
+          condition: "gym4_cleared",
+          dialogue: ["おお、もうバッジが4つもあるのか！", "キミの成長は目を見張るものがあるのう。"],
+        },
+        {
+          condition: "gym1_cleared",
+          dialogue: ["最初のジムに勝ったか！やるのう！", "まだまだ先は長い。焦らず進むんじゃぞ。"],
+        },
+      ],
       isTrainer: false,
     },
     {
@@ -87,7 +111,43 @@ export const WASUREMACHI: MapDefinition = {
         "ワスレ町へようこそ！",
         "南に行くとルート1だよ。野生のモンスターがいるから気をつけてね！",
       ],
+      conditionalDialogues: [
+        {
+          condition: "champion_cleared",
+          dialogue: [
+            "チャンピオンがこの町の出身だなんて、誇らしいよ！",
+            "いつでも遊びに来てくれよな！",
+          ],
+        },
+        {
+          condition: "gym8_cleared",
+          dialogue: [
+            "全バッジ制覇だって！？すごいな…",
+            "ポケモンリーグに挑むんだろう？応援してるぜ！",
+          ],
+        },
+        {
+          condition: "gym4_cleared",
+          dialogue: ["もう半分のジムを制覇したのか！", "この町を出た頃が懐かしいだろう？"],
+        },
+        {
+          condition: "gym1_cleared",
+          dialogue: [
+            "最初のジムに勝ったんだって？やるじゃないか！",
+            "次の町はルート2を抜けた先にあるよ。",
+          ],
+        },
+      ],
       isTrainer: false,
+    },
+    {
+      id: "npc-shop-wasuremachi",
+      name: "ショップ店員",
+      x: 8,
+      y: 6,
+      dialogue: ["いらっしゃいませ！ 何をお求めですか？"],
+      isTrainer: false,
+      onInteract: { shop: [] },
     },
   ],
 };

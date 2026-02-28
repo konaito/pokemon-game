@@ -1,9 +1,10 @@
-import type { MonsterInstance, SpeciesResolver, MoveResolver } from "@/types";
+import type { MonsterInstance, SpeciesResolver, MoveResolver, TimeOfDay } from "@/types";
 import type { MapDefinition, EncounterEntry } from "./map-data";
 import { calcAllStats } from "@/engine/monster/stats";
 import { randomNature } from "@/engine/monster/nature";
 import { generateUid } from "@/engine/monster/uid";
 import { expForLevel } from "@/engine/battle/experience";
+import { getCurrentTimeOfDay } from "@/engine/time";
 
 /**
  * エンカウントシステム (#34)
@@ -24,27 +25,40 @@ export function shouldEncounter(
 }
 
 /**
+ * 時間帯に応じてエンカウントテーブルをフィルタ
+ */
+export function filterEncountersByTime(
+  entries: EncounterEntry[],
+  timeOfDay: TimeOfDay,
+): EncounterEntry[] {
+  return entries.filter((e) => !e.timeOfDay || e.timeOfDay.includes(timeOfDay));
+}
+
+/**
  * 出現テーブルからモンスターを抽選
  * @param entries 出現テーブル
  * @param random 乱数関数（テスト用DI）
+ * @param timeOfDay 時間帯（指定時はフィルタ適用）
  * @returns 選ばれた出現エントリ、またはnull（テーブルが空の場合）
  */
 export function rollEncounter(
   entries: EncounterEntry[],
   random: () => number = Math.random,
+  timeOfDay?: TimeOfDay,
 ): EncounterEntry | null {
-  if (entries.length === 0) return null;
+  const filtered = timeOfDay ? filterEncountersByTime(entries, timeOfDay) : entries;
+  if (filtered.length === 0) return null;
 
-  const totalWeight = entries.reduce((sum, e) => sum + e.weight, 0);
+  const totalWeight = filtered.reduce((sum, e) => sum + e.weight, 0);
   if (totalWeight <= 0) return null;
 
   let roll = random() * totalWeight;
-  for (const entry of entries) {
+  for (const entry of filtered) {
     roll -= entry.weight;
     if (roll <= 0) return entry;
   }
 
-  return entries[entries.length - 1];
+  return filtered[filtered.length - 1];
 }
 
 /**
@@ -128,7 +142,8 @@ export function processEncounter(
 ): MonsterInstance | null {
   if (!shouldEncounter(map.encounterRate, random)) return null;
 
-  const entry = rollEncounter(map.encounters, random);
+  const timeOfDay = getCurrentTimeOfDay();
+  const entry = rollEncounter(map.encounters, random, timeOfDay);
   if (!entry) return null;
 
   return generateWildMonster(entry, speciesResolver, moveResolver, random);
