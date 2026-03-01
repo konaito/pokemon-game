@@ -134,6 +134,7 @@ export function Game() {
   // --- バトル状態 ---
   const [battleEngine, setBattleEngine] = useState<BattleEngine | null>(null);
   const [battleMessages, setBattleMessages] = useState<string[]>([]);
+  const [battleMessageIndex, setBattleMessageIndex] = useState(0);
   const [isBattleProcessing, setIsBattleProcessing] = useState(false);
   const [wildMonster, setWildMonster] = useState<MonsterInstance | null>(null);
   const [battleEffect, setBattleEffect] = useState<{
@@ -303,6 +304,7 @@ export function Game() {
         setIsTrainerBattle(true);
         setTrainerBattleName(event.trainerName);
         setBattleMessages([`${event.trainerName}が勝負を仕掛けてきた！`]);
+        setBattleMessageIndex(0);
         setIsBattleProcessing(true);
 
         const trainerClass = resolveTrainerClass(event.trainerName);
@@ -319,7 +321,6 @@ export function Game() {
         );
         setBattleEngine(engine);
         dispatch({ type: "CHANGE_SCREEN", screen: "battle" });
-        setTimeout(() => setIsBattleProcessing(false), 1500);
         break;
       }
       case "move_player":
@@ -585,6 +586,7 @@ export function Game() {
     startTransition("battle", () => {
       setWildMonster(wildMon);
       setBattleMessages([`野生の${wildSpecies.name}が飛び出してきた！`]);
+      setBattleMessageIndex(0);
       setIsBattleProcessing(true);
 
       const engine = new BattleEngine(
@@ -597,8 +599,6 @@ export function Game() {
       setBattleEngine(engine);
 
       dispatch({ type: "CHANGE_SCREEN", screen: "battle" });
-
-      setTimeout(() => setIsBattleProcessing(false), 1500);
     });
   }, [currentMap, state.player, dispatch, startTransition]);
 
@@ -669,21 +669,8 @@ export function Game() {
 
       const messages = battleEngine.executeTurn(engineAction);
       setBattleMessages(messages);
-
-      // バトル終了チェック
-      setTimeout(() => {
-        if (battleEngine.state.result) {
-          handleBattleEnd();
-        } else if (battleEngine.state.phase === "force_switch") {
-          // 強制交代
-          setBattlePartyMode(true);
-          setOverlayScreen("party");
-          setReturnScreen("battle");
-          setIsBattleProcessing(false);
-        } else {
-          setIsBattleProcessing(false);
-        }
-      }, 1500);
+      setBattleMessageIndex(0);
+      // advanceBattleMessage で1メッセージずつ進行
     },
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [battleEngine, state.player],
@@ -740,6 +727,7 @@ export function Game() {
     setBattleEngine(null);
     setWildMonster(null);
     setBattleMessages([]);
+    setBattleMessageIndex(0);
     setIsBattleProcessing(false);
     setIsTrainerBattle(false);
     setTrainerBattleName(null);
@@ -811,6 +799,28 @@ export function Game() {
     processNextEvent,
   ]);
 
+  /** メッセージキュー進行（1メッセージずつ表示） */
+  const advanceBattleMessage = useCallback(() => {
+    setBattleMessageIndex((prev) => {
+      const next = prev + 1;
+      if (next >= battleMessages.length) {
+        // 全メッセージ表示完了
+        if (battleEngine?.state.result) {
+          handleBattleEnd();
+        } else if (battleEngine?.state.phase === "force_switch") {
+          setBattlePartyMode(true);
+          setOverlayScreen("party");
+          setReturnScreen("battle");
+          setIsBattleProcessing(false);
+        } else {
+          setIsBattleProcessing(false);
+        }
+        return prev; // インデックスはそのまま
+      }
+      return next;
+    });
+  }, [battleMessages.length, battleEngine, handleBattleEnd]);
+
   // ==========================
   // メニュー系画面処理
   // ==========================
@@ -857,9 +867,9 @@ export function Game() {
         if (monster.currentHp <= 0) return;
         const messages = battleEngine.forceSwitch(index);
         setBattleMessages(messages);
+        setBattleMessageIndex(0);
         closeOverlay();
         setIsBattleProcessing(true);
-        setTimeout(() => setIsBattleProcessing(false), 1000);
         return;
       }
 
@@ -872,14 +882,7 @@ export function Game() {
 
       const messages = battleEngine.executeTurn({ type: "switch", partyIndex: index });
       setBattleMessages(messages);
-
-      setTimeout(() => {
-        if (battleEngine.state.result) {
-          handleBattleEnd();
-        } else {
-          setIsBattleProcessing(false);
-        }
-      }, 1500);
+      setBattleMessageIndex(0);
     },
     [battleEngine, state.player, closeOverlay, handleBattleEnd],
   );
@@ -918,6 +921,7 @@ export function Game() {
           );
 
           setBattleMessages(captureResult.messages);
+          setBattleMessageIndex(0);
 
           if (captureResult.catchResult.caught) {
             // 図鑑登録
@@ -932,18 +936,12 @@ export function Game() {
             });
 
             battleEngine.state.result = { type: "capture" };
-            setTimeout(() => handleBattleEnd(), 2000);
+            // advanceBattleMessage でメッセージ完了後に handleBattleEnd が呼ばれる
           } else {
             // 捕獲失敗 → 相手ターン
             const msgs = battleEngine.executeTurn({ type: "item", itemId });
             setBattleMessages((prev) => [...prev, ...msgs]);
-            setTimeout(() => {
-              if (battleEngine.state.result) {
-                handleBattleEnd();
-              } else {
-                setIsBattleProcessing(false);
-              }
-            }, 1500);
+            setBattleMessageIndex(0);
           }
           return;
         }
@@ -968,13 +966,7 @@ export function Game() {
           // アイテム使用後、相手ターン
           const msgs = battleEngine.executeTurn({ type: "item", itemId });
           setBattleMessages([healResult.message, ...msgs]);
-          setTimeout(() => {
-            if (battleEngine.state.result) {
-              handleBattleEnd();
-            } else {
-              setIsBattleProcessing(false);
-            }
-          }, 1500);
+          setBattleMessageIndex(0);
           return;
         }
       }
@@ -1403,6 +1395,8 @@ export function Game() {
               };
             })}
             messages={battleMessages}
+            messageIndex={battleMessageIndex}
+            onAdvanceMessage={advanceBattleMessage}
             isWild={battleEngine.state.battleType === "wild"}
             onAction={handleBattleAction}
             isProcessing={isBattleProcessing}
