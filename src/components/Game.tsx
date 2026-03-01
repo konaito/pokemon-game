@@ -313,6 +313,7 @@ export function Game() {
           speciesResolver,
           moveResolver,
           undefined,
+          undefined,
           event.trainerName,
           trainerClass,
         );

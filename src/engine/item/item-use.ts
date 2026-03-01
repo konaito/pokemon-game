@@ -3,7 +3,7 @@
  * 瀕死復活・PP回復・レベルアップなど新アイテム効果の処理
  */
 
-import type { MonsterInstance, ItemEffect } from "@/types";
+import type { MonsterInstance, ItemEffect, MoveResolver } from "@/types";
 
 /** アイテム使用結果 */
 export interface ItemUseResult {
@@ -16,16 +16,21 @@ export interface ItemUseResult {
  * 瀕死（HP0）のモンスターに復活アイテムを使用する
  * @param monster 対象モンスター
  * @param hpPercent 復活後のHP割合（50=半分、100=全回復）
+ * @param maxHp 最大HP
  */
-export function useRevive(monster: MonsterInstance, hpPercent: number): ItemUseResult {
+export function useRevive(
+  monster: MonsterInstance,
+  hpPercent: number,
+  maxHp: number,
+): ItemUseResult {
   if (monster.currentHp > 0) {
     return { success: false, message: "瀕死ではないモンスターには使えない！" };
   }
 
-  const recoveredHp = Math.max(1, Math.floor((monster.maxHp * hpPercent) / 100));
+  const recoveredHp = Math.max(1, Math.floor((maxHp * hpPercent) / 100));
   const updated: MonsterInstance = {
     ...monster,
-    currentHp: Math.min(monster.maxHp, recoveredHp),
+    currentHp: Math.min(maxHp, recoveredHp),
     status: null,
   };
 
@@ -43,19 +48,20 @@ export function useRevive(monster: MonsterInstance, hpPercent: number): ItemUseR
  * HPを回復するアイテムを使用する
  * @param monster 対象モンスター
  * @param amount 回復量（負数の場合は最大HPの割合として処理: -25 = 25%回復）
+ * @param maxHp 最大HP
  */
-export function useHealHp(monster: MonsterInstance, amount: number): ItemUseResult {
+export function useHealHp(monster: MonsterInstance, amount: number, maxHp: number): ItemUseResult {
   if (monster.currentHp <= 0) {
     return { success: false, message: "瀕死のモンスターには使えない！" };
   }
-  if (monster.currentHp >= monster.maxHp) {
+  if (monster.currentHp >= maxHp) {
     return { success: false, message: "HPはすでに満タンだ！" };
   }
 
   const healAmount =
-    amount < 0 ? Math.max(1, Math.floor((monster.maxHp * Math.abs(amount)) / 100)) : amount;
+    amount < 0 ? Math.max(1, Math.floor((maxHp * Math.abs(amount)) / 100)) : amount;
 
-  const newHp = Math.min(monster.maxHp, monster.currentHp + healAmount);
+  const newHp = Math.min(maxHp, monster.currentHp + healAmount);
   const actualHeal = newHp - monster.currentHp;
 
   return {
@@ -70,11 +76,13 @@ export function useHealHp(monster: MonsterInstance, amount: number): ItemUseResu
  * @param monster 対象モンスター
  * @param moveIndex 技のインデックス（-1で全技対象）
  * @param amount 回復量（9999以上で全回復）
+ * @param moveResolver 技定義リゾルバ（maxPp取得用）
  */
 export function useHealPp(
   monster: MonsterInstance,
   moveIndex: number,
   amount: number | "all",
+  moveResolver: MoveResolver,
 ): ItemUseResult {
   if (monster.currentHp <= 0) {
     return { success: false, message: "瀕死のモンスターには使えない！" };
@@ -86,8 +94,9 @@ export function useHealPp(
     // 全技PP全回復
     let anyRecovered = false;
     for (let i = 0; i < moves.length; i++) {
-      if (moves[i].currentPp < moves[i].maxPp) {
-        moves[i] = { ...moves[i], currentPp: moves[i].maxPp };
+      const maxPp = moveResolver(moves[i].moveId).pp;
+      if (moves[i].currentPp < maxPp) {
+        moves[i] = { ...moves[i], currentPp: maxPp };
         anyRecovered = true;
       }
     }
@@ -107,12 +116,13 @@ export function useHealPp(
   }
 
   const move = moves[moveIndex];
-  if (move.currentPp >= move.maxPp) {
+  const maxPp = moveResolver(move.moveId).pp;
+  if (move.currentPp >= maxPp) {
     return { success: false, message: `${move.moveId}のPPは満タンだ！` };
   }
 
-  const healAmount = amount >= 9999 ? move.maxPp : amount;
-  const newPp = Math.min(move.maxPp, move.currentPp + healAmount);
+  const healAmount = amount >= 9999 ? maxPp : amount;
+  const newPp = Math.min(maxPp, move.currentPp + healAmount);
   moves[moveIndex] = { ...move, currentPp: newPp };
 
   return {
@@ -131,23 +141,29 @@ export function canUseLevelUp(monster: MonsterInstance, maxLevel: number = 100):
 
 /**
  * アイテム効果が対象モンスターに適用可能か判定する
+ * @param maxHp 最大HP
+ * @param moveResolver 技定義リゾルバ（PP判定用）
  */
-export function canUseItem(effect: ItemEffect, monster: MonsterInstance): boolean {
+export function canUseItem(
+  effect: ItemEffect,
+  monster: MonsterInstance,
+  maxHp: number,
+  moveResolver?: MoveResolver,
+): boolean {
   switch (effect.type) {
     case "revive":
       return monster.currentHp <= 0;
     case "heal_hp":
-      return monster.currentHp > 0 && monster.currentHp < monster.maxHp;
+      return monster.currentHp > 0 && monster.currentHp < maxHp;
     case "heal_status":
       if (monster.currentHp <= 0) return false;
       if (effect.status === "all") return monster.status !== null;
       return monster.status === effect.status;
-    case "heal_pp":
+    case "heal_pp": {
       if (monster.currentHp <= 0) return false;
-      if (effect.amount === "all") {
-        return monster.moves.some((m) => m.currentPp < m.maxPp);
-      }
-      return monster.moves.some((m) => m.currentPp < m.maxPp);
+      if (!moveResolver) return false;
+      return monster.moves.some((m) => m.currentPp < moveResolver(m.moveId).pp);
+    }
     case "level_up":
       return canUseLevelUp(monster);
     default:
