@@ -43,6 +43,10 @@ export interface BattleScreenProps {
   opponent: BattleMonsterInfo;
   moves: BattleMoveInfo[];
   messages: string[];
+  /** 現在表示中のメッセージインデックス */
+  messageIndex: number;
+  /** メッセージを次に進める */
+  onAdvanceMessage: () => void;
   isWild: boolean;
   onAction: (action: BattleAction) => void;
   isProcessing: boolean;
@@ -68,6 +72,8 @@ export function BattleScreen({
   opponent,
   moves,
   messages,
+  messageIndex,
+  onAdvanceMessage,
   isWild,
   onAction,
   isProcessing,
@@ -107,7 +113,13 @@ export function BattleScreen({
   const handleKeyDown = useCallback(
     (e: KeyboardEvent) => {
       if (inputBlocked) return;
-      if (isProcessing) return;
+      if (isProcessing) {
+        // メッセージ表示中は決定キーで次のメッセージへ
+        if (e.key === "Enter" || e.key === "z" || e.key === " ") {
+          onAdvanceMessage();
+        }
+        return;
+      }
 
       if (phase === "action") {
         if (e.key === "ArrowUp" || e.key === "w") {
@@ -149,13 +161,29 @@ export function BattleScreen({
       }
     },
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [inputBlocked, isProcessing, phase, selectedAction, selectedMove, moves.length, isWild],
+    [
+      inputBlocked,
+      isProcessing,
+      onAdvanceMessage,
+      phase,
+      selectedAction,
+      selectedMove,
+      moves.length,
+      isWild,
+    ],
   );
 
   useEffect(() => {
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [handleKeyDown]);
+
+  // 自動進行タイマー（放置対策: 3秒で次メッセージへ）
+  useEffect(() => {
+    if (!isProcessing || messageIndex >= messages.length) return;
+    const timer = setTimeout(onAdvanceMessage, 3000);
+    return () => clearTimeout(timer);
+  }, [isProcessing, messageIndex, messages.length, onAdvanceMessage]);
 
   return (
     <div
@@ -247,10 +275,15 @@ export function BattleScreen({
       <div className="rpg-window mx-2 mb-2 rounded-t-none border-t-2 border-[#533483]">
         <div className="rpg-window-inner">
           {isProcessing ? (
-            <div className="min-h-[4rem]">
+            <div className="min-h-[4rem] cursor-pointer" onClick={onAdvanceMessage}>
               <p className="game-text-shadow font-[family-name:var(--font-dotgothic)] text-lg text-white">
-                {messages[messages.length - 1] ?? ""}
+                {messages[messageIndex] ?? ""}
               </p>
+              {messageIndex < messages.length - 1 && (
+                <span className="mt-1 inline-block animate-bounce font-[family-name:var(--font-dotgothic)] text-sm text-gray-400">
+                  ▼
+                </span>
+              )}
             </div>
           ) : phase === "action" ? (
             <div className="flex items-center">

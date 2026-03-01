@@ -240,9 +240,7 @@ describe("canUseItem", () => {
         { moveId: "ember", currentPp: 5 },
       ],
     });
-    expect(canUseItem({ type: "heal_pp", amount: 10 }, ppFull, mhp1, testMoveResolver)).toBe(
-      false,
-    );
+    expect(canUseItem({ type: "heal_pp", amount: 10 }, ppFull, mhp1, testMoveResolver)).toBe(false);
     expect(canUseItem({ type: "heal_pp", amount: 10 }, ppLow, mhp2, testMoveResolver)).toBe(true);
     // moveResolverなしではfalse
     expect(canUseItem({ type: "heal_pp", amount: 10 }, ppLow, mhp2)).toBe(false);
