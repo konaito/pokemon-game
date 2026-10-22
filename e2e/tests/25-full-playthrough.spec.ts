@@ -181,7 +181,7 @@ function createLeagueSave(): SaveData {
 // ヘルパー: 型定義
 // ================================================================
 
-type TestPage = InstanceType<typeof import("@playwright/test").Page>;
+type TestPage = import("@playwright/test").Page;
 type TestGamePage = InstanceType<typeof import("../fixtures/game-fixture").GamePage>;
 
 // ================================================================

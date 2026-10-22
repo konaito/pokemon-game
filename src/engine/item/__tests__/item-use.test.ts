@@ -34,8 +34,8 @@ function createTestMonster(overrides: Partial<MonsterInstance & { maxHp: number 
     level: 25,
     exp: 0,
     nature: "hardy",
-    ivs: { hp: 15, attack: 15, defense: 15, spAttack: 15, spDefense: 15, speed: 15 },
-    evs: { hp: 0, attack: 0, defense: 0, spAttack: 0, spDefense: 0, speed: 0 },
+    ivs: { hp: 15, atk: 15, def: 15, spAtk: 15, spDef: 15, speed: 15 },
+    evs: { hp: 0, atk: 0, def: 0, spAtk: 0, spDef: 0, speed: 0 },
     currentHp: 80,
     status: null,
     moves: [
